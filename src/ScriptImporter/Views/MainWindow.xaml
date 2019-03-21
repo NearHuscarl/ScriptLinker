@@ -1,0 +1,202 @@
+﻿<Window x:Class="ScriptImporter.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:System="clr-namespace:System;assembly=mscorlib"
+        xmlns:local="clr-namespace:ScriptImporter.Views"
+        mc:Ignorable="d"
+	    WindowStartupLocation="CenterScreen"
+        Title="Script Importer"
+        ResizeMode="NoResize"
+        Icon="../Icon.ico"
+        Height="350"
+        Width="575">
+
+    <!--<ResourceDictionary>
+        <System:Double x:Key="theMargin">2.35</System:Double>
+    </ResourceDictionary>-->
+    <Window.Resources>
+        <System:Double x:Key="textBoxWidth">350</System:Double>
+        <System:Double x:Key="labelWidth">100</System:Double>
+    </Window.Resources>
+    
+    <Window.InputBindings>
+        <KeyBinding Key="F7"
+                    Command="{Binding CopyToClipboardCommand}" />
+    </Window.InputBindings>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="240"/>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel
+            Grid.Row="0" Grid.Column="0"
+            Orientation="Vertical">
+            
+            <StackPanel 
+                Orientation="Horizontal"
+                HorizontalAlignment="Left"
+                Margin="20,20,0,0">
+                <Label
+                    Content="Script Path"
+                    Margin="0,0,0,0"
+                    Width="{StaticResource labelWidth}"
+                    HorizontalAlignment="Left"
+                    HorizontalContentAlignment="Right"
+                    VerticalAlignment="Center"/>
+                <TextBox
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+				    Text="{Binding ScriptPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    Margin="5,0,0,0"
+                    Height="20"
+                    Width="{StaticResource textBoxWidth}" />
+                <Button
+                    Command="{Binding BrowseScriptPathCommand}"
+                    Content="Browse"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    Margin="5,0,0,0"
+                    Width="67"/>
+            </StackPanel>
+
+            <StackPanel 
+                Orientation="Horizontal"
+                HorizontalAlignment="Left"
+                Margin="20,5,0,0">
+                <Label
+                    Content="Project Directory"
+                    Margin="0,0,0,0"
+                    Width="{StaticResource labelWidth}"
+                    HorizontalAlignment="Left"
+                    HorizontalContentAlignment="Right"
+                    VerticalAlignment="Top"/>
+                <TextBox
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+				    Text="{Binding ProjectDir, Mode=TwoWay}"
+                    Margin="5,0,0,0"
+                    Height="20"
+                    Width="{StaticResource textBoxWidth}" />
+                <Button
+                    Command="{Binding BrowseProjectDirCommand}"
+                    Content="Browse"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    Margin="5,0,0,0"
+                    Width="67"/>
+            </StackPanel>
+
+            <StackPanel 
+                Orientation="Horizontal"
+                HorizontalAlignment="Left"
+                Margin="20,5,0,0">
+                <Label
+                    Content="Root Namespace"
+                    Margin="0,0,0,0"
+                    Width="{StaticResource labelWidth}"
+                    HorizontalAlignment="Left"
+                    HorizontalContentAlignment="Right"
+                    VerticalAlignment="Top"/>
+                <TextBox
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    IsEnabled="False"
+				    Text="{Binding RootNamespace, Mode=OneWay}"
+                    Margin="5,0,0,0"
+                    Height="20"
+                    Width="{StaticResource textBoxWidth}" />
+            </StackPanel>
+
+            <StackPanel 
+                Orientation="Horizontal"
+                HorizontalAlignment="Left"
+                Margin="20,5,0,0">
+                <Label
+                    Content="Author"
+                    Margin="0,0,0,0"
+                    Width="{StaticResource labelWidth}"
+                    HorizontalAlignment="Left"
+                    HorizontalContentAlignment="Right"
+                    VerticalAlignment="Top"/>
+                <TextBox
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+				    Text="{Binding Author, Mode=TwoWay}"
+                    Margin="5,0,0,0"
+                    Height="20"
+                    Width="{StaticResource textBoxWidth}" />
+            </StackPanel>
+
+            <StackPanel 
+                Orientation="Horizontal"
+                HorizontalAlignment="Left"
+                Margin="20,5,0,0">
+                <Label
+                    Content="Description"
+                    Margin="0,0,0,0"
+                    Width="{StaticResource labelWidth}"
+                    HorizontalAlignment="Left"
+                    HorizontalContentAlignment="Right"
+                    VerticalAlignment="Top"/>
+                <TextBox
+                    TextWrapping="Wrap"
+                    AcceptsReturn="True"
+                    AcceptsTab="True"
+                    SpellCheck.IsEnabled="True"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+				    Text="{Binding Description, Mode=TwoWay}"
+                    Margin="5,0,0,0"
+                    Height="60"
+                    Width="{StaticResource textBoxWidth}" />
+            </StackPanel>
+
+            <StackPanel 
+                Orientation="Horizontal"
+                HorizontalAlignment="Left"
+                Margin="20,5,0,0">
+                <Label
+                    Content="Map Modes"
+                    Margin="0,0,0,0"
+                    Width="{StaticResource labelWidth}"
+                    HorizontalAlignment="Left"
+                    HorizontalContentAlignment="Right"
+                    VerticalAlignment="Top"/>
+                <TextBox
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+				    Text="{Binding MapModes, Mode=TwoWay}"
+                    Margin="5,0,0,0"
+                    Height="20"
+                    Width="{StaticResource textBoxWidth}" />
+            </StackPanel>
+        </StackPanel>
+
+        <StackPanel 
+            Grid.Row="1" Grid.Column="0"
+            Orientation="Horizontal"
+            HorizontalAlignment="Center">
+            
+            <CheckBox
+                Content="Standalone Script"
+                IsChecked="{Binding IsStandaloneScript}"
+                Margin="-143,0,0,0"
+                />
+            
+        </StackPanel>
+
+        <Button
+            Grid.Row="2" Grid.Column="0"
+            Command="{Binding CopyToClipboardCommand}"
+            Content="Copy to clipboard (F7)"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Width="140"
+            Height="30"/>
+    </Grid>
+</Window>
