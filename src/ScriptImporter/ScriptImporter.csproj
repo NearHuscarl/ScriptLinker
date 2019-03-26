@@ -102,8 +102,11 @@
     </Compile>
     <Compile Include="DataLogic\CodeMerger.cs" />
     <Compile Include="Models\CSharpFileInfo.cs" />
+    <Compile Include="Models\MergeInfo.cs" />
     <Compile Include="Models\ProjectDirectory.cs" />
     <Compile Include="Models\ScriptInfo.cs" />
+    <Compile Include="Utilities\ScheduledTask.cs" />
+    <Compile Include="Utilities\StopwatchExtensions.cs" />
     <Compile Include="Utilities\DelegateCommand.cs" />
     <Compile Include="Utilities\FileUtil.cs" />
     <Compile Include="Utilities\RegexPattern.cs" />

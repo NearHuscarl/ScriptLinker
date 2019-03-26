@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace ScriptImporter.Utilities
 {
@@ -81,6 +82,30 @@ namespace ScriptImporter.Utilities
             }
 
             return scriptInfo;
+        }
+
+        public static async Task CopyFileAsync(string sourcePath, string destinationPath)
+        {
+            using (var sourceStream = new FileStream(sourcePath,
+                FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.Asynchronous | FileOptions.SequentialScan))
+            {
+                using (var destinationStream = new FileStream(destinationPath,
+                    FileMode.Create, FileAccess.Write, FileShare.None, 4096, FileOptions.Asynchronous | FileOptions.SequentialScan))
+                {
+                    await sourceStream.CopyToAsync(destinationStream);
+                }
+            }
+        }
+
+        public static async Task WriteTextAsync(string filePath, string text)
+        {
+            byte[] encodedText = Encoding.Unicode.GetBytes(text);
+
+            using (var sourceStream = new FileStream(filePath,
+                FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true))
+            {
+                await sourceStream.WriteAsync(encodedText, 0, encodedText.Length);
+            };
         }
     }
 }

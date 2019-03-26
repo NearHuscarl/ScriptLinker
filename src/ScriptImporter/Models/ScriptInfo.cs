@@ -11,5 +11,15 @@ namespace ScriptImporter.Models
         public string Author { get; set; } = "";
         public string Description { get; set; } = "";
         public string MapModes { get; set; } = "";
+
+        public bool Empty
+        {
+            get {
+                return
+                  string.IsNullOrWhiteSpace(Author) &&
+                  string.IsNullOrWhiteSpace(Description) &&
+                  string.IsNullOrWhiteSpace(MapModes);
+            }
+        }
     }
 }

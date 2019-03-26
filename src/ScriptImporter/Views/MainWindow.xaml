@@ -10,7 +10,7 @@
         Title="Script Importer"
         ResizeMode="NoResize"
         Icon="../Icon.ico"
-        Height="350"
+        Height="375"
         Width="575">
 
     <!--<ResourceDictionary>
@@ -30,7 +30,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="240"/>
             <RowDefinition Height="20"/>
-            <RowDefinition Height="50"/>
+            <RowDefinition Height="75"/>
         </Grid.RowDefinitions>
 
         <StackPanel
@@ -190,13 +190,23 @@
             
         </StackPanel>
 
-        <Button
+        <StackPanel
             Grid.Row="2" Grid.Column="0"
-            Command="{Binding CopyToClipboardCommand}"
-            Content="Copy to clipboard (F7)"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            Width="140"
-            Height="30"/>
+            Orientation="Vertical">
+            <Label
+                FontWeight="Bold"
+                Foreground="Green"
+                HorizontalAlignment="Center"
+                Content="{Binding SuccessInfo, FallbackValue='Successfully merged 8 files', TargetNullValue={}}"/>
+                <!--TargetNullValue={} prevents Content control from collapsing when empty-->
+            <Button
+                Command="{Binding CopyToClipboardCommand}"
+                Content="Copy to clipboard (F7)"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Width="140"
+                Height="30"/>
+        </StackPanel>
     </Grid>
+    
 </Window>
