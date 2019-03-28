@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using ScriptImporter.DataLogic;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Timers;
 
 namespace ScriptImporter.ViewModels
 {
@@ -29,6 +30,8 @@ namespace ScriptImporter.ViewModels
         public ICommand BrowseScriptPathCommand { get; private set; }
         public ICommand BrowseProjectDirCommand { get; private set; }
         public ICommand CopyToClipboardCommand { get; private set; }
+        public ICommand ExpandMergedFilesWindowCommand { get; private set; }
+        public ICommand OpenFileCommand { get; private set; }
 
         private string scriptPath;
         public string ScriptPath
@@ -90,6 +93,27 @@ namespace ScriptImporter.ViewModels
             set { SetPropertyAndNotify(ref successInfo, value); }
         }
 
+        private bool isMergedFileWindowExpanded = false;
+        public bool IsMergedFileWindowExpanded
+        {
+            get { return isMergedFileWindowExpanded; }
+            set { SetPropertyAndNotify(ref isMergedFileWindowExpanded, value); }
+        }
+
+        private string expandIcon = "▼"; //▲
+        public string ExpandIcon
+        {
+            get { return expandIcon; }
+            set { SetPropertyAndNotify(ref expandIcon, value); }
+        }
+
+        public HashSet<string> mergedFiles;
+        public HashSet<string> MergedFiles
+        {
+            get { return mergedFiles; }
+            set { SetPropertyAndNotify(ref mergedFiles, value); }
+        }
+
         public MainViewModel()
         {
             m_merger = new CodeMerger();
@@ -98,6 +122,8 @@ namespace ScriptImporter.ViewModels
             BrowseScriptPathCommand = new DelegateCommand(BrowseScriptPath);
             BrowseProjectDirCommand = new DelegateCommand(BrowseProjectDir);
             CopyToClipboardCommand = new DelegateCommand(CopyToClipboard);
+            ExpandMergedFilesWindowCommand = new DelegateCommand(ExpandMergedFilesWindow);
+            OpenFileCommand = new DelegateCommand(OpenFile);
 
             LoadSettings();
         }
@@ -146,7 +172,7 @@ namespace ScriptImporter.ViewModels
             IsStandaloneScript = isStandaloneScript == "true" ? true : false;
         }
 
-        private void BrowseScriptPath()
+        private void BrowseScriptPath(object param)
         {
             var dialog = new Microsoft.Win32.OpenFileDialog
             {
@@ -162,7 +188,7 @@ namespace ScriptImporter.ViewModels
             }
         }
 
-        private void BrowseProjectDir()
+        private void BrowseProjectDir(object param)
         {
             var dialog = new CommonOpenFileDialog
             {
@@ -186,7 +212,7 @@ namespace ScriptImporter.ViewModels
             MapModes = scriptInfo.MapModes;
         }
 
-        private async void CopyToClipboard()
+        private void CopyToClipboard(object param)
         {
             var stopwatch = new Stopwatch();
             stopwatch.StartPrinting();
@@ -201,15 +227,27 @@ namespace ScriptImporter.ViewModels
             //var sourceCode = await Task.Run(() => m_merger.Merge(ProjectDir, ScriptPath, RootNamespace, info));
             var mergeResult = m_merger.Merge(ProjectDir, ScriptPath, RootNamespace, info);
             var sourceCode = mergeResult.Content;
+            MergedFiles = mergeResult.MergedFiles;
             stopwatch.PrintTime("CopyToClipboard() Merge");
 
             Clipboard.SetText(sourceCode);
             stopwatch.PrintTime("CopyToClipboard() ToClipboard");
             GenerateOutputFile(sourceCode);
-            SuccessInfo = $"Successfully merged {mergeResult.MergedFiles.Count} files! ({stopwatch.ElapsedMilliseconds} ms)";
+            var message = $"Successfully merged {mergeResult.MergedFiles.Count} files! ({stopwatch.ElapsedMilliseconds} ms)";
+            ShowSuccessMessage(message, 5000);
             stopwatch.PrintTime("CopyToClipboard() Gen output file");
+        }
 
-            await m_scheduledTask.Execute(() => SuccessInfo = "", 5000);
+        private Timer m_successMessageTimer = new Timer();
+        private void ShowSuccessMessage(string message, int timeoutMs)
+        {
+            SuccessInfo = message;
+
+            m_successMessageTimer.Stop();
+            m_successMessageTimer.Elapsed += (sender, e) => SuccessInfo = "";
+            m_successMessageTimer.AutoReset = false; // run once
+            m_successMessageTimer.Interval = timeoutMs;
+            m_successMessageTimer.Start();
         }
 
         private async void GenerateOutputFile(string sourceCode)
@@ -232,6 +270,21 @@ namespace ScriptImporter.ViewModels
             var destinationPath = Path.Combine(sfdScriptPath, scriptName);
 
             await FileUtil.CopyFileAsync(sourcePath, destinationPath);
+        }
+
+        private void ExpandMergedFilesWindow(object param)
+        {
+            IsMergedFileWindowExpanded = !IsMergedFileWindowExpanded;
+
+            if (IsMergedFileWindowExpanded)
+                ExpandIcon = "▲";
+            else
+                ExpandIcon = "▼";
+    }
+
+    public void OpenFile(object filePath)
+        {
+            Process.Start((string)filePath);
         }
 
         public override void OnWindowClosing(object sender, CancelEventArgs e)

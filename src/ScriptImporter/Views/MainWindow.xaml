@@ -4,13 +4,15 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:System="clr-namespace:System;assembly=mscorlib"
+	    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:local="clr-namespace:ScriptImporter.Views"
         mc:Ignorable="d"
 	    WindowStartupLocation="CenterScreen"
+        xmlns:VM="clr-namespace:ScriptImporter.ViewModels"
         Title="Script Importer"
         ResizeMode="NoResize"
         Icon="../Icon.ico"
-        Height="375"
+        Height="485"
         Width="575">
 
     <!--<ResourceDictionary>
@@ -31,6 +33,7 @@
             <RowDefinition Height="240"/>
             <RowDefinition Height="20"/>
             <RowDefinition Height="75"/>
+            <RowDefinition Height="110"/>
         </Grid.RowDefinitions>
 
         <StackPanel
@@ -52,6 +55,7 @@
                     HorizontalAlignment="Left"
                     VerticalAlignment="Center"
 				    Text="{Binding ScriptPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    ToolTip="{Binding ScriptPath, Mode=OneWay}"
                     Margin="5,0,0,0"
                     Height="20"
                     Width="{StaticResource textBoxWidth}" />
@@ -79,6 +83,7 @@
                     HorizontalAlignment="Left"
                     VerticalAlignment="Center"
 				    Text="{Binding ProjectDir, Mode=TwoWay}"
+                    ToolTip="{Binding ProjectDir, Mode=OneWay}"
                     Margin="5,0,0,0"
                     Height="20"
                     Width="{StaticResource textBoxWidth}" />
@@ -206,7 +211,47 @@
                 VerticalAlignment="Center"
                 Width="140"
                 Height="30"/>
+
+            <!--<Button
+                Content="{Binding ExpandIcon, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                Command="{Binding ExpandMergedFilesWindowCommand}"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                FontSize="8"
+                Margin="0,0,5,5"
+                Width="15"
+                Height="15"/>-->
         </StackPanel>
+
+        <Grid
+            Grid.Row="3" Grid.Column="0">
+            
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="1*"/>
+            </Grid.RowDefinitions>
+
+            <Label
+                Grid.Row="0"
+                Content="Imported Files"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"/>
+            <ListBox Name="MergedFileListBox"
+                Grid.Row="1"
+                ItemsSource="{Binding MergedFiles, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                Margin="5,0,5,5"
+                Padding="3,0,3,0"
+                FontSize="11"
+            >
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="MouseDoubleClick">
+                        <i:InvokeCommandAction Command="{Binding OpenFileCommand}"
+                                               CommandParameter="{Binding ElementName=MergedFileListBox, Path=SelectedItem}"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </ListBox>
+        </Grid>
+        
     </Grid>
     
 </Window>

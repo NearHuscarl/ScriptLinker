@@ -10,16 +10,16 @@ namespace ScriptImporter.Utilities
     public class DelegateCommand : ICommand
     {
         private readonly Func<bool> canExecute;
-        private readonly Action execute;
+        private readonly Action<object> execute;
 
         public event EventHandler CanExecuteChanged;
 
-        public DelegateCommand(Action execute) : this(execute, null)
+        public DelegateCommand(Action<object> execute) : this(execute, null)
         {
 
         }
 
-        public DelegateCommand(Action execute, Func<bool> canExecute)
+        public DelegateCommand(Action<object> execute, Func<bool> canExecute)
         {
             this.execute = execute;
             this.canExecute = canExecute;
@@ -37,7 +37,7 @@ namespace ScriptImporter.Utilities
 
         public void Execute(object param)
         {
-            execute();
+            execute(param);
         }
 
         public void RaiseCanExecuteChanged()
