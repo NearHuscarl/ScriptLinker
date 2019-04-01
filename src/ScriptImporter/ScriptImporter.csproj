@@ -100,6 +100,8 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Behaviors\ScrollViewerBehavior.cs" />
+    <Compile Include="Converters\BoolToGridRowHeightConverter.cs" />
     <Compile Include="DataLogic\CodeMerger.cs" />
     <Compile Include="Models\CSharpFileInfo.cs" />
     <Compile Include="Models\MergeInfo.cs" />
@@ -156,5 +158,6 @@
   <ItemGroup>
     <None Include="Resources\Icon1.ico" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -107,7 +107,7 @@ namespace ScriptImporter.ViewModels
             set { SetPropertyAndNotify(ref expandIcon, value); }
         }
 
-        public HashSet<string> mergedFiles;
+        private HashSet<string> mergedFiles;
         public HashSet<string> MergedFiles
         {
             get { return mergedFiles; }
@@ -158,6 +158,7 @@ namespace ScriptImporter.ViewModels
                 mapModes = settingsElement.Descendants("MapModes").Select(e => e.Value).FirstOrDefault();
             }
             var isStandaloneScript = settingsElement.Descendants("StandaloneScript").Select(e => e.Value).FirstOrDefault();
+            var isMergedFileWindowExpanded = settingsElement.Descendants("IsMergedFileWindowExpanded").Select(e => e.Value).FirstOrDefault();
 
             ScriptPath = scriptPath;
             ProjectDir = projectDir;
@@ -170,6 +171,7 @@ namespace ScriptImporter.ViewModels
             Description = description;
             MapModes = mapModes;
             IsStandaloneScript = isStandaloneScript == "true" ? true : false;
+            IsMergedFileWindowExpanded = isMergedFileWindowExpanded == "true" ? true : false;
         }
 
         private void BrowseScriptPath(object param)
@@ -296,7 +298,8 @@ namespace ScriptImporter.ViewModels
                 new XElement("Author", Author),
                 new XElement("Description", Description),
                 new XElement("MapModes", MapModes),
-                new XElement("StandaloneScript", IsStandaloneScript)));
+                new XElement("StandaloneScript", IsStandaloneScript),
+                new XElement("IsMergedFileWindowExpanded", IsMergedFileWindowExpanded)));
 
             doc.Save(SettingsPath);
         }

@@ -9,18 +9,20 @@
         mc:Ignorable="d"
 	    WindowStartupLocation="CenterScreen"
         xmlns:VM="clr-namespace:ScriptImporter.ViewModels"
+	    xmlns:converters="clr-namespace:ScriptImporter.Converters"
+	    xmlns:behaviors="clr-namespace:ScriptImporter.Behaviors"
         Title="Script Importer"
         ResizeMode="NoResize"
         Icon="../Icon.ico"
-        Height="485"
+        SizeToContent="Height"
+        Height="Auto"
         Width="575">
 
-    <!--<ResourceDictionary>
-        <System:Double x:Key="theMargin">2.35</System:Double>
-    </ResourceDictionary>-->
     <Window.Resources>
         <System:Double x:Key="textBoxWidth">350</System:Double>
         <System:Double x:Key="labelWidth">100</System:Double>
+        <System:Double x:Key="defaultMergedFileWindowHeight">110</System:Double>
+        <converters:BoolToGridRowHeightConverter x:Key="GridRowHeightConverter" />
     </Window.Resources>
     
     <Window.InputBindings>
@@ -33,7 +35,9 @@
             <RowDefinition Height="240"/>
             <RowDefinition Height="20"/>
             <RowDefinition Height="75"/>
-            <RowDefinition Height="110"/>
+            <RowDefinition Height="{Binding IsMergedFileWindowExpanded,
+                Converter={StaticResource GridRowHeightConverter},
+                ConverterParameter={StaticResource defaultMergedFileWindowHeight}}"/>
         </Grid.RowDefinitions>
 
         <StackPanel
@@ -212,7 +216,7 @@
                 Width="140"
                 Height="30"/>
 
-            <!--<Button
+            <Button
                 Content="{Binding ExpandIcon, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
                 Command="{Binding ExpandMergedFilesWindowCommand}"
                 HorizontalAlignment="Right"
@@ -220,7 +224,7 @@
                 FontSize="8"
                 Margin="0,0,5,5"
                 Width="15"
-                Height="15"/>-->
+                Height="15"/>
         </StackPanel>
 
         <Grid
@@ -242,6 +246,7 @@
                 Margin="5,0,5,5"
                 Padding="3,0,3,0"
                 FontSize="11"
+                behaviors:ScrollViewerBehavior.ScrollToTopOnSourceChanged="true"
             >
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="MouseDoubleClick">
