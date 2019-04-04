@@ -48,12 +48,14 @@ namespace ScriptImporter.Utilities
             if (!File.Exists(outputPath))
                 return scriptInfo;
 
-            using (var file = File.OpenText(outputPath))
+            const int bufferSize = 128;
+            using (var fileStream = File.OpenRead(outputPath))
+            using (var streamReader = new StreamReader(fileStream, Encoding.Unicode, true, bufferSize))
             {
                 var line = "";
                 var readLastInput = false;
 
-                while ((line = file.ReadLine()) != null)
+                while ((line = streamReader.ReadLine()) != null)
                 {
                     if (readLastInput) break;
                     Match match;

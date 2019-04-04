@@ -13,6 +13,9 @@ namespace ScriptImporter.Utilities
             var projectName = Path.GetFileName(projectDir);
             var csprojFile = Path.Combine(projectDir, projectName + ".csproj");
 
+            if (!File.Exists(csprojFile))
+                return null;
+
             return XDocument.Load(csprojFile);
         }
     }

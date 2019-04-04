@@ -46,8 +46,30 @@ namespace ScriptImporter.ViewModels
             get { return projectDir; }
             set
             {
-                VSProject.ProjectDirectory = value;
-                SetPropertyAndNotify(ref projectDir, value);
+                projectDir = value;
+                var projectName = Path.GetFileName(projectDir);
+                var csprojFile = Path.Combine(projectDir, projectName + ".csproj");
+
+                if (!File.Exists(csprojFile))
+                    projectDir = "";
+
+                if (!string.IsNullOrEmpty(projectDir))
+                {
+                    VSProject.ProjectDirectory = projectDir;
+
+                    RootNamespace = VSProject.GetProjectInfo(ProjectDir)
+                        .Element(VSProject.Msbuild + "Project")
+                        .Elements(VSProject.Msbuild + "PropertyGroup").First()
+                        .Elements(VSProject.Msbuild + "RootNamespace")
+                        .Select(e => e.Value).FirstOrDefault();
+                }
+                else
+                {
+                    VSProject.ProjectDirectory = "";
+                    RootNamespace = "";
+                }
+
+                SetPropertyAndNotify(ref projectDir, projectDir);
             }
         }
 
@@ -138,14 +160,14 @@ namespace ScriptImporter.ViewModels
             var scriptPath = settingsElement.Descendants("ScriptPath").Select(e => e.Value).FirstOrDefault();
             var projectDir = settingsElement.Descendants("ProjectDir").Select(e => e.Value).FirstOrDefault();
 
-            ScriptInfo scriptInfo = null;
+            var scriptInfo = new ScriptInfo();
             if (!string.IsNullOrEmpty(scriptPath))
             {
                 var outputPath = Path.ChangeExtension(scriptPath, "txt");
                 scriptInfo = FileUtil.ReadOutputScriptInfo(outputPath);
             }
 
-            if (scriptInfo != null)
+            if (!scriptInfo.Empty)
             {
                 author = scriptInfo.Author;
                 description = scriptInfo.Description;
@@ -162,11 +184,6 @@ namespace ScriptImporter.ViewModels
 
             ScriptPath = scriptPath;
             ProjectDir = projectDir;
-            RootNamespace = VSProject.GetProjectInfo(ProjectDir)
-                .Element(VSProject.Msbuild + "Project")
-                .Elements(VSProject.Msbuild + "PropertyGroup").First()
-                .Elements(VSProject.Msbuild + "RootNamespace")
-                .Select(e => e.Value).FirstOrDefault();
             Author = author;
             Description = description;
             MapModes = mapModes;
