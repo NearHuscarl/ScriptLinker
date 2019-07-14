@@ -43,7 +43,7 @@ namespace ScriptImporter.Utilities
 
         public static ScriptInfo ReadOutputScriptInfo(string outputPath)
         {
-            var scriptInfo = new ScriptInfo();
+            var scriptInfo = ScriptInfo.Empty;
 
             if (!File.Exists(outputPath))
                 return scriptInfo;

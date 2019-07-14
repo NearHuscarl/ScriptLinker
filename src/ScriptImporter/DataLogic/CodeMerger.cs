@@ -10,14 +10,18 @@ namespace ScriptImporter.DataLogic
 {
     public class CodeMerger
     {
+        public CodeMerger()
+        {
+        }
+
         // It will print something like this:
         // 
         // // --------------------------------------------
         // // File: E:\Github\SFDScript\BotExtended\Bot.cs
         // // --------------------------------------------
-        private string GetFileHeader(string filePath)
+        private string GetFileHeader(string filePath, string projectPath)
         {
-            var relativePath = filePath.Substring(VSProject.ProjectDirectory.Length + 1);
+            var relativePath = filePath.Substring(projectPath.Length + 1);
             var filePathLength = relativePath.Length;
             var bar = new string('-', filePathLength + 6);
             return $@"// {bar}
@@ -41,34 +45,34 @@ namespace ScriptImporter.DataLogic
             return sb.ToString();
         }
 
-        public MergeInfo Merge(string projectDir, string scriptPath, string rootNS, ScriptInfo info)
+        public MergeInfo Merge(ProjectInfo projectInfo, ScriptInfo scriptInfo)
         {
             var mergedFiles = new HashSet<string>();
             var usingNamespaces = new HashSet<string>();
             var newNamespaces = new List<string>();
             var sb = new StringBuilder();
 
-            sb.Append(GetHeader(info));
+            sb.Append(GetHeader(scriptInfo));
 
-            var gameSriptInfo = ReadGameScriptFile(scriptPath);
+            var gameSriptInfo = ReadGameScriptFile(projectInfo);
 
             sb.AppendLine(gameSriptInfo.Content);
-            mergedFiles.Add(scriptPath);
+            mergedFiles.Add(projectInfo.EntryPoint);
             newNamespaces = gameSriptInfo.UsingNamespaces
-                .Where(ns => ns.StartsWith(rootNS))
+                .Where(ns => ns.StartsWith(projectInfo.RootNamespace))
                 .Select(ns => ns.Trim()).ToList();
 
             while (newNamespaces.Any())
             {
                 var addedNamespaces = new List<string>();
-                foreach (var file in FileUtil.GetScriptFiles(projectDir))
+                foreach (var file in FileUtil.GetScriptFiles(projectInfo.ProjectDir))
                 {
                     if (mergedFiles.Contains(file)) continue;
 
                     var ns = FileUtil.GetNamespace(file);
                     if (newNamespaces.Contains(ns))
                     {
-                        var fileInfo = ReadCSharpFile(file, gameSriptInfo.Namespace);
+                        var fileInfo = ReadCSharpFile(projectInfo, file, gameSriptInfo.Namespace);
 
                         sb.Append(fileInfo.Content);
                         addedNamespaces.AddRange(fileInfo.UsingNamespaces);
@@ -80,7 +84,7 @@ namespace ScriptImporter.DataLogic
 
                 foreach (var newNS in newNamespaces.ToList())
                 {
-                    if (!usingNamespaces.Contains(newNS) && newNS.StartsWith(rootNS))
+                    if (!usingNamespaces.Contains(newNS) && newNS.StartsWith(projectInfo.RootNamespace))
                         usingNamespaces.Add(newNS.Trim());
                     else
                         newNamespaces.Remove(newNS);
@@ -95,13 +99,18 @@ namespace ScriptImporter.DataLogic
             };
         }
 
-        public CSharpFileInfo ReadGameScriptFile(string filePath)
+        public CSharpFileInfo ReadGameScriptFile(ProjectInfo projectInfo, string filePath = "")
         {
             var sourceCode = new StringBuilder();
             var usingNamespaces = new List<string>();
             var fileNamespace = "";
+            
+            if (filePath == "")
+            {
+                filePath = projectInfo.EntryPoint;
+            }
 
-            sourceCode.AppendLine(GetFileHeader(filePath));
+            sourceCode.AppendLine(GetFileHeader(filePath, projectInfo.ProjectDir));
 
             using (var file = File.OpenText(filePath))
             {
@@ -135,7 +144,7 @@ namespace ScriptImporter.DataLogic
                     for (var i = 0; i < line.Length; i++)
                     {
                         if (i > commentIndex)
-                            continue;
+                            break;
 
                         if (line[i] == '{') startBlock = true;
                         if (line[i] == '}') endBlock = true;
@@ -172,13 +181,13 @@ namespace ScriptImporter.DataLogic
             };
         }
 
-        public CSharpFileInfo ReadCSharpFile(string filePath, string gameScriptNamespace)
+        public CSharpFileInfo ReadCSharpFile(ProjectInfo projectInfo, string filePath, string gameScriptNamespace)
         {
             var sourceCode = new StringBuilder();
             var usingNamespaces = new List<string>();
             var fileNamespace = "";
 
-            sourceCode.AppendLine(GetFileHeader(filePath));
+            sourceCode.AppendLine(GetFileHeader(filePath, projectInfo.ProjectDir));
 
             using (var file = File.OpenText(filePath))
             {
@@ -205,7 +214,7 @@ namespace ScriptImporter.DataLogic
                     {
                         if (fileNamespace == gameScriptNamespace) // partial GameScript class
                         {
-                            return ReadGameScriptFile(filePath);
+                            return ReadGameScriptFile(projectInfo, filePath);
                         }
                         else
                             return new CSharpFileInfo(); // Only import normal c# file. Ignore another game script unless it's a partial class

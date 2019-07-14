@@ -1,9 +1,7 @@
 ﻿using ScriptImporter.Utilities;
 using System.Windows.Input;
 using ScriptImporter.Models;
-using System.Collections.ObjectModel;
 using System.IO;
-using System.Text;
 using System.Windows;
 using System;
 using System.ComponentModel;
@@ -16,7 +14,6 @@ using Microsoft.WindowsAPICodePack.Dialogs;
 using System.Collections.Generic;
 using ScriptImporter.DataLogic;
 using System.Diagnostics;
-using System.Threading.Tasks;
 using System.Timers;
 
 namespace ScriptImporter.ViewModels
@@ -26,18 +23,21 @@ namespace ScriptImporter.ViewModels
         private CodeMerger m_merger;
         private ScheduledTask m_scheduledTask;
         private readonly string SettingsPath = Path.Combine(Directory.GetCurrentDirectory(), "settings.xml");
+        //private readonly HotKeyHook m_hotKeyHook;
+        private readonly GlobalKeyboardHook m_keyboardHook;
 
-        public ICommand BrowseScriptPathCommand { get; private set; }
+        public ICommand BrowseEntryPointCommand { get; private set; }
         public ICommand BrowseProjectDirCommand { get; private set; }
         public ICommand CopyToClipboardCommand { get; private set; }
+        public ICommand CompileCommand { get; private set; }
         public ICommand ExpandMergedFilesWindowCommand { get; private set; }
         public ICommand OpenFileCommand { get; private set; }
 
-        private string scriptPath;
-        public string ScriptPath
+        private string entryPoint;
+        public string EntryPoint
         {
-            get { return scriptPath; }
-            set { SetPropertyAndNotify(ref scriptPath, value); }
+            get { return entryPoint; }
+            set { SetPropertyAndNotify(ref entryPoint, value); }
         }
 
         private string projectDir;
@@ -47,17 +47,11 @@ namespace ScriptImporter.ViewModels
             set
             {
                 projectDir = value;
-                var projectName = Path.GetFileName(projectDir);
-                var csprojFile = Path.Combine(projectDir, projectName + ".csproj");
+                var csProjDoc = VSProject.GetProjectInfo(ProjectDir);
 
-                if (!File.Exists(csprojFile))
-                    projectDir = "";
-
-                if (!string.IsNullOrEmpty(projectDir))
+                if (csProjDoc != null)
                 {
-                    VSProject.ProjectDirectory = projectDir;
-
-                    RootNamespace = VSProject.GetProjectInfo(ProjectDir)
+                    RootNamespace = csProjDoc
                         .Element(VSProject.Msbuild + "Project")
                         .Elements(VSProject.Msbuild + "PropertyGroup").First()
                         .Elements(VSProject.Msbuild + "RootNamespace")
@@ -65,7 +59,6 @@ namespace ScriptImporter.ViewModels
                 }
                 else
                 {
-                    VSProject.ProjectDirectory = "";
                     RootNamespace = "";
                 }
 
@@ -78,6 +71,11 @@ namespace ScriptImporter.ViewModels
         {
             get { return rootNamespace; }
             set { SetPropertyAndNotify(ref rootNamespace, value); }
+        }
+
+        private ProjectInfo ProjectInfo
+        {
+            get { return new ProjectInfo(projectDir, entryPoint, rootNamespace); }
         }
 
         private string author;
@@ -99,6 +97,11 @@ namespace ScriptImporter.ViewModels
         {
             get { return mapModes; }
             set { SetPropertyAndNotify(ref mapModes, value); }
+        }
+
+        private ScriptInfo ScriptInfo
+        {
+            get { return new ScriptInfo(author, description, mapModes); }
         }
 
         private bool isStandaloneScript;
@@ -138,16 +141,41 @@ namespace ScriptImporter.ViewModels
 
         public MainViewModel()
         {
+            m_keyboardHook = new GlobalKeyboardHook();
+            m_keyboardHook.HookedKeys.Add(System.Windows.Forms.Keys.F4);
+            m_keyboardHook.KeyUp += (sender, e) => Compile(null);
+
             m_merger = new CodeMerger();
             m_scheduledTask = new ScheduledTask();
 
-            BrowseScriptPathCommand = new DelegateCommand(BrowseScriptPath);
+            BrowseEntryPointCommand = new DelegateCommand(BrowseEntryPoint);
             BrowseProjectDirCommand = new DelegateCommand(BrowseProjectDir);
             CopyToClipboardCommand = new DelegateCommand(CopyToClipboard);
+            CompileCommand = new DelegateCommand(Compile);
             ExpandMergedFilesWindowCommand = new DelegateCommand(ExpandMergedFilesWindow);
             OpenFileCommand = new DelegateCommand(OpenFile);
 
             LoadSettings();
+        }
+
+        private void Compile(object param)
+        {
+            var scriptEditorProcess = Process.GetProcessesByName("Superfighters Deluxe").FirstOrDefault();
+            // Focus on Script Editor window
+            if (scriptEditorProcess != null)
+            {
+                CopyToClipboard(null);
+                
+                WinUtil.BringMainWindowToFront(scriptEditorProcess);
+                // Tab to focus in the editor's text area if not already
+                WinUtil.Simulate(scriptEditorProcess, "{TAB}");
+                // CTRL-A Select all text in editor
+                WinUtil.Simulate(scriptEditorProcess, "^(a)");
+                // CTRL-V Paste clipboard content
+                WinUtil.Simulate(scriptEditorProcess, "^(v)");
+                // Compile newly pasted code
+                WinUtil.Simulate(scriptEditorProcess, "{F5}");
+            }
         }
 
         private void LoadSettings()
@@ -157,17 +185,17 @@ namespace ScriptImporter.ViewModels
 
             var doc = XDocument.Load(SettingsPath);
             var settingsElement = doc.Descendants("settings");
-            var scriptPath = settingsElement.Descendants("ScriptPath").Select(e => e.Value).FirstOrDefault();
-            var projectDir = settingsElement.Descendants("ProjectDir").Select(e => e.Value).FirstOrDefault();
+            var entryPoint = settingsElement.Descendants("EntryPoint").Select(e => e.Value).FirstOrDefault();
+            var projectDir = settingsElement.Descendants("ProjectDirectory").Select(e => e.Value).FirstOrDefault();
 
-            var scriptInfo = new ScriptInfo();
-            if (!string.IsNullOrEmpty(scriptPath))
+            var scriptInfo = ScriptInfo.Empty;
+            if (!string.IsNullOrEmpty(entryPoint))
             {
-                var outputPath = Path.ChangeExtension(scriptPath, "txt");
+                var outputPath = Path.ChangeExtension(entryPoint, "txt");
                 scriptInfo = FileUtil.ReadOutputScriptInfo(outputPath);
             }
 
-            if (!scriptInfo.Empty)
+            if (!scriptInfo.IsEmpty)
             {
                 author = scriptInfo.Author;
                 description = scriptInfo.Description;
@@ -182,7 +210,7 @@ namespace ScriptImporter.ViewModels
             var isStandaloneScript = settingsElement.Descendants("StandaloneScript").Select(e => e.Value).FirstOrDefault();
             var isMergedFileWindowExpanded = settingsElement.Descendants("IsMergedFileWindowExpanded").Select(e => e.Value).FirstOrDefault();
 
-            ScriptPath = scriptPath;
+            EntryPoint = entryPoint;
             ProjectDir = projectDir;
             Author = author;
             Description = description;
@@ -191,7 +219,7 @@ namespace ScriptImporter.ViewModels
             IsMergedFileWindowExpanded = isMergedFileWindowExpanded == "true" ? true : false;
         }
 
-        private void BrowseScriptPath(object param)
+        private void BrowseEntryPoint(object param)
         {
             var dialog = new Microsoft.Win32.OpenFileDialog
             {
@@ -202,7 +230,7 @@ namespace ScriptImporter.ViewModels
 
             if (dialog.ShowDialog() == true)
             {
-                ScriptPath = dialog.FileName;
+                EntryPoint = dialog.FileName;
                 UpdateScriptInfo();
             }
         }
@@ -223,7 +251,7 @@ namespace ScriptImporter.ViewModels
 
         private void UpdateScriptInfo()
         {
-            var outputPath = Path.ChangeExtension(ScriptPath, "txt");
+            var outputPath = Path.ChangeExtension(EntryPoint, "txt");
             var scriptInfo = FileUtil.ReadOutputScriptInfo(outputPath);
 
             Author = scriptInfo.Author;
@@ -236,15 +264,8 @@ namespace ScriptImporter.ViewModels
             var stopwatch = new Stopwatch();
             stopwatch.StartPrinting();
 
-            var info = new ScriptInfo()
-            {
-                Author = Author,
-                Description = Description,
-                MapModes = MapModes,
-            };
-
-            //var sourceCode = await Task.Run(() => m_merger.Merge(ProjectDir, ScriptPath, RootNamespace, info));
-            var mergeResult = m_merger.Merge(ProjectDir, ScriptPath, RootNamespace, info);
+            //var sourceCode = await Task.Run(() => m_merger.Merge(ProjectInfo, ScriptInfo));
+            var mergeResult = m_merger.Merge(ProjectInfo, ScriptInfo);
             var sourceCode = mergeResult.Content;
             MergedFiles = mergeResult.MergedFiles;
             stopwatch.PrintTime("CopyToClipboard() Merge");
@@ -271,7 +292,7 @@ namespace ScriptImporter.ViewModels
 
         private async void GenerateOutputFile(string sourceCode)
         {
-            var outputPath = Path.ChangeExtension(ScriptPath, "txt");
+            var outputPath = Path.ChangeExtension(EntryPoint, "txt");
             await FileUtil.WriteTextAsync(outputPath, sourceCode);
 
             if (IsStandaloneScript)
@@ -282,10 +303,10 @@ namespace ScriptImporter.ViewModels
 
         private async void CopyToScriptFolder(string sourceCode)
         {
-            var sourcePath = Path.ChangeExtension(ScriptPath, "txt");
+            var sourcePath = Path.ChangeExtension(EntryPoint, "txt");
             var myDocument = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             var sfdScriptPath = Path.Combine(myDocument, @"Superfighters Deluxe\Scripts");
-            var scriptName = Path.GetFileNameWithoutExtension(ScriptPath) + ".txt";
+            var scriptName = Path.GetFileNameWithoutExtension(EntryPoint) + ".txt";
             var destinationPath = Path.Combine(sfdScriptPath, scriptName);
 
             await FileUtil.CopyFileAsync(sourcePath, destinationPath);
@@ -299,9 +320,9 @@ namespace ScriptImporter.ViewModels
                 ExpandIcon = "▲";
             else
                 ExpandIcon = "▼";
-    }
+        }
 
-    public void OpenFile(object filePath)
+        public void OpenFile(object filePath)
         {
             Process.Start((string)filePath);
         }
@@ -310,8 +331,8 @@ namespace ScriptImporter.ViewModels
         {
             // Save current settings
             var doc = new XDocument(new XElement("settings",
-                new XElement("ScriptPath", ScriptPath),
-                new XElement("ProjectDir", ProjectDir),
+                new XElement("EntryPoint", EntryPoint),
+                new XElement("ProjectDirectory", ProjectDir),
                 new XElement("Author", Author),
                 new XElement("Description", Description),
                 new XElement("MapModes", MapModes),

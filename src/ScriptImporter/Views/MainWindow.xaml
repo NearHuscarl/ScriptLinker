@@ -23,11 +23,17 @@
         <System:Double x:Key="labelWidth">100</System:Double>
         <System:Double x:Key="defaultMergedFileWindowHeight">110</System:Double>
         <converters:BoolToGridRowHeightConverter x:Key="GridRowHeightConverter" />
+        <System:String x:Key="CompileButtonTooltip" xml:space="preserve">Clicking this button (or pressing F4 globally) will automate the compiling task by:
+    1. Concat all C# files from the specified project into one single text file
+    2. Switch to Superfighters Deluxe's script editor window (script tab in the Map Editor)
+    3. Paste the resulted text from Step 1
+    4. Compile
+Note: The script editor window (instead of map editor) must be last active before switching to other windows for it to work</System:String>
+        <System:String x:Key="CopyToClipboardButtonTooltip" xml:space="preserve">Concat all C# files from the specified project into one single text file and add the result to clipboard</System:String>
     </Window.Resources>
     
     <Window.InputBindings>
-        <KeyBinding Key="F7"
-                    Command="{Binding CopyToClipboardCommand}" />
+        <KeyBinding Key="F7" Command="{Binding CopyToClipboardCommand}" />
     </Window.InputBindings>
 
     <Grid>
@@ -49,7 +55,7 @@
                 HorizontalAlignment="Left"
                 Margin="20,20,0,0">
                 <Label
-                    Content="Script Path"
+                    Content="Entry Point"
                     Margin="0,0,0,0"
                     Width="{StaticResource labelWidth}"
                     HorizontalAlignment="Left"
@@ -58,13 +64,13 @@
                 <TextBox
                     HorizontalAlignment="Left"
                     VerticalAlignment="Center"
-				    Text="{Binding ScriptPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                    ToolTip="{Binding ScriptPath, Mode=OneWay}"
+				    Text="{Binding EntryPoint, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    ToolTip="{Binding EntryPoint, Mode=OneWay}"
                     Margin="5,0,0,0"
                     Height="20"
                     Width="{StaticResource textBoxWidth}" />
                 <Button
-                    Command="{Binding BrowseScriptPathCommand}"
+                    Command="{Binding BrowseEntryPointCommand}"
                     Content="Browse"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Center"
@@ -208,13 +214,29 @@
                 HorizontalAlignment="Center"
                 Content="{Binding SuccessInfo, FallbackValue='Successfully merged 8 files', TargetNullValue={}}"/>
                 <!--TargetNullValue={} prevents Content control from collapsing when empty-->
-            <Button
-                Command="{Binding CopyToClipboardCommand}"
-                Content="Copy to clipboard (F7)"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                Width="140"
-                Height="30"/>
+
+            <StackPanel
+                Orientation="Horizontal"
+                HorizontalAlignment="Center">
+                <Button
+                    Command="{Binding CopyToClipboardCommand}"
+                    Content="Copy to clipboard (F7)"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Width="140"
+                    Height="30"
+                    Margin="0,0,20,0"
+                    ToolTip="{StaticResource CopyToClipboardButtonTooltip}"/>
+                <Button
+                    Command="{Binding CompileCommand}"
+                    Content="Compile (F4)"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Width="140"
+                    Height="30"
+                    ToolTip="{StaticResource CompileButtonTooltip}"
+                    ToolTipService.ShowDuration="999999"/>
+            </StackPanel>
 
             <Button
                 Content="{Binding ExpandIcon, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"

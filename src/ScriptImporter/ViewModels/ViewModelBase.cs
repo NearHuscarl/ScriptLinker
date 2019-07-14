@@ -25,12 +25,7 @@ namespace ScriptImporter.ViewModels
         /// <param name="propertyName"></param>
         protected virtual void NotifyPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            PropertyChangedEventHandler handler = PropertyChanged;
-
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(propertyName));
-            }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         #endregion
@@ -50,7 +45,7 @@ namespace ScriptImporter.ViewModels
         {
             var result = SetProperty(ref storage, value);
 
-            this.NotifyPropertyChanged(propertyName);
+            NotifyPropertyChanged(propertyName);
 
             return result;
         }

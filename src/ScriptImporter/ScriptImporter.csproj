@@ -106,13 +106,16 @@
     <Compile Include="Models\CSharpFileInfo.cs" />
     <Compile Include="Models\MergeInfo.cs" />
     <Compile Include="Models\ProjectDirectory.cs" />
+    <Compile Include="Models\ProjectInfo.cs" />
     <Compile Include="Models\ScriptInfo.cs" />
+    <Compile Include="Utilities\GlobalKeyboardHook.cs" />
     <Compile Include="Utilities\ScheduledTask.cs" />
     <Compile Include="Utilities\StopwatchExtensions.cs" />
     <Compile Include="Utilities\DelegateCommand.cs" />
     <Compile Include="Utilities\FileUtil.cs" />
     <Compile Include="Utilities\RegexPattern.cs" />
     <Compile Include="Utilities\VSProject.cs" />
+    <Compile Include="Utilities\WinUtil.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />
     <Compile Include="Views\MainWindow.xaml.cs">

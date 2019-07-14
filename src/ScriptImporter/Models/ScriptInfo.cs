@@ -12,7 +12,19 @@ namespace ScriptImporter.Models
         public string Description { get; set; } = "";
         public string MapModes { get; set; } = "";
 
-        public bool Empty
+        public ScriptInfo(string author, string description, string mapModes)
+        {
+            Author = author;
+            Description = description;
+            MapModes = mapModes;
+        }
+
+        public static ScriptInfo Empty
+        {
+            get { return new ScriptInfo("", "", ""); }
+        }
+
+        public bool IsEmpty
         {
             get {
                 return

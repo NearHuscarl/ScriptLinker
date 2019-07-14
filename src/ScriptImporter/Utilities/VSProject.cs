@@ -6,7 +6,6 @@ namespace ScriptImporter.Utilities
     public static class VSProject
     {
         public static readonly XNamespace Msbuild = "http://schemas.microsoft.com/developer/msbuild/2003";
-        public static string ProjectDirectory { get; set; } = "";
 
         public static XDocument GetProjectInfo(string projectDir)
         {
