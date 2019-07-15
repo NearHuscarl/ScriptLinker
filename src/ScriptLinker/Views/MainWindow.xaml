@@ -1,0 +1,284 @@
+﻿<Window x:Class="ScriptLinker.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:System="clr-namespace:System;assembly=mscorlib"
+	    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:local="clr-namespace:ScriptLinker.Views"
+        mc:Ignorable="d"
+	    WindowStartupLocation="CenterScreen"
+        xmlns:VM="clr-namespace:ScriptLinker.ViewModels"
+	    xmlns:converters="clr-namespace:ScriptLinker.Converters"
+	    xmlns:behaviors="clr-namespace:ScriptLinker.Behaviors"
+        Title="Script Importer"
+        ResizeMode="NoResize"
+        Icon="../Icon.ico"
+        SizeToContent="Height"
+        Height="Auto"
+        Width="575">
+
+    <Window.Resources>
+        <System:Double x:Key="textBoxWidth">350</System:Double>
+        <System:Double x:Key="labelWidth">100</System:Double>
+        <System:Double x:Key="DefaultLinkedFileWindowHeight">110</System:Double>
+        <converters:BoolToGridRowHeightConverter x:Key="GridRowHeightConverter" />
+        <System:String x:Key="CompileButtonTooltip" xml:space="preserve">Clicking this button (or pressing F4 globally) will automate the compiling task by:
+    1. Concat all C# files from the specified project into one single text file
+    2. Switch to Superfighters Deluxe's script editor window (script tab in the Map Editor)
+    3. Paste the resulted text from Step 1
+    4. Compile
+Note: The script editor window (instead of map editor) must be last active before switching to other windows for it to work</System:String>
+        <System:String x:Key="CopyToClipboardButtonTooltip" xml:space="preserve">Concat all C# files from the specified project into one single text file and add the result to clipboard</System:String>
+    </Window.Resources>
+    
+    <Window.InputBindings>
+        <KeyBinding Key="F7" Command="{Binding CopyToClipboardCommand}" />
+    </Window.InputBindings>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="240"/>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="75"/>
+            <RowDefinition Height="{Binding IsLinkedFileWindowExpanded,
+                Converter={StaticResource GridRowHeightConverter},
+                ConverterParameter={StaticResource DefaultLinkedFileWindowHeight}}"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel
+            Grid.Row="0" Grid.Column="0"
+            Orientation="Vertical">
+            
+            <StackPanel 
+                Orientation="Horizontal"
+                HorizontalAlignment="Left"
+                Margin="20,20,0,0">
+                <Label
+                    Content="Entry Point"
+                    Margin="0,0,0,0"
+                    Width="{StaticResource labelWidth}"
+                    HorizontalAlignment="Left"
+                    HorizontalContentAlignment="Right"
+                    VerticalAlignment="Center"/>
+                <TextBox
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+				    Text="{Binding EntryPoint, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    ToolTip="{Binding EntryPoint, Mode=OneWay}"
+                    Margin="5,0,0,0"
+                    Height="20"
+                    Width="{StaticResource textBoxWidth}" />
+                <Button
+                    Command="{Binding BrowseEntryPointCommand}"
+                    Content="Browse"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    Margin="5,0,0,0"
+                    Width="67"/>
+            </StackPanel>
+
+            <StackPanel 
+                Orientation="Horizontal"
+                HorizontalAlignment="Left"
+                Margin="20,5,0,0">
+                <Label
+                    Content="Project Directory"
+                    Margin="0,0,0,0"
+                    Width="{StaticResource labelWidth}"
+                    HorizontalAlignment="Left"
+                    HorizontalContentAlignment="Right"
+                    VerticalAlignment="Top"/>
+                <TextBox
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+				    Text="{Binding ProjectDir, Mode=TwoWay}"
+                    ToolTip="{Binding ProjectDir, Mode=OneWay}"
+                    Margin="5,0,0,0"
+                    Height="20"
+                    Width="{StaticResource textBoxWidth}" />
+                <Button
+                    Command="{Binding BrowseProjectDirCommand}"
+                    Content="Browse"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    Margin="5,0,0,0"
+                    Width="67"/>
+            </StackPanel>
+
+            <StackPanel 
+                Orientation="Horizontal"
+                HorizontalAlignment="Left"
+                Margin="20,5,0,0">
+                <Label
+                    Content="Root Namespace"
+                    Margin="0,0,0,0"
+                    Width="{StaticResource labelWidth}"
+                    HorizontalAlignment="Left"
+                    HorizontalContentAlignment="Right"
+                    VerticalAlignment="Top"/>
+                <TextBox
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    IsEnabled="False"
+				    Text="{Binding RootNamespace, Mode=OneWay}"
+                    Margin="5,0,0,0"
+                    Height="20"
+                    Width="{StaticResource textBoxWidth}" />
+            </StackPanel>
+
+            <StackPanel 
+                Orientation="Horizontal"
+                HorizontalAlignment="Left"
+                Margin="20,5,0,0">
+                <Label
+                    Content="Author"
+                    Margin="0,0,0,0"
+                    Width="{StaticResource labelWidth}"
+                    HorizontalAlignment="Left"
+                    HorizontalContentAlignment="Right"
+                    VerticalAlignment="Top"/>
+                <TextBox
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+				    Text="{Binding Author, Mode=TwoWay}"
+                    Margin="5,0,0,0"
+                    Height="20"
+                    Width="{StaticResource textBoxWidth}" />
+            </StackPanel>
+
+            <StackPanel 
+                Orientation="Horizontal"
+                HorizontalAlignment="Left"
+                Margin="20,5,0,0">
+                <Label
+                    Content="Description"
+                    Margin="0,0,0,0"
+                    Width="{StaticResource labelWidth}"
+                    HorizontalAlignment="Left"
+                    HorizontalContentAlignment="Right"
+                    VerticalAlignment="Top"/>
+                <TextBox
+                    TextWrapping="Wrap"
+                    AcceptsReturn="True"
+                    AcceptsTab="True"
+                    SpellCheck.IsEnabled="True"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+				    Text="{Binding Description, Mode=TwoWay}"
+                    Margin="5,0,0,0"
+                    Height="60"
+                    Width="{StaticResource textBoxWidth}" />
+            </StackPanel>
+
+            <StackPanel 
+                Orientation="Horizontal"
+                HorizontalAlignment="Left"
+                Margin="20,5,0,0">
+                <Label
+                    Content="Map Modes"
+                    Margin="0,0,0,0"
+                    Width="{StaticResource labelWidth}"
+                    HorizontalAlignment="Left"
+                    HorizontalContentAlignment="Right"
+                    VerticalAlignment="Top"/>
+                <TextBox
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+				    Text="{Binding MapModes, Mode=TwoWay}"
+                    Margin="5,0,0,0"
+                    Height="20"
+                    Width="{StaticResource textBoxWidth}" />
+            </StackPanel>
+        </StackPanel>
+
+        <StackPanel 
+            Grid.Row="1" Grid.Column="0"
+            Orientation="Horizontal"
+            HorizontalAlignment="Center">
+            
+            <CheckBox
+                Content="Standalone Script"
+                IsChecked="{Binding IsStandaloneScript}"
+                Margin="-143,0,0,0"
+                />
+            
+        </StackPanel>
+
+        <StackPanel
+            Grid.Row="2" Grid.Column="0"
+            Orientation="Vertical">
+            <Label
+                FontWeight="Bold"
+                Foreground="Green"
+                HorizontalAlignment="Center"
+                Content="{Binding SuccessInfo, FallbackValue='Successfully linked 8 files', TargetNullValue={}}"/>
+                <!--TargetNullValue={} prevents Content control from collapsing when empty-->
+
+            <StackPanel
+                Orientation="Horizontal"
+                HorizontalAlignment="Center">
+                <Button
+                    Command="{Binding CopyToClipboardCommand}"
+                    Content="Copy to clipboard (F7)"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Width="140"
+                    Height="30"
+                    Margin="0,0,20,0"
+                    ToolTip="{StaticResource CopyToClipboardButtonTooltip}"/>
+                <Button
+                    Command="{Binding CompileCommand}"
+                    Content="Compile (F4)"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Width="140"
+                    Height="30"
+                    ToolTip="{StaticResource CompileButtonTooltip}"
+                    ToolTipService.ShowDuration="999999"/>
+            </StackPanel>
+
+            <Button
+                Content="{Binding ExpandIcon, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                Command="{Binding ExpandLinkedFilesWindowCommand}"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                FontSize="8"
+                Margin="0,0,5,5"
+                Width="15"
+                Height="15"/>
+        </StackPanel>
+
+        <Grid
+            Grid.Row="3" Grid.Column="0">
+            
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="1*"/>
+            </Grid.RowDefinitions>
+
+            <Label
+                Grid.Row="0"
+                Content="Imported Files"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"/>
+            <ListBox Name="LinkedFileListBox"
+                Grid.Row="1"
+                ItemsSource="{Binding LinkedFiles, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                Margin="5,0,5,5"
+                Padding="3,0,3,0"
+                FontSize="11"
+                behaviors:ScrollViewerBehavior.ScrollToTopOnSourceChanged="true"
+            >
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="MouseDoubleClick">
+                        <i:InvokeCommandAction Command="{Binding OpenFileCommand}"
+                                               CommandParameter="{Binding ElementName=LinkedFileListBox, Path=SelectedItem}"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </ListBox>
+        </Grid>
+        
+    </Grid>
+    
+</Window>
