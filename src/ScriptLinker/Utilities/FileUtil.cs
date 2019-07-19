@@ -50,7 +50,7 @@ namespace ScriptLinker.Utilities
 
             const int bufferSize = 128;
             using (var fileStream = File.OpenRead(outputPath))
-            using (var streamReader = new StreamReader(fileStream, Encoding.Unicode, true, bufferSize))
+            using (var streamReader = new StreamReader(fileStream, Encoding.UTF8, true, bufferSize))
             {
                 var line = "";
                 var readLastInput = false;
@@ -101,7 +101,8 @@ namespace ScriptLinker.Utilities
 
         public static async Task WriteTextAsync(string filePath, string text)
         {
-            byte[] encodedText = Encoding.Unicode.GetBytes(text);
+            // it has to be UTF8 encoding or the /startscript <script-file> will throw error
+            byte[] encodedText = Encoding.UTF8.GetBytes(text);
 
             using (var sourceStream = new FileStream(filePath,
                 FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true))

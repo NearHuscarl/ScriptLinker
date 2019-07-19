@@ -23,8 +23,8 @@ namespace ScriptLinker.ViewModels
     {
         private Linker m_linker;
         private ScheduledTask m_scheduledTask;
-        private readonly string SettingsPath = Path.Combine(Directory.GetCurrentDirectory(), "settings.xml");
-        //private readonly HotKeyHook m_hotKeyHook;
+        private readonly string m_settingsPath = Path.Combine(Directory.GetCurrentDirectory(), "settings.xml");
+        private readonly string m_scriptPath = Path.Combine(Directory.GetCurrentDirectory(), "script.xml");
         private readonly GlobalKeyboardHook m_keyboardHook;
 
         public ICommand BrowseEntryPointCommand { get; private set; }
@@ -55,8 +55,7 @@ namespace ScriptLinker.ViewModels
                     RootNamespace = csProjDoc
                         .Element(VSProject.Msbuild + "Project")
                         .Elements(VSProject.Msbuild + "PropertyGroup").First()
-                        .Elements(VSProject.Msbuild + "RootNamespace")
-                        .Select(e => e.Value).FirstOrDefault();
+                        .Element(VSProject.Msbuild + "RootNamespace").Value.ToString();
                 }
                 else
                 {
@@ -162,11 +161,12 @@ namespace ScriptLinker.ViewModels
         private void Compile(object param)
         {
             var scriptEditorProcess = Process.GetProcessesByName("Superfighters Deluxe").FirstOrDefault();
-            // Focus on Script Editor window
+
             if (scriptEditorProcess != null)
             {
                 CopyToClipboard(null);
-                
+
+                // Focus on Script Editor window
                 WinUtil.BringMainWindowToFront(scriptEditorProcess);
                 // Tab to focus in the editor's text area if not already
                 WinUtil.Simulate(scriptEditorProcess, "{TAB}");
@@ -181,41 +181,40 @@ namespace ScriptLinker.ViewModels
 
         private void LoadSettings()
         {
-            if (!File.Exists(SettingsPath))
+            if (!File.Exists(m_settingsPath))
                 return;
 
-            var doc = XDocument.Load(SettingsPath);
-            var settingsElement = doc.Descendants("settings");
-            var entryPoint = settingsElement.Descendants("EntryPoint").Select(e => e.Value).FirstOrDefault();
-            var projectDir = settingsElement.Descendants("ProjectDirectory").Select(e => e.Value).FirstOrDefault();
+            var doc = XDocument.Load(m_settingsPath);
+            var settingsElement = doc.Element("Settings");
+            var entryPoint = settingsElement.Element("EntryPoint").Value.ToString();
+            var projectDir = settingsElement.Element("ProjectDirectory").Value.ToString();
 
             var scriptInfo = ScriptInfo.Empty;
-            if (!string.IsNullOrEmpty(entryPoint))
+            if (File.Exists(m_scriptPath))
             {
-                var outputPath = Path.ChangeExtension(entryPoint, "txt");
-                scriptInfo = FileUtil.ReadOutputScriptInfo(outputPath);
+                var scriptDoc = XDocument.Load(m_scriptPath);
+                var scriptInfos = scriptDoc.Element("Script").Elements("ScriptInfo");
+
+                foreach (var scriptInfoElement in scriptInfos)
+                {
+                    if (scriptInfoElement.Element("EntryPoint").Value == entryPoint
+                        && scriptInfoElement.Element("ProjectDirectory").Value == projectDir)
+                    {
+                        scriptInfo.Author = scriptInfoElement.Element("Author").Value.ToString();
+                        scriptInfo.Description = scriptInfoElement.Element("Description").Value.ToString();
+                        scriptInfo.MapModes = scriptInfoElement.Element("MapModes").Value.ToString();
+                    }
+                }
             }
 
-            if (!scriptInfo.IsEmpty)
-            {
-                author = scriptInfo.Author;
-                description = scriptInfo.Description;
-                mapModes = scriptInfo.MapModes;
-            }
-            else
-            {
-                author = settingsElement.Descendants("Author").Select(e => e.Value).FirstOrDefault();
-                description = settingsElement.Descendants("Description").Select(e => e.Value).FirstOrDefault();
-                mapModes = settingsElement.Descendants("MapModes").Select(e => e.Value).FirstOrDefault();
-            }
-            var isStandaloneScript = settingsElement.Descendants("StandaloneScript").Select(e => e.Value).FirstOrDefault();
-            var isLinkedFileWindowExpanded = settingsElement.Descendants("IsLinkedFileWindowExpanded").Select(e => e.Value).FirstOrDefault();
+            var isStandaloneScript = settingsElement.Element("StandaloneScript").Value.ToString();
+            var isLinkedFileWindowExpanded = settingsElement.Element("IsLinkedFileWindowExpanded").Value.ToString();
 
             EntryPoint = entryPoint;
             ProjectDir = projectDir;
-            Author = author;
-            Description = description;
-            MapModes = mapModes;
+            Author = scriptInfo.Author;
+            Description = scriptInfo.Description;
+            MapModes = scriptInfo.MapModes;
             IsStandaloneScript = XmlConvert.ToBoolean(isStandaloneScript);
             IsLinkedFileWindowExpanded = XmlConvert.ToBoolean(isLinkedFileWindowExpanded);
         }
@@ -331,16 +330,47 @@ namespace ScriptLinker.ViewModels
         public override void OnWindowClosing(object sender, CancelEventArgs e)
         {
             // Save current settings
-            var doc = new XDocument(new XElement("settings",
+            var settingsDoc = new XDocument(new XElement("Settings",
                 new XElement("EntryPoint", EntryPoint),
                 new XElement("ProjectDirectory", ProjectDir),
-                new XElement("Author", Author),
-                new XElement("Description", Description),
-                new XElement("MapModes", MapModes),
                 new XElement("StandaloneScript", IsStandaloneScript),
                 new XElement("IsLinkedFileWindowExpanded", IsLinkedFileWindowExpanded)));
 
-            doc.Save(SettingsPath);
+            settingsDoc.Save(m_settingsPath);
+
+            // Update script info
+            var scriptDoc = File.Exists(m_scriptPath) ? XDocument.Load(m_scriptPath) : new XDocument();
+            var query = from c in scriptDoc.Elements("Script").Elements("ScriptInfo") select c;
+            var updatedScriptInfo = false;
+
+            foreach (var scriptInfo in query)
+            {
+                if (scriptInfo.Element("EntryPoint").Value == EntryPoint
+                    && scriptInfo.Element("ProjectDirectory").Value == ProjectDir)
+                {
+                    scriptInfo.Element("EntryPoint").Value = EntryPoint;
+                    scriptInfo.Element("ProjectDirectory").Value = ProjectDir;
+                    scriptInfo.Element("Author").Value = Author;
+                    scriptInfo.Element("Description").Value = Description;
+                    scriptInfo.Element("MapModes").Value = MapModes;
+                    updatedScriptInfo = true;
+                    break;
+                }
+            }
+
+            if (!updatedScriptInfo)
+            {
+                scriptDoc.Add(new XElement("Script",
+                    new XElement("ScriptInfo",
+                        new XElement("EntryPoint", EntryPoint),
+                        new XElement("ProjectDirectory", ProjectDir),
+                        new XElement("Author", Author),
+                        new XElement("Description", Description),
+                        new XElement("MapModes", MapModes)
+                    )
+                ));
+            }
+            scriptDoc.Save(m_scriptPath);
         }
     }
 }

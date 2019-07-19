@@ -141,7 +141,7 @@ Note: The script editor window (instead of map editor) must be last active befor
                 <TextBox
                     HorizontalAlignment="Left"
                     VerticalAlignment="Center"
-				    Text="{Binding Author, Mode=TwoWay}"
+				    Text="{Binding Author, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                     Margin="5,0,0,0"
                     Height="20"
                     Width="{StaticResource textBoxWidth}" />
@@ -165,7 +165,7 @@ Note: The script editor window (instead of map editor) must be last active befor
                     SpellCheck.IsEnabled="True"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Center"
-				    Text="{Binding Description, Mode=TwoWay}"
+				    Text="{Binding Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                     Margin="5,0,0,0"
                     Height="60"
                     Width="{StaticResource textBoxWidth}" />
@@ -185,7 +185,7 @@ Note: The script editor window (instead of map editor) must be last active befor
                 <TextBox
                     HorizontalAlignment="Left"
                     VerticalAlignment="Center"
-				    Text="{Binding MapModes, Mode=TwoWay}"
+				    Text="{Binding MapModes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                     Margin="5,0,0,0"
                     Height="20"
                     Width="{StaticResource textBoxWidth}" />
