@@ -8,30 +8,10 @@ namespace ScriptLinker.Models
 {
     public class ScriptInfo
     {
+        public string EntryPoint { get; set; } = "";
+        public string ProjectDirectory { get; set; } = "";
         public string Author { get; set; } = "";
         public string Description { get; set; } = "";
         public string MapModes { get; set; } = "";
-
-        public ScriptInfo(string author, string description, string mapModes)
-        {
-            Author = author;
-            Description = description;
-            MapModes = mapModes;
-        }
-
-        public static ScriptInfo Empty
-        {
-            get { return new ScriptInfo("", "", ""); }
-        }
-
-        public bool IsEmpty
-        {
-            get {
-                return
-                  string.IsNullOrWhiteSpace(Author) &&
-                  string.IsNullOrWhiteSpace(Description) &&
-                  string.IsNullOrWhiteSpace(MapModes);
-            }
-        }
     }
 }

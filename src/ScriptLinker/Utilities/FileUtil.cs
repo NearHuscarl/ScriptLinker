@@ -43,7 +43,7 @@ namespace ScriptLinker.Utilities
 
         public static ScriptInfo ReadOutputScriptInfo(string outputPath)
         {
-            var scriptInfo = ScriptInfo.Empty;
+            var scriptInfo = new ScriptInfo();
 
             if (!File.Exists(outputPath))
                 return scriptInfo;

@@ -96,6 +96,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Access\ScriptAccess.cs" />
+    <Compile Include="Access\SettingsAccess.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -108,6 +110,7 @@
     <Compile Include="Models\ProjectDirectory.cs" />
     <Compile Include="Models\ProjectInfo.cs" />
     <Compile Include="Models\ScriptInfo.cs" />
+    <Compile Include="Models\Settings.cs" />
     <Compile Include="Utilities\GlobalKeyboardHook.cs" />
     <Compile Include="Utilities\ScheduledTask.cs" />
     <Compile Include="Utilities\StopwatchExtensions.cs" />

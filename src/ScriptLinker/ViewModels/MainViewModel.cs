@@ -16,6 +16,7 @@ using ScriptLinker.DataLogic;
 using System.Diagnostics;
 using System.Timers;
 using System.Xml;
+using ScriptLinker.Access;
 
 namespace ScriptLinker.ViewModels
 {
@@ -23,9 +24,9 @@ namespace ScriptLinker.ViewModels
     {
         private Linker m_linker;
         private ScheduledTask m_scheduledTask;
-        private readonly string m_settingsPath = Path.Combine(Directory.GetCurrentDirectory(), "settings.xml");
-        private readonly string m_scriptPath = Path.Combine(Directory.GetCurrentDirectory(), "script.xml");
         private readonly GlobalKeyboardHook m_keyboardHook;
+        private SettingsAccess settingsAccess;
+        private ScriptAccess scriptAccess;
 
         public ICommand BrowseEntryPointCommand { get; private set; }
         public ICommand BrowseProjectDirCommand { get; private set; }
@@ -101,7 +102,16 @@ namespace ScriptLinker.ViewModels
 
         private ScriptInfo ScriptInfo
         {
-            get { return new ScriptInfo(author, description, mapModes); }
+            get {
+                return new ScriptInfo()
+                {
+                    EntryPoint = EntryPoint,
+                    ProjectDirectory = ProjectDir,
+                    Author = author,
+                    Description = description,
+                    MapModes = mapModes,
+                };
+            }
         }
 
         private bool isStandaloneScript;
@@ -141,6 +151,9 @@ namespace ScriptLinker.ViewModels
 
         public MainViewModel()
         {
+            settingsAccess = new SettingsAccess();
+            scriptAccess = new ScriptAccess();
+
             m_keyboardHook = new GlobalKeyboardHook();
             m_keyboardHook.HookedKeys.Add(System.Windows.Forms.Keys.F4);
             m_keyboardHook.KeyUp += (sender, e) => Compile(null);
@@ -155,7 +168,7 @@ namespace ScriptLinker.ViewModels
             ExpandLinkedFilesWindowCommand = new DelegateCommand(ExpandLinkedFilesWindow);
             OpenFileCommand = new DelegateCommand(OpenFile);
 
-            LoadSettings();
+            LoadData();
         }
 
         private void Compile(object param)
@@ -179,44 +192,20 @@ namespace ScriptLinker.ViewModels
             }
         }
 
-        private void LoadSettings()
+        private void LoadData()
         {
-            if (!File.Exists(m_settingsPath))
-                return;
+            var settings = settingsAccess.LoadSettings();
 
-            var doc = XDocument.Load(m_settingsPath);
-            var settingsElement = doc.Element("Settings");
-            var entryPoint = settingsElement.Element("EntryPoint").Value.ToString();
-            var projectDir = settingsElement.Element("ProjectDirectory").Value.ToString();
+            EntryPoint = settings.EntryPoint;
+            ProjectDir = settings.ProjectDirectory;
+            IsStandaloneScript = settings.StandaloneScript;
+            IsLinkedFileWindowExpanded = settings.IsLinkedFileWindowExpanded;
 
-            var scriptInfo = ScriptInfo.Empty;
-            if (File.Exists(m_scriptPath))
-            {
-                var scriptDoc = XDocument.Load(m_scriptPath);
-                var scriptInfos = scriptDoc.Element("Script").Elements("ScriptInfo");
+            var scriptInfo = scriptAccess.LoadScriptInfo(ProjectDir, EntryPoint);
 
-                foreach (var scriptInfoElement in scriptInfos)
-                {
-                    if (scriptInfoElement.Element("EntryPoint").Value == entryPoint
-                        && scriptInfoElement.Element("ProjectDirectory").Value == projectDir)
-                    {
-                        scriptInfo.Author = scriptInfoElement.Element("Author").Value.ToString();
-                        scriptInfo.Description = scriptInfoElement.Element("Description").Value.ToString();
-                        scriptInfo.MapModes = scriptInfoElement.Element("MapModes").Value.ToString();
-                    }
-                }
-            }
-
-            var isStandaloneScript = settingsElement.Element("StandaloneScript").Value.ToString();
-            var isLinkedFileWindowExpanded = settingsElement.Element("IsLinkedFileWindowExpanded").Value.ToString();
-
-            EntryPoint = entryPoint;
-            ProjectDir = projectDir;
             Author = scriptInfo.Author;
             Description = scriptInfo.Description;
             MapModes = scriptInfo.MapModes;
-            IsStandaloneScript = XmlConvert.ToBoolean(isStandaloneScript);
-            IsLinkedFileWindowExpanded = XmlConvert.ToBoolean(isLinkedFileWindowExpanded);
         }
 
         private void BrowseEntryPoint(object param)
@@ -329,48 +318,14 @@ namespace ScriptLinker.ViewModels
 
         public override void OnWindowClosing(object sender, CancelEventArgs e)
         {
-            // Save current settings
-            var settingsDoc = new XDocument(new XElement("Settings",
-                new XElement("EntryPoint", EntryPoint),
-                new XElement("ProjectDirectory", ProjectDir),
-                new XElement("StandaloneScript", IsStandaloneScript),
-                new XElement("IsLinkedFileWindowExpanded", IsLinkedFileWindowExpanded)));
-
-            settingsDoc.Save(m_settingsPath);
-
-            // Update script info
-            var scriptDoc = File.Exists(m_scriptPath) ? XDocument.Load(m_scriptPath) : new XDocument();
-            var query = from c in scriptDoc.Elements("Script").Elements("ScriptInfo") select c;
-            var updatedScriptInfo = false;
-
-            foreach (var scriptInfo in query)
+            settingsAccess.SaveSettings(new Settings()
             {
-                if (scriptInfo.Element("EntryPoint").Value == EntryPoint
-                    && scriptInfo.Element("ProjectDirectory").Value == ProjectDir)
-                {
-                    scriptInfo.Element("EntryPoint").Value = EntryPoint;
-                    scriptInfo.Element("ProjectDirectory").Value = ProjectDir;
-                    scriptInfo.Element("Author").Value = Author;
-                    scriptInfo.Element("Description").Value = Description;
-                    scriptInfo.Element("MapModes").Value = MapModes;
-                    updatedScriptInfo = true;
-                    break;
-                }
-            }
-
-            if (!updatedScriptInfo)
-            {
-                scriptDoc.Element("Script").Add(
-                    new XElement("ScriptInfo",
-                        new XElement("EntryPoint", EntryPoint),
-                        new XElement("ProjectDirectory", ProjectDir),
-                        new XElement("Author", Author),
-                        new XElement("Description", Description),
-                        new XElement("MapModes", MapModes)
-                    )
-                );
-            }
-            scriptDoc.Save(m_scriptPath);
+                EntryPoint = EntryPoint,
+                ProjectDirectory = ProjectDir,
+                StandaloneScript = IsStandaloneScript,
+                IsLinkedFileWindowExpanded = IsLinkedFileWindowExpanded,
+            });
+            scriptAccess.UpdateScriptInfo(ScriptInfo);
         }
     }
 }
