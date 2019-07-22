@@ -11,7 +11,7 @@
         xmlns:VM="clr-namespace:ScriptLinker.ViewModels"
 	    xmlns:converters="clr-namespace:ScriptLinker.Converters"
 	    xmlns:behaviors="clr-namespace:ScriptLinker.Behaviors"
-        Title="Script Importer"
+        Title="Script Linker"
         ResizeMode="NoResize"
         Icon="../Icon.ico"
         SizeToContent="Height"

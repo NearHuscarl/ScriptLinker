@@ -360,7 +360,7 @@ namespace ScriptLinker.ViewModels
 
             if (!updatedScriptInfo)
             {
-                scriptDoc.Add(new XElement("Script",
+                scriptDoc.Element("Script").Add(
                     new XElement("ScriptInfo",
                         new XElement("EntryPoint", EntryPoint),
                         new XElement("ProjectDirectory", ProjectDir),
@@ -368,7 +368,7 @@ namespace ScriptLinker.ViewModels
                         new XElement("Description", Description),
                         new XElement("MapModes", MapModes)
                     )
-                ));
+                );
             }
             scriptDoc.Save(m_scriptPath);
         }
