@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Windows.Forms;
 
 namespace ScriptLinker.Utilities
@@ -25,16 +27,31 @@ namespace ScriptLinker.Utilities
         };
 
         /// <summary>
-        /// Usage: WinUtil.BringMainWindowToFront("processName");
+        /// Usage: WinUtil.BringMainWindowToFront("windowTitle");
         /// to switch the focus to another application
         /// </summary>
         /// <param name="processName"></param>
-        public static bool BringMainWindowToFront(string processName)
+        public static bool BringMainWindowToFront(string windowTitle)
         {
-            // get the process
-            Process process = Process.GetProcessesByName(processName).FirstOrDefault();
+            var windows = GetWindows();
 
-            return BringMainWindowToFront(process);
+            foreach (var window in windows)
+            {
+                if (window.Title == windowTitle)
+                {
+                    // check if the window is hidden / minimized
+                    if (window.Handle == IntPtr.Zero)
+                    {
+                        // the window is hidden so try to restore it before setting focus.
+                        ShowWindow(window.Handle, ShowWindowEnum.Restore);
+                    }
+
+                    // set user the focus to the window
+                    return SetForegroundWindow(window.Handle) == 0;
+                }
+            }
+
+            return false;
         }
 
         public static bool BringMainWindowToFront(Process process)
@@ -50,8 +67,7 @@ namespace ScriptLinker.Utilities
                 }
 
                 // set user the focus to the window
-                SetForegroundWindow(process.MainWindowHandle);
-                return true;
+                return SetForegroundWindow(process.MainWindowHandle) == 0;
             }
             else
             {
@@ -63,6 +79,75 @@ namespace ScriptLinker.Utilities
         {
             process.WaitForInputIdle();
             SendKeys.SendWait(key);
+        }
+
+        [DllImport("user32.dll")]
+        static extern IntPtr GetForegroundWindow();
+        [DllImport("user32.dll")]
+        static extern int GetWindowText(IntPtr hWnd, StringBuilder text, int count);
+
+        public static string GetActiveWindowTitle()
+        {
+            const int nChars = 256;
+            var Buff = new StringBuilder(nChars);
+            var handle = GetForegroundWindow();
+
+            if (GetWindowText(handle, Buff, nChars) > 0)
+            {
+                return Buff.ToString();
+            }
+            return null;
+        }
+
+
+        public delegate bool EnumWindowsProc(IntPtr hwnd, int lParam);
+
+        [DllImport("user32")]
+        private static extern int GetWindowLongA(IntPtr hWnd, int index);
+
+        [DllImport("USER32.DLL")]
+        private static extern bool EnumWindows(EnumWindowsProc enumFunc, int lParam);
+
+        private const int GWL_STYLE = -16;
+
+        private const ulong WS_VISIBLE = 0x10000000L;
+        private const ulong WS_BORDER = 0x00800000L;
+        private const ulong TARGETWINDOW = WS_BORDER | WS_VISIBLE;
+
+        public class Window
+        {
+            public string Title;
+            public IntPtr Handle;
+
+            public override string ToString()
+            {
+                return Title;
+            }
+        }
+
+        public static List<Window> GetWindows()
+        {
+            var windows = new List<Window>();
+
+            EnumWindows((IntPtr hwnd, int lParam) =>
+            {
+                if (((ulong)GetWindowLongA(hwnd, GWL_STYLE) & TARGETWINDOW) == TARGETWINDOW)
+                {
+                    StringBuilder sb = new StringBuilder(100);
+                    GetWindowText(hwnd, sb, sb.Capacity);
+
+                    Window t = new Window
+                    {
+                        Handle = hwnd,
+                        Title = sb.ToString()
+                    };
+                    windows.Add(t);
+                }
+
+                return true; // continue enumeration
+            }, 0);
+
+            return windows;
         }
     }
 }

@@ -27,8 +27,7 @@
     1. Concat all C# files from the specified project into one single text file
     2. Switch to Superfighters Deluxe's script editor window (script tab in the Map Editor)
     3. Paste the resulted text from Step 1
-    4. Compile
-Note: The script editor window (instead of map editor) must be last active before switching to other windows for it to work</System:String>
+    4. Compile</System:String>
         <System:String x:Key="CopyToClipboardButtonTooltip" xml:space="preserve">Concat all C# files from the specified project into one single text file and add the result to clipboard</System:String>
     </Window.Resources>
     

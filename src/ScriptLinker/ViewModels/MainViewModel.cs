@@ -180,15 +180,24 @@ namespace ScriptLinker.ViewModels
                 CopyToClipboard(null);
 
                 // Focus on Script Editor window
-                WinUtil.BringMainWindowToFront(scriptEditorProcess);
-                // Tab to focus in the editor's text area if not already
-                WinUtil.Simulate(scriptEditorProcess, "{TAB}");
-                // CTRL-A Select all text in editor
-                WinUtil.Simulate(scriptEditorProcess, "^(a)");
-                // CTRL-V Paste clipboard content
-                WinUtil.Simulate(scriptEditorProcess, "^(v)");
-                // Compile newly pasted code
-                WinUtil.Simulate(scriptEditorProcess, "{F5}");
+                WinUtil.BringMainWindowToFront("Script Editor");
+
+                // Wait until the window is switching back
+                while (WinUtil.GetActiveWindowTitle() == null)
+                {
+                }
+
+                if (WinUtil.GetActiveWindowTitle() == "Script Editor")
+                {
+                    // Tab to focus in the editor's text area if not already
+                    WinUtil.Simulate(scriptEditorProcess, "{TAB}");
+                    // CTRL-A Select all text in editor
+                    WinUtil.Simulate(scriptEditorProcess, "^(a)");
+                    // CTRL-V Paste clipboard content
+                    WinUtil.Simulate(scriptEditorProcess, "^(v)");
+                    // Compile newly pasted code
+                    WinUtil.Simulate(scriptEditorProcess, "{F5}");
+                }
             }
         }
 
