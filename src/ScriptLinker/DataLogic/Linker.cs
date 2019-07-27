@@ -23,7 +23,8 @@ namespace ScriptLinker.DataLogic
             var relativePath = filePath.Substring(projectPath.Length + 1);
             var filePathLength = relativePath.Length;
             var bar = new string('-', filePathLength + 6);
-            return $@"// {bar}
+            return $@"
+// {bar}
 // File: {relativePath}
 // {bar}{Environment.NewLine}";
         }
@@ -41,7 +42,6 @@ namespace ScriptLinker.DataLogic
             sb.AppendLine($"* description: {info.Description}");
             sb.AppendLine($"* mapmodes: {info.MapModes}");
             sb.AppendLine("*/");
-            sb.AppendLine();
 
             return sb.ToString();
         }
