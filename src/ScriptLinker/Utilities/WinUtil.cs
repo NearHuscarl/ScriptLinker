@@ -10,28 +10,12 @@ namespace ScriptLinker.Utilities
 {
     public static class WinUtil
     {
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool ShowWindow(IntPtr hWnd, ShowWindowEnum flags);
-
-        [DllImport("user32.dll")]
-        private static extern int SetForegroundWindow(IntPtr hwnd);
-
-        private enum ShowWindowEnum
-        {
-            Hide = 0,
-            ShowNormal = 1, ShowMinimized = 2, ShowMaximized = 3,
-            Maximize = 3, ShowNormalNoActivate = 4, Show = 5,
-            Minimize = 6, ShowMinNoActivate = 7, ShowNoActivate = 8,
-            Restore = 9, ShowDefault = 10, ForceMinimized = 11
-        };
-
         /// <summary>
-        /// Usage: WinUtil.BringMainWindowToFront("windowTitle");
+        /// Usage: WinUtil.BringWindowToFront("windowTitle");
         /// to switch the focus to another application
         /// </summary>
         /// <param name="processName"></param>
-        public static bool BringMainWindowToFront(string windowTitle)
+        public static bool BringWindowToFront(string windowTitle, Action action)
         {
             var windows = GetWindows();
 
@@ -39,22 +23,51 @@ namespace ScriptLinker.Utilities
             {
                 if (window.Title == windowTitle)
                 {
-                    // check if the window is hidden / minimized
-                    if (window.Handle == IntPtr.Zero)
+                    var fgThread = WinAPI.GetWindowThreadProcessId(WinAPI.GetForegroundWindow(), out uint a);
+                    var appThread = WinAPI.GetCurrentThreadId();
+
+                    // the issue facing the design of SetForegroundWindow is that it can be used for focus stealing.
+                    // Focus is something that users should control. Applications that change the focus can be troublesome.
+                    // And so SetForegroundWindow attempts to defend against focus stealers. From document:
+                    //
+                    // A process can set the foreground window only if one of the following conditions is true:
+                    // - The process is the foreground process.
+                    // ...
+                    //
+                    // Note that a process that is being debugged is always granted permission to set foreground window.
+                    // That explains why you see no problems while debugging. But outside a debugger, if your process is
+                    // not the foreground process, then calls to SetForegroundWindow fail.
+                    //
+                    // The trick is to make windows 'think' that our process and the target window are related by
+                    // attaching the app thread to the currently focused window thread (foreground thread)
+                    if (fgThread != appThread)
                     {
-                        // the window is hidden so try to restore it before setting focus.
-                        ShowWindow(window.Handle, ShowWindowEnum.Restore);
+                        WinAPI.AttachThreadInput(fgThread, appThread, true);
+
+                        WinAPI.LockSetForegroundWindow(WinAPI.LSFW_UNLOCK);
+                        WinAPI.AllowSetForegroundWindow(WinAPI.ASFW_ANY);
+                        WinAPI.BringWindowToTop(window.Handle);
+                        // set user the focus to the window
+                        WinAPI.SetForegroundWindow(window.Handle);
+
+                        WinAPI.AttachThreadInput(fgThread, appThread, false);
+                    }
+                    else
+                    {
+                        WinAPI.LockSetForegroundWindow(WinAPI.LSFW_UNLOCK);
+                        WinAPI.AllowSetForegroundWindow(WinAPI.ASFW_ANY);
+                        WinAPI.BringWindowToTop(window.Handle);
+                        WinAPI.SetForegroundWindow(window.Handle);
                     }
 
-                    // set user the focus to the window
-                    return SetForegroundWindow(window.Handle) == 0;
+                    return true;
                 }
             }
 
             return false;
         }
 
-        public static bool BringMainWindowToFront(Process process)
+        public static bool BringWindowToFront(Process process)
         {
             // check if the process is running
             if (process != null)
@@ -63,11 +76,11 @@ namespace ScriptLinker.Utilities
                 if (process.MainWindowHandle == IntPtr.Zero)
                 {
                     // the window is hidden so try to restore it before setting focus.
-                    ShowWindow(process.Handle, ShowWindowEnum.Restore);
+                    WinAPI.ShowWindow(process.Handle, WinAPI.ShowWindowFlag.Restore);
                 }
 
                 // set user the focus to the window
-                return SetForegroundWindow(process.MainWindowHandle) == 0;
+                return WinAPI.SetForegroundWindow(process.MainWindowHandle);
             }
             else
             {

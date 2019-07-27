@@ -23,7 +23,7 @@
         <System:Double x:Key="labelWidth">100</System:Double>
         <System:Double x:Key="DefaultLinkedFileWindowHeight">110</System:Double>
         <converters:BoolToGridRowHeightConverter x:Key="GridRowHeightConverter" />
-        <System:String x:Key="CompileButtonTooltip" xml:space="preserve">Clicking this button (or pressing F4 globally) will automate the compiling task by:
+        <System:String x:Key="CompileButtonTooltip" xml:space="preserve">Clicking this button (or pressing F6 globally) will automate the compiling task by:
     1. Concat all C# files from the specified project into one single text file
     2. Switch to Superfighters Deluxe's script editor window (script tab in the Map Editor)
     3. Paste the resulted text from Step 1
@@ -228,7 +228,7 @@
                     ToolTip="{StaticResource CopyToClipboardButtonTooltip}"/>
                 <Button
                     Command="{Binding CompileCommand}"
-                    Content="Compile (F4)"
+                    Content="Compile (F6)"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
                     Width="140"

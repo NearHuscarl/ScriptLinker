@@ -118,6 +118,7 @@
     <Compile Include="Utilities\FileUtil.cs" />
     <Compile Include="Utilities\RegexPattern.cs" />
     <Compile Include="Utilities\VSProject.cs" />
+    <Compile Include="Utilities\WinAPI.cs" />
     <Compile Include="Utilities\WinUtil.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />

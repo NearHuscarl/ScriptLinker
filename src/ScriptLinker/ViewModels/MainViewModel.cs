@@ -155,7 +155,7 @@ namespace ScriptLinker.ViewModels
             scriptAccess = new ScriptAccess();
 
             m_keyboardHook = new GlobalKeyboardHook();
-            m_keyboardHook.HookedKeys.Add(System.Windows.Forms.Keys.F4);
+            m_keyboardHook.HookedKeys.Add(System.Windows.Forms.Keys.F6);
             m_keyboardHook.KeyUp += (sender, e) => Compile(null);
 
             m_linker = new Linker();
@@ -180,7 +180,27 @@ namespace ScriptLinker.ViewModels
                 CopyToClipboard(null);
 
                 // Focus on Script Editor window
-                WinUtil.BringMainWindowToFront("Script Editor");
+                if (!WinUtil.BringWindowToFront("Script Editor", () =>
+                {
+                    var dialog = new Microsoft.Win32.OpenFileDialog
+                    {
+                        DefaultExt = ".cs",
+                        Filter = "C# Files (*.cs)|*.cs",
+                        InitialDirectory = ProjectDir,
+                    };
+
+                    dialog.ShowDialog();
+                }))
+                {
+                    var dialog = new Microsoft.Win32.OpenFileDialog
+                    {
+                        DefaultExt = ".fs",
+                        Filter = "F# Files (*.fs)|*.fs",
+                        InitialDirectory = ProjectDir,
+                    };
+
+                    dialog.ShowDialog();
+                }
 
                 // Wait until the window is switching back
                 while (WinUtil.GetActiveWindowTitle() == null)
