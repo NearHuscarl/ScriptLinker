@@ -179,28 +179,8 @@ namespace ScriptLinker.ViewModels
             {
                 CopyToClipboard(null);
 
-                // Focus on Script Editor window
-                if (!WinUtil.BringWindowToFront("Script Editor", () =>
-                {
-                    var dialog = new Microsoft.Win32.OpenFileDialog
-                    {
-                        DefaultExt = ".cs",
-                        Filter = "C# Files (*.cs)|*.cs",
-                        InitialDirectory = ProjectDir,
-                    };
-
-                    dialog.ShowDialog();
-                }))
-                {
-                    var dialog = new Microsoft.Win32.OpenFileDialog
-                    {
-                        DefaultExt = ".fs",
-                        Filter = "F# Files (*.fs)|*.fs",
-                        InitialDirectory = ProjectDir,
-                    };
-
-                    dialog.ShowDialog();
-                }
+                // Switch to the Script Editor window
+                WinUtil.BringWindowToFront("Script Editor");
 
                 // Wait until the window is switching back
                 while (WinUtil.GetActiveWindowTitle() == null)

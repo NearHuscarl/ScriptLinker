@@ -15,7 +15,7 @@ namespace ScriptLinker.Utilities
         /// to switch the focus to another application
         /// </summary>
         /// <param name="processName"></param>
-        public static bool BringWindowToFront(string windowTitle, Action action)
+        public static bool BringWindowToFront(string windowTitle)
         {
             var windows = GetWindows();
 
