@@ -94,38 +94,18 @@ namespace ScriptLinker.Utilities
             SendKeys.SendWait(key);
         }
 
-        [DllImport("user32.dll")]
-        static extern IntPtr GetForegroundWindow();
-        [DllImport("user32.dll")]
-        static extern int GetWindowText(IntPtr hWnd, StringBuilder text, int count);
-
         public static string GetActiveWindowTitle()
         {
             const int nChars = 256;
-            var Buff = new StringBuilder(nChars);
-            var handle = GetForegroundWindow();
+            var buff = new StringBuilder(nChars);
+            var handle = WinAPI.GetForegroundWindow();
 
-            if (GetWindowText(handle, Buff, nChars) > 0)
+            if (WinAPI.GetWindowText(handle, buff, nChars) > 0)
             {
-                return Buff.ToString();
+                return buff.ToString();
             }
             return null;
         }
-
-
-        public delegate bool EnumWindowsProc(IntPtr hwnd, int lParam);
-
-        [DllImport("user32")]
-        private static extern int GetWindowLongA(IntPtr hWnd, int index);
-
-        [DllImport("USER32.DLL")]
-        private static extern bool EnumWindows(EnumWindowsProc enumFunc, int lParam);
-
-        private const int GWL_STYLE = -16;
-
-        private const ulong WS_VISIBLE = 0x10000000L;
-        private const ulong WS_BORDER = 0x00800000L;
-        private const ulong TARGETWINDOW = WS_BORDER | WS_VISIBLE;
 
         public class Window
         {
@@ -138,27 +118,28 @@ namespace ScriptLinker.Utilities
             }
         }
 
-        public static List<Window> GetWindows()
+        public static IEnumerable<Window> GetWindows()
         {
             var windows = new List<Window>();
+            var targetWindowStyle = WinAPI.WindowStyle.Border | WinAPI.WindowStyle.Visible;
 
-            EnumWindows((IntPtr hwnd, int lParam) =>
+            WinAPI.EnumWindows((IntPtr hwnd, IntPtr lParam) =>
             {
-                if (((ulong)GetWindowLongA(hwnd, GWL_STYLE) & TARGETWINDOW) == TARGETWINDOW)
+                if (((WinAPI.WindowStyle)WinAPI.GetWindowLongPtr(hwnd, WinAPI.GWL.Style) & targetWindowStyle) == targetWindowStyle)
                 {
-                    StringBuilder sb = new StringBuilder(100);
-                    GetWindowText(hwnd, sb, sb.Capacity);
+                    var sb = new StringBuilder(100);
+                    WinAPI.GetWindowText(hwnd, sb, sb.Capacity);
 
-                    Window t = new Window
+                    var window = new Window
                     {
                         Handle = hwnd,
                         Title = sb.ToString()
                     };
-                    windows.Add(t);
+                    windows.Add(window);
                 }
 
                 return true; // continue enumeration
-            }, 0);
+            }, IntPtr.Zero);
 
             return windows;
         }

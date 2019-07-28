@@ -5,7 +5,6 @@ using System.IO;
 using System.Windows;
 using System;
 using System.ComponentModel;
-using System.Xml.Linq;
 using System.Linq;
 
 // https://stackoverflow.com/a/41511598/9449426
@@ -15,7 +14,6 @@ using System.Collections.Generic;
 using ScriptLinker.DataLogic;
 using System.Diagnostics;
 using System.Timers;
-using System.Xml;
 using ScriptLinker.Access;
 
 namespace ScriptLinker.ViewModels
