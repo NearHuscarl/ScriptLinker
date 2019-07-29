@@ -23,8 +23,9 @@ namespace ScriptLinker.ViewModels
         private Linker m_linker;
         private ScheduledTask m_scheduledTask;
         private readonly GlobalKeyboardHook m_keyboardHook;
-        private SettingsAccess settingsAccess;
-        private ScriptAccess scriptAccess;
+        private SettingsAccess m_settingsAccess;
+        private ScriptAccess m_scriptAccess;
+        private VisualSln m_visualSln;
 
         public ICommand BrowseEntryPointCommand { get; private set; }
         public ICommand BrowseProjectDirCommand { get; private set; }
@@ -47,18 +48,16 @@ namespace ScriptLinker.ViewModels
             set
             {
                 projectDir = value;
-                var csProjDoc = VSProject.GetProjectInfo(ProjectDir);
+                RootNamespace = ProjectUtil.GetRootNamespace(ProjectDir);
 
-                if (csProjDoc != null)
+                if (RootNamespace != "")
                 {
-                    RootNamespace = csProjDoc
-                        .Element(VSProject.Msbuild + "Project")
-                        .Elements(VSProject.Msbuild + "PropertyGroup").First()
-                        .Element(VSProject.Msbuild + "RootNamespace").Value.ToString();
-                }
-                else
-                {
-                    RootNamespace = "";
+                    var slnPath = ProjectUtil.GetSlnPath(projectDir);
+
+                    if (slnPath != null)
+                    {
+                        m_visualSln = new VisualSln(slnPath);
+                    }
                 }
 
                 SetPropertyAndNotify(ref projectDir, projectDir);
@@ -74,7 +73,15 @@ namespace ScriptLinker.ViewModels
 
         private ProjectInfo ProjectInfo
         {
-            get { return new ProjectInfo(projectDir, entryPoint, rootNamespace); }
+            get {
+                return new ProjectInfo()
+                {
+                    ProjectDir = projectDir,
+                    EntryPoint = entryPoint,
+                    RootNamespace = rootNamespace,
+                    Breakpoints = m_visualSln.GetBreakpoints(),
+                };
+            }
         }
 
         private string author;
@@ -149,8 +156,8 @@ namespace ScriptLinker.ViewModels
 
         public MainViewModel()
         {
-            settingsAccess = new SettingsAccess();
-            scriptAccess = new ScriptAccess();
+            m_settingsAccess = new SettingsAccess();
+            m_scriptAccess = new ScriptAccess();
 
             m_keyboardHook = new GlobalKeyboardHook();
             m_keyboardHook.HookedKeys.Add(System.Windows.Forms.Keys.F6);
@@ -171,9 +178,9 @@ namespace ScriptLinker.ViewModels
 
         private void Compile(object param)
         {
-            var scriptEditorProcess = Process.GetProcessesByName("Superfighters Deluxe").FirstOrDefault();
+            var sfdProcess = Process.GetProcessesByName("Superfighters Deluxe").FirstOrDefault();
 
-            if (scriptEditorProcess != null)
+            if (sfdProcess != null)
             {
                 CopyToClipboard(null);
 
@@ -188,27 +195,27 @@ namespace ScriptLinker.ViewModels
                 if (WinUtil.GetActiveWindowTitle() == "Script Editor")
                 {
                     // Tab to focus in the editor's text area if not already
-                    WinUtil.Simulate(scriptEditorProcess, "{TAB}");
+                    WinUtil.Simulate(sfdProcess, "{TAB}");
                     // CTRL-A Select all text in editor
-                    WinUtil.Simulate(scriptEditorProcess, "^(a)");
+                    WinUtil.Simulate(sfdProcess, "^(a)");
                     // CTRL-V Paste clipboard content
-                    WinUtil.Simulate(scriptEditorProcess, "^(v)");
+                    WinUtil.Simulate(sfdProcess, "^(v)");
                     // Compile newly pasted code
-                    WinUtil.Simulate(scriptEditorProcess, "{F5}");
+                    WinUtil.Simulate(sfdProcess, "{F5}");
                 }
             }
         }
 
         private void LoadData()
         {
-            var settings = settingsAccess.LoadSettings();
+            var settings = m_settingsAccess.LoadSettings();
 
             EntryPoint = settings.EntryPoint;
             ProjectDir = settings.ProjectDirectory;
             IsStandaloneScript = settings.StandaloneScript;
             IsLinkedFileWindowExpanded = settings.IsLinkedFileWindowExpanded;
 
-            var scriptInfo = scriptAccess.LoadScriptInfo(ProjectDir, EntryPoint);
+            var scriptInfo = m_scriptAccess.LoadScriptInfo(ProjectDir, EntryPoint);
 
             Author = scriptInfo.Author;
             Description = scriptInfo.Description;
@@ -325,14 +332,14 @@ namespace ScriptLinker.ViewModels
 
         public override void OnWindowClosing(object sender, CancelEventArgs e)
         {
-            settingsAccess.SaveSettings(new Settings()
+            m_settingsAccess.SaveSettings(new Settings()
             {
                 EntryPoint = EntryPoint,
                 ProjectDirectory = ProjectDir,
                 StandaloneScript = IsStandaloneScript,
                 IsLinkedFileWindowExpanded = IsLinkedFileWindowExpanded,
             });
-            scriptAccess.UpdateScriptInfo(ScriptInfo);
+            m_scriptAccess.UpdateScriptInfo(ScriptInfo);
         }
     }
 }

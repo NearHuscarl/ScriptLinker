@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace ScriptLinker.Models
 {
@@ -19,6 +15,7 @@ namespace ScriptLinker.Models
         public string EntryPoint { get; set; }
 
         public string RootNamespace { get; set; }
+        public IEnumerable<Breakpoint> Breakpoints { get; set; }
 
         public ProjectInfo() : this("", "", "")
         {
@@ -29,6 +26,7 @@ namespace ScriptLinker.Models
             ProjectDir = projectDir;
             EntryPoint = entryPoint;
             RootNamespace = rootNamespace;
+            Breakpoints = new List<Breakpoint>();
         }
     }
 }

@@ -54,6 +54,9 @@
     <Reference Include="Ookii.Dialogs.Wpf, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Ookii.Dialogs.Wpf.1.0.0\lib\net45\Ookii.Dialogs.Wpf.dll</HintPath>
     </Reference>
+    <Reference Include="OpenMcdf, Version=2.2.1.2, Culture=neutral, PublicKeyToken=fdbb1629d7c00800, processorArchitecture=MSIL">
+      <HintPath>..\packages\OpenMcdf.2.2.1.3\lib\net40\OpenMcdf.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Collections.Immutable, Version=1.2.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Collections.Immutable.1.5.0\lib\netstandard2.0\System.Collections.Immutable.dll</HintPath>
@@ -105,6 +108,7 @@
     <Compile Include="Behaviors\ScrollViewerBehavior.cs" />
     <Compile Include="Converters\BoolToGridRowHeightConverter.cs" />
     <Compile Include="DataLogic\Linker.cs" />
+    <Compile Include="Models\Breakpoint.cs" />
     <Compile Include="Models\CSharpFileInfo.cs" />
     <Compile Include="Models\LinkResult.cs" />
     <Compile Include="Models\ProjectDirectory.cs" />
@@ -112,12 +116,15 @@
     <Compile Include="Models\ScriptInfo.cs" />
     <Compile Include="Models\Settings.cs" />
     <Compile Include="Utilities\GlobalKeyboardHook.cs" />
+    <Compile Include="Utilities\PathUtil.cs" />
     <Compile Include="Utilities\ScheduledTask.cs" />
     <Compile Include="Utilities\StopwatchExtensions.cs" />
     <Compile Include="Utilities\DelegateCommand.cs" />
     <Compile Include="Utilities\FileUtil.cs" />
     <Compile Include="Utilities\RegexPattern.cs" />
-    <Compile Include="Utilities\VSProject.cs" />
+    <Compile Include="Utilities\TextUtil.cs" />
+    <Compile Include="Utilities\VisualSln.cs" />
+    <Compile Include="Utilities\ProjectUtil.cs" />
     <Compile Include="Utilities\WinAPI.cs" />
     <Compile Include="Utilities\WinUtil.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />

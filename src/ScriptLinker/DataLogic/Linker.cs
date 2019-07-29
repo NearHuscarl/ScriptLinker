@@ -12,6 +12,7 @@ namespace ScriptLinker.DataLogic
     public class Linker
     {
         private readonly string projectName = Assembly.GetCallingAssembly().GetName().Name;
+        private readonly string breakpointStatement = "System.Diagnostics.Debugger.Break();";
 
         // It will print something like this:
         // 
@@ -102,14 +103,17 @@ namespace ScriptLinker.DataLogic
 
         public CSharpFileInfo ReadGameScriptFile(ProjectInfo projectInfo, string filePath = "")
         {
-            var sourceCode = new StringBuilder();
-            var usingNamespaces = new List<string>();
-            var fileNamespace = "";
-            
             if (filePath == "")
             {
                 filePath = projectInfo.EntryPoint;
             }
+
+            var sourceCode = new StringBuilder();
+            var usingNamespaces = new List<string>();
+            var fileNamespace = "";
+            var breakpoints = projectInfo.Breakpoints
+                .Where(b => b.File == filePath)
+                .ToDictionary(b => b.LineNumber, b => b);
 
             sourceCode.AppendLine(GetFileHeader(filePath, projectInfo.ProjectDir));
 
@@ -117,6 +121,7 @@ namespace ScriptLinker.DataLogic
             {
                 var line = "";
                 var codeBlock = 0;
+                var lineNumber = 1;
 
                 while ((line = file.ReadLine()) != null)
                 {
@@ -167,10 +172,16 @@ namespace ScriptLinker.DataLogic
                     {
                         sourceCode.AppendLine(line);
                     }
+                    if (breakpoints.ContainsKey(lineNumber))
+                    {
+                        sourceCode.AppendLine(breakpointStatement);
+                    }
 
                     Finish:
                     if (endBlock)
                         codeBlock--;
+
+                    lineNumber++;
                 }
             }
 
@@ -187,6 +198,9 @@ namespace ScriptLinker.DataLogic
             var sourceCode = new StringBuilder();
             var usingNamespaces = new List<string>();
             var fileNamespace = "";
+            var breakpoints = projectInfo.Breakpoints
+                .Where(b => b.File == filePath)
+                .ToDictionary(b => b.LineNumber, b => b);
 
             sourceCode.AppendLine(GetFileHeader(filePath, projectInfo.ProjectDir));
 
@@ -194,6 +208,7 @@ namespace ScriptLinker.DataLogic
             {
                 var line = "";
                 var codeBlock = 0;
+                var lineNumber = 1;
 
                 while ((line = file.ReadLine()) != null)
                 {
@@ -256,9 +271,15 @@ namespace ScriptLinker.DataLogic
                     {
                         sourceCode.AppendLine(line);
                     }
+                    if (breakpoints.ContainsKey(lineNumber))
+                    {
+                        sourceCode.AppendLine(breakpointStatement);
+                    }
 
                     if (endBlock)
                         codeBlock--;
+
+                    lineNumber++;
                 }
             }
 
