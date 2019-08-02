@@ -4,10 +4,15 @@ namespace ScriptLinker.Utilities
 {
     public static class RegexPattern
     {
+        public static Regex AccessModifier = new Regex(@"(public|protected|private|internal)?");
+        public static Regex Identifier = new Regex(@"[a-zA-Z0-9_]+"); // variable, class, method
+
         public static Regex Namespace = new Regex(@"^\s*namespace (.*)");
-        // public partial class GameScript() : base(null) { }
-        public static Regex GameScriptClass = new Regex(@"^\s*public\s+(partial)+\s+class\s+GameScript()");
-        public static Regex GameScriptCtor = new Regex(@"^\s*public\s+GameScript()");
+        // public partial class ClassName : GameScriptInterface
+        public static Regex EntryPointClass = new Regex($@"^\s*{AccessModifier}\s+(partial\s)?class\s+{Identifier}\s*:\s*GameScriptInterface");
+        public static Regex PartialClass = new Regex($@"^\s*{AccessModifier}\s+partial\s+class\s+{Identifier}");
+        // public ClassName()
+        public static Regex Constructor = new Regex($@"^\s*{AccessModifier}\s+{Identifier}\(\)");
         public static Regex UsingStatement = new Regex(@"^\s*using\s+(.*);");
     }
 }

@@ -9,7 +9,7 @@ namespace ScriptLinker.Models
     public class CSharpFileInfo
     {
         public string Content { get; set; } = "";
-        public List<string> UsingNamespaces { get; set; }
-        public string Namespace { get; set; }
+        public List<string> UsingNamespaces { get; set; } = new List<string>();
+        public string Namespace { get; set; } = "";
     }
 }

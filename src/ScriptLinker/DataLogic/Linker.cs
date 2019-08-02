@@ -56,11 +56,11 @@ namespace ScriptLinker.DataLogic
 
             sb.Append(GetHeader(scriptInfo));
 
-            var gameSriptInfo = ReadGameScriptFile(projectInfo);
+            var entryPointInfo = ReadEntryPointFile(projectInfo);
 
-            sb.AppendLine(gameSriptInfo.Content);
+            sb.AppendLine(entryPointInfo.Content);
             linkedFiles.Add(projectInfo.EntryPoint);
-            newNamespaces = gameSriptInfo.UsingNamespaces
+            newNamespaces = entryPointInfo.UsingNamespaces
                 .Where(ns => ns.StartsWith(projectInfo.RootNamespace))
                 .Select(ns => ns.Trim()).ToList();
 
@@ -74,7 +74,7 @@ namespace ScriptLinker.DataLogic
                     var ns = FileUtil.GetNamespace(file);
                     if (newNamespaces.Contains(ns))
                     {
-                        var fileInfo = ReadCSharpFile(projectInfo, file, gameSriptInfo.Namespace);
+                        var fileInfo = ReadCSharpFile(projectInfo, file, entryPointInfo.Namespace);
 
                         sb.Append(fileInfo.Content);
                         addedNamespaces.AddRange(fileInfo.UsingNamespaces);
@@ -101,7 +101,13 @@ namespace ScriptLinker.DataLogic
             };
         }
 
-        public CSharpFileInfo ReadGameScriptFile(ProjectInfo projectInfo, string filePath = "")
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="projectInfo"></param>
+        /// <param name="filePath">Specify if it's a partial class of the entrypoint class</param>
+        /// <returns></returns>
+        public CSharpFileInfo ReadEntryPointFile(ProjectInfo projectInfo, string filePath = "")
         {
             if (filePath == "")
             {
@@ -159,7 +165,7 @@ namespace ScriptLinker.DataLogic
                     if (startBlock)
                         codeBlock++;
 
-                    if (RegexPattern.GameScriptCtor.Match(line).Success)
+                    if (RegexPattern.Constructor.Match(line).Success)
                     {
                         goto Finish;
                     }
@@ -193,7 +199,7 @@ namespace ScriptLinker.DataLogic
             };
         }
 
-        public CSharpFileInfo ReadCSharpFile(ProjectInfo projectInfo, string filePath, string gameScriptNamespace)
+        public CSharpFileInfo ReadCSharpFile(ProjectInfo projectInfo, string filePath, string entryPointNamespace)
         {
             var sourceCode = new StringBuilder();
             var usingNamespaces = new List<string>();
@@ -226,11 +232,11 @@ namespace ScriptLinker.DataLogic
                         }
                     }
 
-                    if (RegexPattern.GameScriptClass.Match(line).Success)
+                    if (RegexPattern.EntryPointClass.Match(line).Success)
                     {
-                        if (fileNamespace == gameScriptNamespace) // partial GameScript class
+                        if (fileNamespace == entryPointNamespace && RegexPattern.PartialClass.Match(line).Success)
                         {
-                            return ReadGameScriptFile(projectInfo, filePath);
+                            return ReadEntryPointFile(projectInfo, filePath);
                         }
                         else
                             return new CSharpFileInfo(); // Only import normal c# file. Ignore another game script unless it's a partial class
