@@ -10,7 +10,7 @@ namespace ScriptLinker.Utilities
         /// Retrieves the thread identifier of the calling thread.
         /// </summary>
         /// <returns></returns>
-        [DllImport("kernel32.dll")]
+        [DllImport("kernel32.dll", SetLastError = true)]
         internal static extern uint GetCurrentThreadId();
 
         /// <summary>

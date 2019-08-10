@@ -64,10 +64,14 @@
                     HorizontalAlignment="Left"
                     VerticalAlignment="Center"
 				    Text="{Binding EntryPoint, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                    ToolTip="{Binding EntryPoint, Mode=OneWay}"
+                    ToolTip="{Binding EntryPointTooltip, Mode=OneWay}"
                     Margin="5,0,0,0"
                     Height="20"
-                    Width="{StaticResource textBoxWidth}" />
+                    Width="{StaticResource textBoxWidth}">
+                    <TextBox.InputBindings>
+                        <MouseBinding Gesture="LeftDoubleClick" Command="{Binding OpenEntryPointCommand}"/>
+                    </TextBox.InputBindings>
+                </TextBox>
                 <Button
                     Command="{Binding BrowseEntryPointCommand}"
                     Content="Browse"
@@ -92,10 +96,14 @@
                     HorizontalAlignment="Left"
                     VerticalAlignment="Center"
 				    Text="{Binding ProjectDir, Mode=TwoWay}"
-                    ToolTip="{Binding ProjectDir, Mode=OneWay}"
+                    ToolTip="{Binding ProjectDirTooltip, Mode=OneWay}"
                     Margin="5,0,0,0"
                     Height="20"
-                    Width="{StaticResource textBoxWidth}" />
+                    Width="{StaticResource textBoxWidth}">
+                    <TextBox.InputBindings>
+                        <MouseBinding Gesture="LeftDoubleClick" Command="{Binding OpenProjectDirCommand}"/>
+                    </TextBox.InputBindings>
+                </TextBox>
                 <Button
                     Command="{Binding BrowseProjectDirCommand}"
                     Content="Browse"

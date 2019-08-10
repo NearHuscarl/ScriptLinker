@@ -12,6 +12,8 @@ namespace ScriptLinker.Utilities
     {
         public static IEnumerable<string> GetScriptFiles(string directory)
         {
+            if (!Directory.Exists(directory)) yield break;
+
             foreach (string file in Directory.EnumerateFiles(directory, "*.cs", SearchOption.AllDirectories))
             {
                 if (Regex.Match(file, @"(\\obj\\|\\Properties\\)").Success)

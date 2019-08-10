@@ -26,9 +26,12 @@ namespace ScriptLinker.ViewModels
         private SettingsAccess m_settingsAccess;
         private ScriptAccess m_scriptAccess;
         private VisualSln m_visualSln;
+        private FileSystemWatcher m_fileWatcher;
 
         public ICommand BrowseEntryPointCommand { get; private set; }
+        public ICommand OpenEntryPointCommand { get; private set; }
         public ICommand BrowseProjectDirCommand { get; private set; }
+        public ICommand OpenProjectDirCommand { get; private set; }
         public ICommand CopyToClipboardCommand { get; private set; }
         public ICommand CompileCommand { get; private set; }
         public ICommand ExpandLinkedFilesWindowCommand { get; private set; }
@@ -38,7 +41,11 @@ namespace ScriptLinker.ViewModels
         public string EntryPoint
         {
             get { return entryPoint; }
-            set { SetPropertyAndNotify(ref entryPoint, value); }
+            set
+            {
+                SetPropertyAndNotify(ref entryPoint, value);
+                ResetFileWatcher();
+            }
         }
 
         private string projectDir;
@@ -47,8 +54,10 @@ namespace ScriptLinker.ViewModels
             get { return projectDir; }
             set
             {
-                projectDir = value;
+                SetPropertyAndNotify(ref projectDir, value);
+
                 RootNamespace = ProjectUtil.GetRootNamespace(ProjectDir);
+                ResetFileWatcher();
 
                 if (RootNamespace != "")
                 {
@@ -59,8 +68,6 @@ namespace ScriptLinker.ViewModels
                         m_visualSln = new VisualSln(slnPath);
                     }
                 }
-
-                SetPropertyAndNotify(ref projectDir, projectDir);
             }
         }
 
@@ -79,7 +86,7 @@ namespace ScriptLinker.ViewModels
                     ProjectDir = projectDir,
                     EntryPoint = entryPoint,
                     RootNamespace = rootNamespace,
-                    Breakpoints = m_visualSln.GetBreakpoints(),
+                    Breakpoints = m_visualSln != null ? m_visualSln.GetBreakpoints() : new List<Breakpoint>(),
                 };
             }
         }
@@ -154,6 +161,16 @@ namespace ScriptLinker.ViewModels
             set { SetPropertyAndNotify(ref linkedFiles, value); }
         }
 
+        public string EntryPointTooltip
+        {
+            get { return EntryPoint + "\nDouble click to open"; }
+        }
+
+        public string ProjectDirTooltip
+        {
+            get { return ProjectDir + "\nDouble click to open in explorer"; }
+        }
+
         public MainViewModel()
         {
             m_settingsAccess = new SettingsAccess();
@@ -167,13 +184,45 @@ namespace ScriptLinker.ViewModels
             m_scheduledTask = new ScheduledTask();
 
             BrowseEntryPointCommand = new DelegateCommand(BrowseEntryPoint);
+            OpenEntryPointCommand = new DelegateCommand(OpenEntryPoint);
             BrowseProjectDirCommand = new DelegateCommand(BrowseProjectDir);
+            OpenProjectDirCommand = new DelegateCommand(OpenProjectDir);
             CopyToClipboardCommand = new DelegateCommand(CopyToClipboard);
             CompileCommand = new DelegateCommand(Compile);
             ExpandLinkedFilesWindowCommand = new DelegateCommand(ExpandLinkedFilesWindow);
             OpenFileCommand = new DelegateCommand(OpenFile);
 
             LoadData();
+        }
+
+        private void ResetFileWatcher()
+        {
+            if (!Directory.Exists(ProjectDir) || !File.Exists(EntryPoint)) return;
+
+            m_fileWatcher = new FileSystemWatcher
+            {
+                Path = ProjectDir,
+                NotifyFilter = NotifyFilters.LastWrite |
+                         NotifyFilters.FileName |
+                         NotifyFilters.DirectoryName,
+                Filter = "*.cs",
+                IncludeSubdirectories = true,
+            };
+
+            m_fileWatcher.Created += (sender, e) =>
+            {
+                if (!File.Exists(EntryPoint) && Path.GetFileName(EntryPoint) == Path.GetFileName(e.Name))
+                {
+                    EntryPoint = e.FullPath; // A naive solution to detect entry point file moved
+                }
+            };
+            m_fileWatcher.Renamed += (sender, e) =>
+            {
+                EntryPoint = e.FullPath;
+            };
+
+            // Begin watching.
+            m_fileWatcher.EnableRaisingEvents = true;
         }
 
         private void Compile(object param)
@@ -238,6 +287,20 @@ namespace ScriptLinker.ViewModels
             }
         }
 
+        private void OpenEntryPoint(object param)
+        {
+            if (File.Exists(EntryPoint))
+            {
+                Process.Start(EntryPoint);
+            }
+            else
+            {
+                MessageBox.Show($"File not found: {EntryPoint}", "Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
         private void BrowseProjectDir(object param)
         {
             var dialog = new CommonOpenFileDialog
@@ -249,6 +312,20 @@ namespace ScriptLinker.ViewModels
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
                 ProjectDir = dialog.FileName;
+            }
+        }
+
+        private void OpenProjectDir(object param)
+        {
+            if (Directory.Exists(ProjectDir))
+            {
+                Process.Start(ProjectDir);
+            }
+            else
+            {
+                MessageBox.Show($"Directory not found: {ProjectDir}", "Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
             }
         }
 
@@ -276,7 +353,7 @@ namespace ScriptLinker.ViewModels
             Clipboard.SetText(sourceCode);
             stopwatch.PrintTime("CopyToClipboard() ToClipboard");
             GenerateOutputFile(sourceCode);
-            var message = $"Successfully linked {result.LinkedFiles.Count} files! ({stopwatch.ElapsedMilliseconds} ms)";
+            var message = $"Successfully linked {result.LinkedFiles.Count} file(s)! ({stopwatch.ElapsedMilliseconds} ms)";
             ShowSuccessMessage(message, 5000);
             stopwatch.PrintTime("CopyToClipboard() Gen output file");
         }

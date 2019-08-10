@@ -4,7 +4,7 @@ namespace ScriptLinker.Models
 {
     public class LinkResult
     {
-        public string Content { get; set; }
-        public HashSet<string> LinkedFiles { get; set; }
+        public string Content { get; set; } = "";
+        public HashSet<string> LinkedFiles { get; set; } = new HashSet<string>();
     }
 }

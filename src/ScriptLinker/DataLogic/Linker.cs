@@ -49,6 +49,8 @@ namespace ScriptLinker.DataLogic
 
         public LinkResult Link(ProjectInfo projectInfo, ScriptInfo scriptInfo)
         {
+            if (!File.Exists(projectInfo.EntryPoint)) return new LinkResult();
+
             var linkedFiles = new HashSet<string>();
             var usingNamespaces = new HashSet<string>();
             var newNamespaces = new List<string>();
@@ -113,6 +115,8 @@ namespace ScriptLinker.DataLogic
             {
                 filePath = projectInfo.EntryPoint;
             }
+
+            if (!File.Exists(filePath)) return new CSharpFileInfo();
 
             var sourceCode = new StringBuilder();
             var usingNamespaces = new List<string>();
@@ -201,6 +205,8 @@ namespace ScriptLinker.DataLogic
 
         public CSharpFileInfo ReadCSharpFile(ProjectInfo projectInfo, string filePath, string entryPointNamespace)
         {
+            if (!File.Exists(filePath)) return new CSharpFileInfo();
+
             var sourceCode = new StringBuilder();
             var usingNamespaces = new List<string>();
             var fileNamespace = "";
