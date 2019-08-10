@@ -218,7 +218,10 @@ namespace ScriptLinker.ViewModels
             };
             m_fileWatcher.Renamed += (sender, e) =>
             {
-                EntryPoint = e.FullPath;
+                if (Path.GetFileName(e.OldName) == EntryPoint)
+                {
+                    EntryPoint = e.FullPath;
+                }
             };
 
             // Begin watching.
@@ -372,12 +375,21 @@ namespace ScriptLinker.ViewModels
 
         private async void GenerateOutputFile(string sourceCode)
         {
-            var outputPath = Path.ChangeExtension(EntryPoint, "txt");
-            await FileUtil.WriteTextAsync(outputPath, sourceCode);
-
-            if (IsStandaloneScript)
+            try
             {
-                CopyToScriptFolder(sourceCode);
+                var outputPath = Path.ChangeExtension(EntryPoint, "txt");
+                await FileUtil.WriteTextAsync(outputPath, sourceCode);
+
+                if (IsStandaloneScript)
+                {
+                    CopyToScriptFolder(sourceCode);
+                }
+            }
+            catch (IOException ex)
+            {
+                MessageBox.Show($"Don't spam the button bruh", "Info",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
             }
         }
 
