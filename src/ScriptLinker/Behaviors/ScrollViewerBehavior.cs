@@ -38,21 +38,19 @@ namespace ScriptLinker.Behaviors
             {
                 if ((bool)e.NewValue == true)
                 {
-                    if ((bool)e.NewValue == true)
-                    {
-                        dependencyPropertyDescriptor.AddValueChanged(itemsControl, ItemsSourceChanged);
-                    }
-                    else
-                    {
-                        dependencyPropertyDescriptor.RemoveValueChanged(itemsControl, ItemsSourceChanged);
-                    }
+                    dependencyPropertyDescriptor.AddValueChanged(itemsControl, ItemsSourceChanged);
+                }
+                else
+                {
+                    dependencyPropertyDescriptor.RemoveValueChanged(itemsControl, ItemsSourceChanged);
                 }
             }
         }
         static void ItemsSourceChanged(object sender, EventArgs e)
         {
-            ItemsControl itemsControl = sender as ItemsControl;
+            var itemsControl = sender as ItemsControl;
             EventHandler eventHandler = null;
+
             eventHandler = new EventHandler(delegate
             {
                 if (itemsControl.ItemContainerGenerator.Status == GeneratorStatus.ContainersGenerated)

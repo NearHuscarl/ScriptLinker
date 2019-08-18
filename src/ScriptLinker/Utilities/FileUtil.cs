@@ -1,10 +1,10 @@
-﻿using ScriptLinker.Models;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace ScriptLinker.Utilities
 {
@@ -43,51 +43,6 @@ namespace ScriptLinker.Utilities
             return "";
         }
 
-        public static ScriptInfo ReadOutputScriptInfo(string outputPath)
-        {
-            var scriptInfo = new ScriptInfo();
-
-            if (!File.Exists(outputPath))
-                return scriptInfo;
-
-            const int bufferSize = 128;
-            using (var fileStream = File.OpenRead(outputPath))
-            using (var streamReader = new StreamReader(fileStream, Encoding.UTF8, true, bufferSize))
-            {
-                var line = "";
-                var readLastInput = false;
-
-                while ((line = streamReader.ReadLine()) != null)
-                {
-                    if (readLastInput) break;
-                    Match match;
-
-                    match = Regex.Match(line, @"^\* author: (.*)");
-                    if (match.Success)
-                    {
-                        scriptInfo.Author = match.Groups[1].Value;
-                        continue;
-                    }
-
-                    match = Regex.Match(line, @"^\* description: (.*)");
-                    if (match.Success)
-                    {
-                        scriptInfo.Description = match.Groups[1].Value;
-                        continue;
-                    }
-
-                    match = Regex.Match(line, @"^\* mapmodes: (.*)");
-                    if (match.Success)
-                    {
-                        scriptInfo.MapModes = match.Groups[1].Value;
-                        readLastInput = true;
-                    }
-                }
-            }
-
-            return scriptInfo;
-        }
-
         public static async Task CopyFileAsync(string sourcePath, string destinationPath)
         {
             using (var sourceStream = new FileStream(sourcePath,
@@ -111,6 +66,34 @@ namespace ScriptLinker.Utilities
             {
                 await sourceStream.WriteAsync(encodedText, 0, encodedText.Length);
             };
+        }
+
+        public static void OpenFile(string path)
+        {
+            if (File.Exists(path))
+            {
+                Process.Start(path);
+            }
+            else
+            {
+                MessageBox.Show($"File not found: {path}", "Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
+        public static void OpenDirectory(string path)
+        {
+            if (Directory.Exists(path))
+            {
+                Process.Start(path);
+            }
+            else
+            {
+                MessageBox.Show($"Directory not found: {path}", "Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
         }
     }
 }

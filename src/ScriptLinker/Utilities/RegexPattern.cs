@@ -12,7 +12,7 @@ namespace ScriptLinker.Utilities
         public static Regex EntryPointClass = new Regex($@"^\s*{AccessModifier}\s+(partial\s)?class\s+{Identifier}\s*:\s*GameScriptInterface");
         public static Regex PartialClass = new Regex($@"^\s*{AccessModifier}\s+partial\s+class\s+{Identifier}");
         // public ClassName()
-        public static Regex Constructor = new Regex($@"^\s*{AccessModifier}\s+{Identifier}\(\)");
+        public static Regex Constructor = new Regex($@"^\s*{AccessModifier}\s+{Identifier}\(\)(?!.*?;).*$");
         public static Regex UsingStatement = new Regex(@"^\s*using\s+(.*);");
     }
 }

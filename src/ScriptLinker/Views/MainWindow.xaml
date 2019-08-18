@@ -19,8 +19,8 @@
         Width="575">
 
     <Window.Resources>
-        <System:Double x:Key="textBoxWidth">350</System:Double>
-        <System:Double x:Key="labelWidth">100</System:Double>
+        <System:Double x:Key="TextBoxWidth">350</System:Double>
+        <System:Double x:Key="TextBoxHeight">20</System:Double>
         <System:Double x:Key="DefaultLinkedFileWindowHeight">110</System:Double>
         <converters:BoolToGridRowHeightConverter x:Key="GridRowHeightConverter" />
         <System:String x:Key="CompileButtonTooltip" xml:space="preserve">Clicking this button (or pressing F6 globally) will automate the compiling task by:
@@ -32,195 +32,64 @@
     </Window.Resources>
     
     <Window.InputBindings>
+        <KeyBinding Key="N" Modifiers="Ctrl" Command="{Binding OpenCreateNewScriptCommand}"/>
+        <KeyBinding Key="S" Modifiers="Ctrl" Command="{Binding SaveScriptInfoCommand}"/>
+        <KeyBinding Key="Delete" Command="{Binding DeleteScriptInfoCommand}"/>
         <KeyBinding Key="F7" Command="{Binding CopyToClipboardCommand}" />
     </Window.InputBindings>
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="240"/>
             <RowDefinition Height="20"/>
-            <RowDefinition Height="75"/>
+            <RowDefinition Height="*"/>
             <RowDefinition Height="{Binding IsLinkedFileWindowExpanded,
                 Converter={StaticResource GridRowHeightConverter},
                 ConverterParameter={StaticResource DefaultLinkedFileWindowHeight}}"/>
         </Grid.RowDefinitions>
 
+        <Menu>
+            <MenuItem Header="_Script">
+                <MenuItem Header="_New" Command="{Binding OpenCreateNewScriptCommand}" InputGestureText="Ctrl+N"/>
+                <MenuItem Header="_Save" Command="{Binding SaveScriptInfoCommand}" InputGestureText="Ctrl+S"/>
+                <MenuItem Header="_Delete" Command="{Binding DeleteScriptInfoCommand}" InputGestureText="Delete"/>
+            </MenuItem>
+            <!--<MenuItem Header="_About">
+            </MenuItem>-->
+        </Menu>
+
         <StackPanel
-            Grid.Row="0" Grid.Column="0"
+            Grid.Row="1" Grid.Column="0"
             Orientation="Vertical">
             
-            <StackPanel 
-                Orientation="Horizontal"
-                HorizontalAlignment="Left"
-                Margin="20,20,0,0">
-                <Label
-                    Content="Entry Point"
-                    Margin="0,0,0,0"
-                    Width="{StaticResource labelWidth}"
-                    HorizontalAlignment="Left"
-                    HorizontalContentAlignment="Right"
-                    VerticalAlignment="Center"/>
-                <TextBox
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Center"
-				    Text="{Binding EntryPoint, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                    ToolTip="{Binding EntryPointTooltip, Mode=OneWay}"
-                    Margin="5,0,0,0"
-                    Height="20"
-                    Width="{StaticResource textBoxWidth}">
-                    <TextBox.InputBindings>
-                        <MouseBinding Gesture="LeftDoubleClick" Command="{Binding OpenEntryPointCommand}"/>
-                    </TextBox.InputBindings>
-                </TextBox>
-                <Button
-                    Command="{Binding BrowseEntryPointCommand}"
-                    Content="Browse"
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Center"
-                    Margin="5,0,0,0"
-                    Width="67"/>
-            </StackPanel>
+            <ComboBox
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Margin="76,30,0,10"
+                Height="{StaticResource TextBoxHeight}"
+                Width="{StaticResource TextBoxWidth}"
+                ToolTip="Script name is case sensitive and must be unique"
+                ItemsSource="{Binding ScriptNames}"
+                SelectedItem="{Binding ScriptName}" />
 
-            <StackPanel 
-                Orientation="Horizontal"
-                HorizontalAlignment="Left"
-                Margin="20,5,0,0">
-                <Label
-                    Content="Project Directory"
-                    Margin="0,0,0,0"
-                    Width="{StaticResource labelWidth}"
-                    HorizontalAlignment="Left"
-                    HorizontalContentAlignment="Right"
-                    VerticalAlignment="Top"/>
-                <TextBox
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Center"
-				    Text="{Binding ProjectDir, Mode=TwoWay}"
-                    ToolTip="{Binding ProjectDirTooltip, Mode=OneWay}"
-                    Margin="5,0,0,0"
-                    Height="20"
-                    Width="{StaticResource textBoxWidth}">
-                    <TextBox.InputBindings>
-                        <MouseBinding Gesture="LeftDoubleClick" Command="{Binding OpenProjectDirCommand}"/>
-                    </TextBox.InputBindings>
-                </TextBox>
-                <Button
-                    Command="{Binding BrowseProjectDirCommand}"
-                    Content="Browse"
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Center"
-                    Margin="5,0,0,0"
-                    Width="67"/>
-            </StackPanel>
+            <local:ScriptInfoForm
+                Loaded="ScriptInfoForm_Loaded"
+                HorizontalAlignment="Center"
+                DisplaySubmitButton="False"
+                OnSubmit="{Binding DataContext.SaveScriptInfo, Mode=OneTime,
+                    RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"
+                HotKey="S" HotKeyModifiers="Ctrl" />
 
-            <StackPanel 
-                Orientation="Horizontal"
-                HorizontalAlignment="Left"
-                Margin="20,5,0,0">
-                <Label
-                    Content="Root Namespace"
-                    Margin="0,0,0,0"
-                    Width="{StaticResource labelWidth}"
-                    HorizontalAlignment="Left"
-                    HorizontalContentAlignment="Right"
-                    VerticalAlignment="Top"/>
-                <TextBox
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Center"
-                    IsEnabled="False"
-				    Text="{Binding RootNamespace, Mode=OneWay}"
-                    Margin="5,0,0,0"
-                    Height="20"
-                    Width="{StaticResource textBoxWidth}" />
-            </StackPanel>
-
-            <StackPanel 
-                Orientation="Horizontal"
-                HorizontalAlignment="Left"
-                Margin="20,5,0,0">
-                <Label
-                    Content="Author"
-                    Margin="0,0,0,0"
-                    Width="{StaticResource labelWidth}"
-                    HorizontalAlignment="Left"
-                    HorizontalContentAlignment="Right"
-                    VerticalAlignment="Top"/>
-                <TextBox
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Center"
-				    Text="{Binding Author, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                    Margin="5,0,0,0"
-                    Height="20"
-                    Width="{StaticResource textBoxWidth}" />
-            </StackPanel>
-
-            <StackPanel 
-                Orientation="Horizontal"
-                HorizontalAlignment="Left"
-                Margin="20,5,0,0">
-                <Label
-                    Content="Description"
-                    Margin="0,0,0,0"
-                    Width="{StaticResource labelWidth}"
-                    HorizontalAlignment="Left"
-                    HorizontalContentAlignment="Right"
-                    VerticalAlignment="Top"/>
-                <TextBox
-                    TextWrapping="Wrap"
-                    AcceptsReturn="True"
-                    AcceptsTab="True"
-                    SpellCheck.IsEnabled="True"
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Center"
-				    Text="{Binding Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                    Margin="5,0,0,0"
-                    Height="60"
-                    Width="{StaticResource textBoxWidth}" />
-            </StackPanel>
-
-            <StackPanel 
-                Orientation="Horizontal"
-                HorizontalAlignment="Left"
-                Margin="20,5,0,0">
-                <Label
-                    Content="Map Modes"
-                    Margin="0,0,0,0"
-                    Width="{StaticResource labelWidth}"
-                    HorizontalAlignment="Left"
-                    HorizontalContentAlignment="Right"
-                    VerticalAlignment="Top"/>
-                <TextBox
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Center"
-				    Text="{Binding MapModes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                    Margin="5,0,0,0"
-                    Height="20"
-                    Width="{StaticResource textBoxWidth}" />
-            </StackPanel>
-        </StackPanel>
-
-        <StackPanel 
-            Grid.Row="1" Grid.Column="0"
-            Orientation="Horizontal"
-            HorizontalAlignment="Center">
-            
             <CheckBox
                 Content="Standalone Script"
                 IsChecked="{Binding IsStandaloneScript}"
-                Margin="-143,0,0,0"
-                />
-            
-        </StackPanel>
+                Margin="143,10,0,0" />
 
-        <StackPanel
-            Grid.Row="2" Grid.Column="0"
-            Orientation="Vertical">
             <Label
                 FontWeight="Bold"
                 Foreground="Green"
                 HorizontalAlignment="Center"
                 Content="{Binding SuccessInfo, FallbackValue='Successfully linked 8 files', TargetNullValue={}}"/>
-                <!--TargetNullValue={} prevents Content control from collapsing when empty-->
+            <!--TargetNullValue={} prevents Content control from collapsing when empty-->
 
             <StackPanel
                 Orientation="Horizontal"
@@ -256,8 +125,7 @@
                 Height="15"/>
         </StackPanel>
 
-        <Grid
-            Grid.Row="3" Grid.Column="0">
+        <Grid Grid.Row="2" Grid.Column="0">
             
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>

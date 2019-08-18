@@ -6,20 +6,21 @@ namespace ScriptLinker.Utilities
     /// <summary>
     /// A reusable ICommand
     /// https://www.wpftutorial.net/DelegateCommand.html
+    /// https://stackoverflow.com/a/6273036/9449426
     /// </summary>
-    public class DelegateCommand : ICommand
+    public class DelegateCommand<TParameter> : ICommand
     {
-        private readonly Func<bool> canExecute;
-        private readonly Action<object> execute;
+        protected readonly Func<TParameter, bool> canExecute;
+        protected readonly Action<TParameter> execute;
 
         public event EventHandler CanExecuteChanged;
 
-        public DelegateCommand(Action<object> execute) : this(execute, null)
+        public DelegateCommand(Action<TParameter> execute) : this(execute, null)
         {
 
         }
 
-        public DelegateCommand(Action<object> execute, Func<bool> canExecute)
+        public DelegateCommand(Action<TParameter> execute, Func<TParameter, bool> canExecute)
         {
             this.execute = execute;
             this.canExecute = canExecute;
@@ -32,17 +33,39 @@ namespace ScriptLinker.Utilities
                 return true;
             }
 
-            return canExecute();
+            var castParam = (TParameter)Convert.ChangeType(param, typeof(TParameter));
+            return canExecute(castParam);
         }
 
         public void Execute(object param)
         {
-            execute(param);
+            var castParam = (TParameter)Convert.ChangeType(param, typeof(TParameter));
+            execute(castParam);
         }
 
         public void RaiseCanExecuteChanged()
         {
             CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    public class DelegateCommand : DelegateCommand<object>
+    {
+        public DelegateCommand(Action execute) : this(execute, null)
+        {
+        }
+
+        public DelegateCommand(Action execute, Func<bool> canExecute)
+            : base(
+                  (object o) => execute(),
+                  (object o) =>
+                  {
+                      if (canExecute != null)
+                          return canExecute();
+                      else
+                          return true;
+                  })
+        {
         }
     }
 }

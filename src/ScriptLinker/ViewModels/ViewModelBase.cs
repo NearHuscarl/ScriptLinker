@@ -27,6 +27,13 @@ namespace ScriptLinker.ViewModels
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+        protected virtual void NotifyPropertyChanged(params string[] propertyNames)
+        {
+            foreach (var propertyName in propertyNames)
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
 
         #endregion
 
@@ -71,5 +78,7 @@ namespace ScriptLinker.ViewModels
         {
             // override me
         }
+
+        public Action CloseAction { get; protected set; }
     }
 }

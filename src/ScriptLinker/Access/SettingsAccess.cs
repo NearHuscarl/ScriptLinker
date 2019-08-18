@@ -18,8 +18,7 @@ namespace ScriptLinker.Access
             var settingsElement = doc.Element("Settings");
             var settings = new Settings
             {
-                EntryPoint = settingsElement.Element("EntryPoint").Value.ToString(),
-                ProjectDirectory = settingsElement.Element("ProjectDirectory").Value.ToString(),
+                LastOpenedScript = settingsElement.Element("LastOpenedScript").Value.ToString(),
                 StandaloneScript = XmlConvert.ToBoolean(settingsElement.Element("StandaloneScript").Value.ToString()),
                 IsLinkedFileWindowExpanded = XmlConvert.ToBoolean(
                     settingsElement.Element("IsLinkedFileWindowExpanded").Value.ToString())
@@ -31,8 +30,7 @@ namespace ScriptLinker.Access
         public void SaveSettings(Settings settings)
         {
             var settingsDoc = new XDocument(new XElement("Settings",
-                new XElement("EntryPoint", settings.EntryPoint),
-                new XElement("ProjectDirectory", settings.ProjectDirectory),
+                new XElement("LastOpenedScript", settings.LastOpenedScript),
                 new XElement("StandaloneScript", settings.StandaloneScript),
                 new XElement("IsLinkedFileWindowExpanded", settings.IsLinkedFileWindowExpanded)));
 

@@ -88,9 +88,9 @@ namespace ScriptLinker.Utilities
             }
         }
 
-        public static void Simulate(Process process, string key)
+        public static void SimulateKey(string key, Process process = null)
         {
-            process.WaitForInputIdle();
+            process?.WaitForInputIdle();
             SendKeys.SendWait(key);
         }
 
