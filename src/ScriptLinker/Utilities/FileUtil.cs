@@ -23,26 +23,6 @@ namespace ScriptLinker.Utilities
             }
         }
 
-        public static string GetNamespace(string filePath)
-        {
-            using (var file = File.OpenText(filePath))
-            {
-                var line = "";
-
-                while ((line = file.ReadLine()) != null)
-                {
-                    var match = RegexPattern.Namespace.Match(line);
-
-                    if (match.Success)
-                    {
-                        return match.Groups[1].Value;
-                    }
-                }
-            }
-
-            return "";
-        }
-
         public static async Task CopyFileAsync(string sourcePath, string destinationPath)
         {
             using (var sourceStream = new FileStream(sourcePath,

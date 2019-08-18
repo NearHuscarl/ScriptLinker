@@ -35,6 +35,7 @@
         <KeyBinding Key="N" Modifiers="Ctrl" Command="{Binding OpenCreateNewScriptCommand}"/>
         <KeyBinding Key="S" Modifiers="Ctrl" Command="{Binding SaveScriptInfoCommand}"/>
         <KeyBinding Key="Delete" Command="{Binding DeleteScriptInfoCommand}"/>
+        <KeyBinding Key="I" Modifiers="Ctrl" Command="{Binding AddTemplateToEntryPointCommand}"/>
         <KeyBinding Key="F7" Command="{Binding CopyToClipboardCommand}" />
     </Window.InputBindings>
 
@@ -52,6 +53,8 @@
                 <MenuItem Header="_New" Command="{Binding OpenCreateNewScriptCommand}" InputGestureText="Ctrl+N"/>
                 <MenuItem Header="_Save" Command="{Binding SaveScriptInfoCommand}" InputGestureText="Ctrl+S"/>
                 <MenuItem Header="_Delete" Command="{Binding DeleteScriptInfoCommand}" InputGestureText="Delete"/>
+                <MenuItem Header="_Add template" Command="{Binding AddTemplateToEntryPointCommand}"
+                          InputGestureText="Ctrl+I"/>
             </MenuItem>
             <!--<MenuItem Header="_About">
             </MenuItem>-->

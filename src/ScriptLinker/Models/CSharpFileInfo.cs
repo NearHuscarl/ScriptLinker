@@ -11,5 +11,11 @@ namespace ScriptLinker.Models
         public string Content { get; set; } = "";
         public List<string> UsingNamespaces { get; set; } = new List<string>();
         public string Namespace { get; set; } = "";
+        public string ClassName { get; set; } = "";
+        public bool IsPartialClass { get; set; } = false;
+        /// <summary>
+        /// Class that inherits from GameScriptInterface
+        /// </summary>
+        public bool IsEntryPoint { get; set; } = false;
     }
 }

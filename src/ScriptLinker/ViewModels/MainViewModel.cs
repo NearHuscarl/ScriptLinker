@@ -32,6 +32,7 @@ namespace ScriptLinker.ViewModels
         public ICommand OpenCreateNewScriptCommand { get; private set; }
         public ICommand SaveScriptInfoCommand { get; private set; }
         public ICommand DeleteScriptInfoCommand { get; private set; }
+        public ICommand AddTemplateToEntryPointCommand { get; private set; }
         public ICommand CopyToClipboardCommand { get; private set; }
         public ICommand CompileCommand { get; private set; }
         public ICommand ExpandLinkedFilesWindowCommand { get; private set; }
@@ -181,6 +182,7 @@ namespace ScriptLinker.ViewModels
         private void LoadCommands()
         {
             DeleteScriptInfoCommand = new DelegateCommand(DeleteScriptInfo);
+            AddTemplateToEntryPointCommand = new DelegateCommand(AddTemplateToEntryPoint);
             CopyToClipboardCommand = new DelegateCommand(CopyToClipboard);
             CompileCommand = new DelegateCommand(Compile);
             ExpandLinkedFilesWindowCommand = new DelegateCommand(ExpandLinkedFilesWindow);
@@ -237,6 +239,22 @@ namespace ScriptLinker.ViewModels
                 ScriptNames = m_scriptAccess.GetScriptNames();
                 ScriptName = ScriptNames.FirstOrDefault();
             }
+        }
+
+        private void AddTemplateToEntryPoint()
+        {
+            var fileInfo = m_linker.ReadCSharpFile(ProjectInfo, ScriptInfo.EntryPoint);
+            var entryPointFile = Path.GetFileName(ScriptInfo.EntryPoint);
+            var myNamespace = string.IsNullOrEmpty(fileInfo.Namespace) ? "SFDScript" : fileInfo.Namespace;
+            var className = string.IsNullOrEmpty(fileInfo.ClassName) ?
+                Path.GetFileNameWithoutExtension(entryPointFile) : fileInfo.ClassName;
+            var template = File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "ScriptTemplate.txt"));
+
+            File.WriteAllText(ScriptInfo.EntryPoint, template
+                .Replace("{{Namespace}}", myNamespace)
+                .Replace("{{ClassName}}", className));
+
+            ShowInlineMessage($"Init template to {entryPointFile}", 1500);
         }
 
         private void Compile()

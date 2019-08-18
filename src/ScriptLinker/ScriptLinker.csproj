@@ -129,6 +129,9 @@
     <Compile Include="Utilities\HotKey.cs" />
     <Compile Include="Utilities\PathUtil.cs" />
     <Compile Include="Utilities\ScheduledTask.cs" />
+    <Content Include="ScriptTemplate.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Compile Include="Utilities\StopwatchExtensions.cs" />
     <Compile Include="Utilities\DelegateCommand.cs" />
     <Compile Include="Utilities\FileUtil.cs" />

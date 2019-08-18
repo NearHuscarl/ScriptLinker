@@ -9,6 +9,7 @@ namespace ScriptLinker.Utilities
 
         public static Regex Namespace = new Regex(@"^\s*namespace (.*)");
         // public partial class ClassName : GameScriptInterface
+        public static Regex Class = new Regex($@"^\s*{AccessModifier}\s+(partial\s)?class\s+({Identifier})\s*:\s*({Identifier})");
         public static Regex EntryPointClass = new Regex($@"^\s*{AccessModifier}\s+(partial\s)?class\s+{Identifier}\s*:\s*GameScriptInterface");
         public static Regex PartialClass = new Regex($@"^\s*{AccessModifier}\s+partial\s+class\s+{Identifier}");
         // public ClassName()

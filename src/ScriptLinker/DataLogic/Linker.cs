@@ -73,11 +73,19 @@ namespace ScriptLinker.DataLogic
                 {
                     if (linkedFiles.Contains(file)) continue;
 
-                    var ns = FileUtil.GetNamespace(file);
-                    if (newNamespaces.Contains(ns))
-                    {
-                        var fileInfo = ReadCSharpFile(projectInfo, file, entryPointInfo.Namespace);
+                    var fileInfo = ReadCSharpFile(projectInfo, file);
 
+                    if (fileInfo.IsEntryPoint)
+                    {
+                        if (fileInfo.Namespace == entryPointInfo.Namespace
+                            && fileInfo.ClassName == entryPointInfo.ClassName
+                            && fileInfo.IsPartialClass)
+                            fileInfo = ReadEntryPointFile(projectInfo, file);
+                        else continue;
+                    }
+
+                    if (newNamespaces.Contains(fileInfo.Namespace))
+                    {
                         sb.Append(fileInfo.Content);
                         addedNamespaces.AddRange(fileInfo.UsingNamespaces);
                         linkedFiles.Add(file);
@@ -118,9 +126,8 @@ namespace ScriptLinker.DataLogic
 
             if (!File.Exists(filePath)) return new CSharpFileInfo();
 
+            var csFileInfo = new CSharpFileInfo();
             var sourceCode = new StringBuilder();
-            var usingNamespaces = new List<string>();
-            var fileNamespace = "";
             var breakpoints = projectInfo.Breakpoints
                 .Where(b => b.File == filePath)
                 .ToDictionary(b => b.LineNumber, b => b);
@@ -139,13 +146,23 @@ namespace ScriptLinker.DataLogic
                     {
                         var match = RegexPattern.UsingStatement.Match(line);
                         if (match.Success)
-                            usingNamespaces.Add(match.Groups[1].Value);
+                            csFileInfo.UsingNamespaces.Add(match.Groups[1].Value);
 
                         match = RegexPattern.Namespace.Match(line);
                         if (match.Success)
                         {
-                            fileNamespace = match.Groups[1].Value;
-                            usingNamespaces.Add(fileNamespace);
+                            csFileInfo.Namespace = match.Groups[1].Value;
+                            csFileInfo.UsingNamespaces.Add(csFileInfo.Namespace);
+                        }
+                    }
+                    if (string.IsNullOrEmpty(csFileInfo.ClassName))
+                    {
+                        var match = RegexPattern.Class.Match(line);
+                        if (match.Success)
+                        {
+                            csFileInfo.ClassName = match.Groups[3].Value;
+                            csFileInfo.IsPartialClass = !string.IsNullOrEmpty(match.Groups[2].Value);
+                            csFileInfo.IsEntryPoint = match.Groups[4].Value == "GameScriptInterface";
                         }
                     }
 
@@ -195,21 +212,16 @@ namespace ScriptLinker.DataLogic
                 }
             }
 
-            return new CSharpFileInfo()
-            {
-                Content = sourceCode.ToString(),
-                UsingNamespaces = usingNamespaces,
-                Namespace = fileNamespace,
-            };
+            csFileInfo.Content = sourceCode.ToString();
+            return csFileInfo;
         }
 
-        public CSharpFileInfo ReadCSharpFile(ProjectInfo projectInfo, string filePath, string entryPointNamespace)
+        public CSharpFileInfo ReadCSharpFile(ProjectInfo projectInfo, string filePath)
         {
             if (!File.Exists(filePath)) return new CSharpFileInfo();
 
+            var csFileInfo = new CSharpFileInfo();
             var sourceCode = new StringBuilder();
-            var usingNamespaces = new List<string>();
-            var fileNamespace = "";
             var breakpoints = projectInfo.Breakpoints
                 .Where(b => b.File == filePath)
                 .ToDictionary(b => b.LineNumber, b => b);
@@ -228,31 +240,24 @@ namespace ScriptLinker.DataLogic
                     {
                         var match = RegexPattern.UsingStatement.Match(line);
                         if (match.Success)
-                            usingNamespaces.Add(match.Groups[1].Value);
+                            csFileInfo.UsingNamespaces.Add(match.Groups[1].Value);
 
                         match = RegexPattern.Namespace.Match(line);
                         if (match.Success)
                         {
-                            fileNamespace = match.Groups[1].Value;
-                            usingNamespaces.Add(fileNamespace);
+                            csFileInfo.Namespace = match.Groups[1].Value;
+                            csFileInfo.UsingNamespaces.Add(csFileInfo.Namespace);
                         }
                     }
-
-                    if (RegexPattern.EntryPointClass.Match(line).Success)
+                    if (string.IsNullOrEmpty(csFileInfo.ClassName))
                     {
-                        if (fileNamespace == entryPointNamespace && RegexPattern.PartialClass.Match(line).Success)
-                        {
-                            return ReadEntryPointFile(projectInfo, filePath);
-                        }
-                        else
-                            return new CSharpFileInfo(); // Only import normal c# file. Ignore another game script unless it's a partial class
-                    }
-
-                    if (string.IsNullOrEmpty(fileNamespace))
-                    {
-                        var match = RegexPattern.Namespace.Match(line);
+                        var match = RegexPattern.Class.Match(line);
                         if (match.Success)
-                            fileNamespace = match.Groups[1].Value;
+                        {
+                            csFileInfo.ClassName = match.Groups[3].Value;
+                            csFileInfo.IsPartialClass = !string.IsNullOrEmpty(match.Groups[2].Value);
+                            csFileInfo.IsEntryPoint = match.Groups[4].Value == "GameScriptInterface";
+                        }
                     }
 
                     var commentIndex = line.IndexOf("//"); // -1 if not found
@@ -295,12 +300,8 @@ namespace ScriptLinker.DataLogic
                 }
             }
 
-            return new CSharpFileInfo()
-            {
-                Content = sourceCode.ToString(),
-                UsingNamespaces = usingNamespaces,
-                Namespace = fileNamespace,
-            };
+            csFileInfo.Content = sourceCode.ToString();
+            return csFileInfo;
         }
     }
 }
