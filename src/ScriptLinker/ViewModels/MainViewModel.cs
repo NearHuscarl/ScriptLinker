@@ -16,18 +16,18 @@ using System.Timers;
 using ScriptLinker.Access;
 using Prism.Events;
 using ScriptLinker.Events;
+using ScriptLinker.Services;
 
 namespace ScriptLinker.ViewModels
 {
     class MainViewModel : ViewModelBase
     {
         protected readonly IEventAggregator m_eventAggregator;
-        private Linker m_linker;
+        private ScriptService m_scriptService;
         private ScheduledTask m_scheduledTask;
         private readonly GlobalKeyboardHook m_keyboardHook;
         private SettingsAccess m_settingsAccess;
         private ScriptAccess m_scriptAccess;
-        private VisualSln m_visualSln;
 
         public ICommand OpenCreateNewScriptCommand { get; private set; }
         public ICommand SaveScriptInfoCommand { get; private set; }
@@ -56,48 +56,15 @@ namespace ScriptLinker.ViewModels
             }
         }
 
-        private string rootNamespace = "";
-        public string RootNamespace
-        {
-            get { return rootNamespace; }
-            set { SetPropertyAndNotify(ref rootNamespace, value); }
-        }
-
-        public ProjectInfo ProjectInfo
-        {
-            get
-            {
-                return new ProjectInfo()
-                {
-                    ProjectDir = ScriptInfo.ProjectDirectory,
-                    EntryPoint = ScriptInfo.EntryPoint,
-                    RootNamespace = rootNamespace,
-                    Breakpoints = m_visualSln != null ? m_visualSln.GetBreakpoints() : new List<Breakpoint>(),
-                };
-            }
-        }
+        public ProjectInfo ProjectInfo { get; private set; }
 
         private ScriptInfo scriptInfo = new ScriptInfo();
         public ScriptInfo ScriptInfo
         {
             set
             {
-                var newScriptInfo = value;
-
-                if (scriptInfo.ProjectDirectory != newScriptInfo.ProjectDirectory)
-                {
-                    if (RootNamespace != "")
-                    {
-                        var slnPath = ProjectUtil.GetSlnPath(scriptInfo.ProjectDirectory);
-
-                        if (slnPath != null)
-                        {
-                            m_visualSln = new VisualSln(slnPath);
-                        }
-                    }
-                }
-                scriptInfo = value;
                 SetPropertyAndNotify(ref scriptInfo, value);
+                ProjectInfo = m_scriptService.GetProjectInfo(scriptInfo);
             }
             get { return scriptInfo; }
         }
@@ -172,7 +139,7 @@ namespace ScriptLinker.ViewModels
             m_keyboardHook.HookedKeys.Add(System.Windows.Forms.Keys.F6);
             m_keyboardHook.KeyUp += (sender, e) => Compile();
 
-            m_linker = new Linker();
+            m_scriptService = new ScriptService();
             m_scheduledTask = new ScheduledTask();
 
             LoadCommands();
@@ -229,7 +196,7 @@ namespace ScriptLinker.ViewModels
 
         private void DeleteScriptInfo()
         {
-            var result = MessageBox.Show($"Are you sure you want to delete {ScriptName}", "Warning",
+            var result = MessageBox.Show($"Are you sure you want to delete {ScriptName} script", "Warning",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning);
 
@@ -243,17 +210,9 @@ namespace ScriptLinker.ViewModels
 
         private void AddTemplateToEntryPoint()
         {
-            var fileInfo = m_linker.ReadCSharpFile(ProjectInfo, ScriptInfo.EntryPoint);
             var entryPointFile = Path.GetFileName(ScriptInfo.EntryPoint);
-            var myNamespace = string.IsNullOrEmpty(fileInfo.Namespace) ? "SFDScript" : fileInfo.Namespace;
-            var className = string.IsNullOrEmpty(fileInfo.ClassName) ?
-                Path.GetFileNameWithoutExtension(entryPointFile) : fileInfo.ClassName;
-            var template = File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "ScriptTemplate.txt"));
 
-            File.WriteAllText(ScriptInfo.EntryPoint, template
-                .Replace("{{Namespace}}", myNamespace)
-                .Replace("{{ClassName}}", className));
-
+            m_scriptService.AddTemplate(ProjectInfo, ScriptInfo.EntryPoint);
             ShowInlineMessage($"Init template to {entryPointFile}", 1500);
         }
 
@@ -293,7 +252,7 @@ namespace ScriptLinker.ViewModels
             stopwatch.StartPrinting();
 
             //var sourceCode = await Task.Run(() => m_linker.Link(ProjectInfo, ScriptInfo));
-            var result = m_linker.Link(ProjectInfo, ScriptInfo);
+            var result = m_scriptService.Link(ProjectInfo, ScriptInfo);
             var sourceCode = result.Content;
             LinkedFiles = result.LinkedFiles;
             stopwatch.PrintTime("CopyToClipboard() Link");
@@ -330,7 +289,7 @@ namespace ScriptLinker.ViewModels
                     CopyToScriptFolder(sourceCode);
                 }
             }
-            catch (IOException ex)
+            catch (IOException)
             {
                 MessageBox.Show($"Don't spam the button bruh", "Info",
                     MessageBoxButton.OK,
@@ -360,6 +319,24 @@ namespace ScriptLinker.ViewModels
                 ExpandIcon = "▼";
         }
 
+        private void CheckRemoveBackupFiles()
+        {
+            var entryPoint = ScriptInfo.EntryPoint;
+            var backupFolder = new DirectoryInfo(m_scriptService.GetBackupFolder());
+
+            foreach (var backupFile in backupFolder.GetFiles("~*"))
+            {
+                var creationTime = backupFile.CreationTimeUtc;
+                var timeNow = DateTime.UtcNow;
+                Console.WriteLine(timeNow.Subtract(creationTime).Minutes);
+
+                if (timeNow.Subtract(creationTime).Hours >= 72)
+                {
+                    backupFile.Delete();
+                }
+            }
+        }
+
         public override void OnWindowClosing(object sender, CancelEventArgs e)
         {
             m_settingsAccess.SaveSettings(new Settings()
@@ -370,6 +347,7 @@ namespace ScriptLinker.ViewModels
             });
             m_scriptAccess.RemoveNotFoundScriptInfo();
             m_scriptAccess.UpdateScriptInfo(ScriptInfo);
+            CheckRemoveBackupFiles();
         }
     }
 }

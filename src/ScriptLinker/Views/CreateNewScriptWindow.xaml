@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
         Title="New script"
-        Height="340"
+        Height="375"
         Width="530">
 
     <StackPanel Orientation="Vertical" VerticalAlignment="Center">
@@ -16,6 +16,12 @@
             OnSubmit="{Binding DataContext.AddScriptInfo, Mode=OneTime,
                     RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"
             HotKey="Execute" />
+
+        <CheckBox
+            Content="Init game script template"
+            IsChecked="{Binding InitTemplate}"
+            ToolTip="Init gamescript template to current script. A backup file will be created in the Backup/ folder"
+            Margin="123,20,0,0" />
     </StackPanel>
 
 </Window>

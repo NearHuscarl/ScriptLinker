@@ -46,6 +46,8 @@ namespace ScriptLinker.ViewModels
             {
                 SetPropertyAndNotify(ref entryPoint, value);
                 NotifyPropertyChanged("ScriptInfo", "EntryPointTooltip");
+                if (string.IsNullOrEmpty(ScriptName))
+                    ScriptName = Path.GetFileNameWithoutExtension(entryPoint);
                 ResetFileWatcher();
             }
         }
@@ -189,9 +191,18 @@ namespace ScriptLinker.ViewModels
 
         private void BrowseProjectDir()
         {
+            var initialDirectory = "";
+
+            if (!string.IsNullOrEmpty(ProjectDir))
+                initialDirectory = ProjectDir;
+            else if (!string.IsNullOrEmpty(EntryPoint))
+                initialDirectory = Path.GetDirectoryName(EntryPoint);
+            else
+                initialDirectory = "C:\\Users";
+
             var dialog = new CommonOpenFileDialog
             {
-                InitialDirectory = string.IsNullOrEmpty(ProjectDir) ? "C:\\Users" : ProjectDir,
+                InitialDirectory = initialDirectory,
                 IsFolderPicker = true
             };
 
@@ -229,6 +240,11 @@ namespace ScriptLinker.ViewModels
             if (!Directory.Exists(ProjectDir))
             {
                 ProjectDirError = "Path does not exist";
+                return false;
+            }
+            if (!ProjectUtil.IsProjectDirectory(ProjectDir))
+            {
+                ProjectDirError = "Project directory must contain *.csproj file";
                 return false;
             }
 

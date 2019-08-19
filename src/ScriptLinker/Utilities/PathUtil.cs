@@ -8,5 +8,15 @@ namespace ScriptLinker.Utilities
         {
             return Path.GetPathRoot(path) == path;
         }
+
+        /// <summary>
+        /// "C:\foo\bar" => "foo\bar"
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static string GetPathWithoutDrive(string path)
+        {
+            return path.Substring(Path.GetPathRoot(path).Length);
+        }
     }
 }

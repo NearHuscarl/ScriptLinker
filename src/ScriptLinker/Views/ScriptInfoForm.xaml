@@ -60,7 +60,6 @@
                     Margin="5,0,0,0"
                     Height="20"
                     Width="{StaticResource TextBoxWidth}"
-                    ToolTip="Script name is case sensitive and must be unique"
                     Text="{Binding ScriptName, UpdateSourceTrigger=PropertyChanged}"/>
             </StackPanel>
         </StackPanel>

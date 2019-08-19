@@ -125,6 +125,7 @@
     <Compile Include="Models\ProjectInfo.cs" />
     <Compile Include="Models\ScriptInfo.cs" />
     <Compile Include="Models\Settings.cs" />
+    <Compile Include="Services\ScriptService.cs" />
     <Compile Include="Utilities\GlobalKeyboardHook.cs" />
     <Compile Include="Utilities\HotKey.cs" />
     <Compile Include="Utilities\PathUtil.cs" />

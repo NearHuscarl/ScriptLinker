@@ -1,4 +1,5 @@
 ﻿using ScriptLinker.Models;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -23,7 +24,7 @@ namespace ScriptLinker.Access
 
             foreach (var scriptInfoElement in scriptInfos)
             {
-                names.Add(scriptInfoElement.Element("Name").Value.ToString());
+                names.Add(scriptInfoElement.Element("Name").Value);
             }
 
             return names;
@@ -31,55 +32,69 @@ namespace ScriptLinker.Access
 
         public ScriptInfo LoadScriptInfo(string projectDir, string entryPoint)
         {
-            if (!File.Exists(ConfigPath))
-                return new ScriptInfo();
-
-            var scriptDoc = XDocument.Load(ConfigPath);
-            var scriptInfos = scriptDoc.Element("Script").Elements("ScriptInfo");
-            var scriptInfo = new ScriptInfo();
-
-            foreach (var scriptInfoElement in scriptInfos)
+            try
             {
-                if (scriptInfoElement.Element("EntryPoint").Value == entryPoint
-                   && scriptInfoElement.Element("ProjectDirectory").Value == projectDir)
-                {
-                    scriptInfo.Name = scriptInfoElement.Element("Name").Value.ToString();
-                    scriptInfo.EntryPoint = scriptInfoElement.Element("EntryPoint").Value.ToString();
-                    scriptInfo.ProjectDirectory = scriptInfoElement.Element("ProjectDirectory").Value.ToString();
-                    scriptInfo.Author = scriptInfoElement.Element("Author").Value.ToString();
-                    scriptInfo.Description = scriptInfoElement.Element("Description").Value.ToString();
-                    scriptInfo.MapModes = scriptInfoElement.Element("MapModes").Value.ToString();
-                    break;
-                }
-            }
+                if (!File.Exists(ConfigPath))
+                    return new ScriptInfo();
 
-            return scriptInfo;
+                var scriptDoc = XDocument.Load(ConfigPath);
+                var scriptInfos = scriptDoc.Element("Script").Elements("ScriptInfo");
+                var scriptInfo = new ScriptInfo();
+
+                foreach (var scriptInfoElement in scriptInfos)
+                {
+                    if (scriptInfoElement.Element("EntryPoint").Value == entryPoint
+                       && scriptInfoElement.Element("ProjectDirectory").Value == projectDir)
+                    {
+                        scriptInfo.Name = scriptInfoElement.Element("Name").Value;
+                        scriptInfo.EntryPoint = scriptInfoElement.Element("EntryPoint").Value;
+                        scriptInfo.ProjectDirectory = scriptInfoElement.Element("ProjectDirectory").Value;
+                        scriptInfo.Author = scriptInfoElement.Element("Author").Value;
+                        scriptInfo.Description = scriptInfoElement.Element("Description").Value;
+                        scriptInfo.MapModes = scriptInfoElement.Element("MapModes").Value;
+                        break;
+                    }
+                }
+
+                return scriptInfo;
+            }
+            catch (Exception)
+            {
+                return new ScriptInfo();
+            }
         }
 
         public ScriptInfo LoadScriptInfo(string scriptName)
         {
-            if (!File.Exists(ConfigPath))
-                return new ScriptInfo();
-
-            var scriptDoc = XDocument.Load(ConfigPath);
-            var scriptInfos = scriptDoc.Element("Script").Elements("ScriptInfo");
-            var scriptInfo = new ScriptInfo();
-
-            foreach (var scriptInfoElement in scriptInfos)
+            try
             {
-                if (scriptInfoElement.Element("Name").Value == scriptName)
-                {
-                    scriptInfo.Name = scriptInfoElement.Element("Name").Value.ToString();
-                    scriptInfo.EntryPoint = scriptInfoElement.Element("EntryPoint").Value.ToString();
-                    scriptInfo.ProjectDirectory = scriptInfoElement.Element("ProjectDirectory").Value.ToString();
-                    scriptInfo.Author = scriptInfoElement.Element("Author").Value.ToString();
-                    scriptInfo.Description = scriptInfoElement.Element("Description").Value.ToString();
-                    scriptInfo.MapModes = scriptInfoElement.Element("MapModes").Value.ToString();
-                    break;
-                }
-            }
+                if (!File.Exists(ConfigPath))
+                    return new ScriptInfo();
 
-            return scriptInfo;
+                var scriptDoc = XDocument.Load(ConfigPath);
+                var scriptInfos = scriptDoc.Element("Script").Elements("ScriptInfo");
+                var scriptInfo = new ScriptInfo();
+
+                foreach (var scriptInfoElement in scriptInfos)
+                {
+                    if (scriptInfoElement.Element("Name").Value == scriptName)
+                    {
+                        scriptInfo.Name = scriptInfoElement.Element("Name").Value;
+                        scriptInfo.EntryPoint = scriptInfoElement.Element("EntryPoint").Value;
+                        scriptInfo.ProjectDirectory = scriptInfoElement.Element("ProjectDirectory").Value;
+                        scriptInfo.Author = scriptInfoElement.Element("Author").Value;
+                        scriptInfo.Description = scriptInfoElement.Element("Description").Value;
+                        scriptInfo.MapModes = scriptInfoElement.Element("MapModes").Value;
+                        break;
+                    }
+                }
+
+                return scriptInfo;
+            }
+            catch (Exception)
+            {
+                return new ScriptInfo();
+            }
         }
 
         public void UpdateScriptInfo(ScriptInfo updatedScriptInfo)

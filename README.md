@@ -15,7 +15,7 @@ Script Linker tries to smooth the process of using both tools: An IDE (for codin
 * Manage your scripts: Add, edit, search and remove script info (Do not have support for `sfde` files)
 * Populate new script with game script template (template can be changed in `ScriptTemplate.txt`)
 * Organize code in multiple files and folders
-* Automate the compiling task via a hotkey
+* Automate the compiling task via a global hotkey
 * Generate output file to SFD script folder
 * Place breakpoints directly in Visual Studio instead of having to write `System.Diagnostics.Debugger.Break();` in your script *(Experimental)*
 

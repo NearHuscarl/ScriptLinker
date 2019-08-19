@@ -31,6 +31,11 @@ namespace ScriptLinker.Utilities
                 .Element(Msbuild + "RootNamespace").Value.ToString();
         }
 
+        public static bool IsProjectDirectory(string path)
+        {
+            return new DirectoryInfo(path).GetFiles("*.csproj").Length > 0;
+        }
+
         public static string GetSlnPath(string projectDir)
         {
             var path = projectDir;
