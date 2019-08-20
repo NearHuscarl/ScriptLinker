@@ -1,7 +1,6 @@
 ﻿using ScriptLinker.DataLogic;
 using ScriptLinker.Models;
 using ScriptLinker.Utilities;
-using System;
 using System.Collections.Generic;
 using System.IO;
 

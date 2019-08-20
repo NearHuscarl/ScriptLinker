@@ -1,6 +1,6 @@
 ﻿using Prism.Events;
 
-namespace ScriptLinker
+namespace ScriptLinker.Services
 {
     internal sealed class ApplicationService
     {

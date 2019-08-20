@@ -76,7 +76,15 @@ namespace ScriptLinker.ViewModels
 
         public virtual void OnWindowClosing(object sender, CancelEventArgs e)
         {
-            // override me
+        }
+
+        /// <summary>
+        /// Dispose all managed and unmanaged resources here
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public virtual void OnWindowClosed(object sender, EventArgs e)
+        {
         }
 
         public Action CloseAction { get; protected set; }

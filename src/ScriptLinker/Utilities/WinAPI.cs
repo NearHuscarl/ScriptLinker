@@ -7,6 +7,30 @@ namespace ScriptLinker.Utilities
     public static class WinAPI
     {
         /// <summary>
+        /// Defines the message parameters passed to a WH_CALLWNDPROC hook procedure, CallWndProc.
+        /// </summary>
+        [StructLayout(LayoutKind.Sequential)]
+        public struct CWPStruct
+        {
+            /// <summary>
+            /// Additional information about the message. The exact meaning depends on the message value.
+            /// </summary>
+            public IntPtr lparam;
+            /// <summary>
+            /// Additional information about the message. The exact meaning depends on the message value.
+            /// </summary>
+            public IntPtr wparam;
+            /// <summary>
+            /// The message.
+            /// </summary>
+            public int message;
+            /// <summary>
+            /// A handle to the window to receive the message.
+            /// </summary>
+            public IntPtr hwnd;
+        }
+
+        /// <summary>
         /// Retrieves the thread identifier of the calling thread.
         /// </summary>
         /// <returns></returns>
@@ -14,18 +38,18 @@ namespace ScriptLinker.Utilities
         internal static extern uint GetCurrentThreadId();
 
         /// <summary>
-        /// Retrieves the identifier of the thread that created the specified window and, optionally, the identifier of the process
-        /// that created the window.
+        /// Retrieves a module handle for the specified module. The module must have been loaded by the
+        /// calling process.
         /// </summary>
-        /// <param name="hWnd"></param>
-        /// <param name="lpdwProcessId"></param>
+        /// <param name="lpModuleName"></param>
         /// <returns></returns>
-        [DllImport("user32.dll", SetLastError = true)]
-        internal static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+        [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
+        internal static extern IntPtr GetModuleHandle(string lpModuleName);
 
         /// <summary>
         /// Enables the specified process to set the foreground window using the SetForegroundWindow function.
-        /// The calling process must already be able to set the foreground window. For more information, see Remarks later in this topic.
+        /// The calling process must already be able to set the foreground window. For more information, see
+        /// Remarks later in this topic.
         /// </summary>
         /// <param name="dwProcessId"></param>
         /// <returns></returns>
@@ -53,6 +77,50 @@ namespace ScriptLinker.Utilities
         internal static extern bool BringWindowToTop(IntPtr hWnd);
 
         /// <summary>
+        ///     Passes the hook information to the next hook procedure in the current hook chain. A hook procedure can call this
+        ///     function either before or after processing the hook information.
+        ///     <para>
+        ///     See [ https://msdn.microsoft.com/en-us/library/windows/desktop/ms644974%28v=vs.85%29.aspx ] for more
+        ///     information.
+        ///     </para>
+        /// </summary>
+        /// <param name="hhk">C++ ( hhk [in, optional]. Type: HHOOK )<br />This parameter is ignored. </param>
+        /// <param name="nCode">
+        ///     C++ ( nCode [in]. Type: int )<br />The hook code passed to the current hook procedure. The next
+        ///     hook procedure uses this code to determine how to process the hook information.
+        /// </param>
+        /// <param name="wParam">
+        ///     C++ ( wParam [in]. Type: WPARAM )<br />The wParam value passed to the current hook procedure. The
+        ///     meaning of this parameter depends on the type of hook associated with the current hook chain.
+        /// </param>
+        /// <param name="lParam">
+        ///     C++ ( lParam [in]. Type: LPARAM )<br />The lParam value passed to the current hook procedure. The
+        ///     meaning of this parameter depends on the type of hook associated with the current hook chain.
+        /// </param>
+        /// <returns>
+        ///     C++ ( Type: LRESULT )<br />This value is returned by the next hook procedure in the chain. The current hook
+        ///     procedure must also return this value. The meaning of the return value depends on the hook type. For more
+        ///     information, see the descriptions of the individual hook procedures.
+        /// </returns>
+        /// <remarks>
+        ///     <para>
+        ///     Hook procedures are installed in chains for particular hook types. <see cref="CallNextHookEx" /> calls the
+        ///     next hook in the chain.
+        ///     </para>
+        ///     <para>
+        ///     Calling CallNextHookEx is optional, but it is highly recommended; otherwise, other applications that have
+        ///     installed hooks will not receive hook notifications and may behave incorrectly as a result. You should call
+        ///     <see cref="CallNextHookEx" /> unless you absolutely need to prevent the notification from being seen by other
+        ///     applications.
+        ///     </para>
+        /// </remarks>
+        [DllImport("user32.dll")]
+        internal static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
+        // overload for use with LowLevelKeyboardProc
+        [DllImport("user32.dll")]
+        internal static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, ref KeyboardHookStruct lParam);
+
+        /// <summary>
         /// Enumerates all top-level windows on the screen by passing the handle to each window, in turn, to an
         /// application-defined callback function. EnumWindows continues until the last top-level window is enumerated
         /// or the callback function returns false.
@@ -73,6 +141,16 @@ namespace ScriptLinker.Utilities
         /// <param name="lParam"></param>
         /// <returns></returns>
         internal delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+
+        /// <summary>
+        /// Retrieves the name of the class to which the specified window belongs.
+        /// </summary>
+        /// <param name="hWnd"></param>
+        /// <param name="lpClassName"></param>
+        /// <param name="nMaxCount"></param>
+        /// <returns></returns>
+        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        internal static extern int GetClassName(IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
 
         /// <summary>
         /// Retrieves a handle to the foreground window (the window with which the user is currently working).
@@ -121,7 +199,8 @@ namespace ScriptLinker.Utilities
 
         /// <summary>
         /// Window Styles.
-        /// The following styles can be specified wherever a window style is required. After the control has been created, these styles cannot be modified, except as noted.
+        /// The following styles can be specified wherever a window style is required. After the control has
+        /// been created, these styles cannot be modified, except as noted.
         /// </summary>
         [Flags()]
         internal enum WindowStyle : uint
@@ -266,6 +345,28 @@ namespace ScriptLinker.Utilities
         internal static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
 
         /// <summary>
+        /// Retrieves the length, in characters, of the specified window's title bar text (if the window has
+        /// a title bar). If the specified window is a control, the function retrieves the length of the text
+        /// within the control. However, GetWindowTextLength cannot retrieve the length of the text of an
+        /// edit control in another application.
+        /// </summary>
+        /// <param name="hWnd"></param>
+        /// <returns></returns>
+        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        internal static extern int GetWindowTextLength(IntPtr hWnd);
+
+        /// <summary>
+        /// Retrieves the identifier of the thread that created the specified window and, optionally, the
+        /// identifier of the process
+        /// that created the window.
+        /// </summary>
+        /// <param name="hWnd"></param>
+        /// <param name="lpdwProcessId"></param>
+        /// <returns></returns>
+        [DllImport("user32.dll", SetLastError = true)]
+        internal static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+
+        /// <summary>
         /// The foreground process can call the LockSetForegroundWindow function to disable calls to the SetForegroundWindow function.
         /// </summary>
         /// <param name="uLockCode"></param>
@@ -289,11 +390,67 @@ namespace ScriptLinker.Utilities
         /// Keyboard input is directed to the window, and various visual cues are changed for the user.
         /// The system assigns a slightly higher priority to the thread that created the foreground window than it does to other threads.
         /// </summary>
-        /// <param name="hwnd"></param>
+        /// <param name="hWnd"></param>
         /// <returns></returns>
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        internal static extern bool SetForegroundWindow(IntPtr hwnd);
+        internal static extern bool SetForegroundWindow(IntPtr hWnd);
+
+        public enum HookType
+        {
+            JournalRecord = 0,
+            JournalPlayback = 1,
+            Keyboard = 2,
+            GetMessage = 3,
+            CallWndProc = 4,
+            CBT = 5,
+            SysMsgFilter = 6,
+            Mouse = 7,
+            Hardware = 8,
+            Debug = 9,
+            Shell = 10,
+            ForegroundIdle = 11,
+            CallWndProcRet = 12,
+            KeyboardLL = 13,
+            MouseLL = 14
+        }
+
+        /// <summary>
+        /// Installs an application-defined hook procedure into a hook chain. You would install a hook procedure
+        /// to monitor the system for certain types of events. These events are associated either with a specific
+        /// thread or with all threads in the same desktop as the calling thread.
+        /// </summary>
+        /// <param name="hookType"></param>
+        /// <param name="lpfn"></param>
+        /// <param name="hMod"></param>
+        /// <param name="dwThreadId"></param>
+        /// <returns></returns>
+        [DllImport("user32.dll", SetLastError = true)]
+        internal static extern IntPtr SetWindowsHookEx(HookType hookType, HookProc lpfn, IntPtr hMod, uint dwThreadId);
+        [DllImport("user32.dll", SetLastError = true)]
+        internal static extern IntPtr SetWindowsHookEx(HookType hookType, KeyboardHookProc lpfn, IntPtr hMod,
+            uint dwThreadId);
+
+        /// <summary>
+        /// A pointer to the hook procedure. If the dwThreadId parameter is zero or specifies the identifier of
+        /// a thread created by a different process, the lpfn parameter must point to a hook procedure in a DLL.
+        /// Otherwise, lpfn can point to a hook procedure in the code associated with the current process.
+        /// </summary>
+        /// <param name="code"></param>
+        /// <param name="wParam"></param>
+        /// <param name="lParam"></param>
+        /// <returns></returns>
+        internal delegate IntPtr HookProc(int code, IntPtr wParam, IntPtr lParam);
+        internal delegate IntPtr KeyboardHookProc(int code, IntPtr wParam, ref KeyboardHookStruct lParam);
+
+        internal struct KeyboardHookStruct
+        {
+            public int vkCode;
+            public int scanCode;
+            public int flags;
+            public int time;
+            public int dwExtraInfo;
+        }
 
         /// <summary>
         /// Sets the specified window's show state.
@@ -331,5 +488,13 @@ namespace ScriptLinker.Utilities
             ShowDefault = 10,
             ForceMinimized = 11,
         };
+
+        /// <summary>
+        /// Removes a hook procedure installed in a hook chain by the SetWindowsHookEx function.
+        /// </summary>
+        /// <param name="hhk"></param>
+        /// <returns></returns>
+        [DllImport("user32.dll", SetLastError = true)]
+        internal static extern bool UnhookWindowsHookEx(IntPtr hhk);
     }
 }

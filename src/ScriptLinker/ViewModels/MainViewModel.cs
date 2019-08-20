@@ -25,7 +25,7 @@ namespace ScriptLinker.ViewModels
         protected readonly IEventAggregator m_eventAggregator;
         private ScriptService m_scriptService;
         private ScheduledTask m_scheduledTask;
-        private readonly GlobalKeyboardHook m_keyboardHook;
+        private WinService m_winService;
         private SettingsAccess m_settingsAccess;
         private ScriptAccess m_scriptAccess;
 
@@ -135,9 +135,10 @@ namespace ScriptLinker.ViewModels
             m_settingsAccess = new SettingsAccess();
             m_scriptAccess = new ScriptAccess();
 
-            m_keyboardHook = new GlobalKeyboardHook();
-            m_keyboardHook.HookedKeys.Add(System.Windows.Forms.Keys.F6);
-            m_keyboardHook.KeyUp += (sender, e) => Compile();
+            m_winService = new WinService();
+            m_winService.AddGlobalHookedKey(System.Windows.Forms.Keys.F6);
+            m_winService.GlobalKeyUp += (sender, e) => Compile();
+            m_winService.InitKillFileModificationDetectedDialog();
 
             m_scriptService = new ScriptService();
             m_scheduledTask = new ScheduledTask();
@@ -328,7 +329,6 @@ namespace ScriptLinker.ViewModels
             {
                 var creationTime = backupFile.CreationTimeUtc;
                 var timeNow = DateTime.UtcNow;
-                Console.WriteLine(timeNow.Subtract(creationTime).Minutes);
 
                 if (timeNow.Subtract(creationTime).Hours >= 72)
                 {
@@ -348,6 +348,11 @@ namespace ScriptLinker.ViewModels
             m_scriptAccess.RemoveNotFoundScriptInfo();
             m_scriptAccess.UpdateScriptInfo(ScriptInfo);
             CheckRemoveBackupFiles();
+        }
+
+        public override void OnWindowClosed(object sender, EventArgs e)
+        {
+            m_winService.Dispose();
         }
     }
 }

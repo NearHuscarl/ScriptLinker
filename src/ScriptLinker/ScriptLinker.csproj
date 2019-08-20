@@ -96,6 +96,8 @@
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
+    <Reference Include="UIAutomationClient" />
+    <Reference Include="UIAutomationTypes" />
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -111,7 +113,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ApplicationService.cs" />
+    <Compile Include="Services\ApplicationService.cs" />
     <Compile Include="Behaviors\Margin.cs" />
     <Compile Include="Behaviors\ScrollViewerBehavior.cs" />
     <Compile Include="Converters\BoolToGridRowHeightConverter.cs" />
@@ -126,6 +128,7 @@
     <Compile Include="Models\ScriptInfo.cs" />
     <Compile Include="Models\Settings.cs" />
     <Compile Include="Services\ScriptService.cs" />
+    <Compile Include="Services\WinService.cs" />
     <Compile Include="Utilities\GlobalKeyboardHook.cs" />
     <Compile Include="Utilities\HotKey.cs" />
     <Compile Include="Utilities\PathUtil.cs" />
@@ -140,6 +143,7 @@
     <Compile Include="Utilities\TextUtil.cs" />
     <Compile Include="Utilities\VisualSln.cs" />
     <Compile Include="Utilities\ProjectUtil.cs" />
+    <Compile Include="Utilities\Vk.cs" />
     <Compile Include="Utilities\WinAPI.cs" />
     <Compile Include="Utilities\WinUtil.cs" />
     <Compile Include="ViewModels\CreateNewScriptViewModel.cs" />
