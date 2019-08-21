@@ -11,6 +11,7 @@ namespace ScriptLinker.Services
     public class WinService : IDisposable
     {
         private GlobalKeyboardHook m_globalKeyboardHook;
+        private WinEvent m_winEvent;
 
         public event KeyEventHandler GlobalKeyDown
         {
@@ -24,34 +25,21 @@ namespace ScriptLinker.Services
             remove { m_globalKeyboardHook.KeyUp -= value; }
         }
 
+        public event WinEventHandler ForegroundChanged
+        {
+            add { m_winEvent.ForegroundChanged += value; }
+            remove { m_winEvent.ForegroundChanged -= value; }
+        }
+
         public WinService()
         {
             m_globalKeyboardHook = new GlobalKeyboardHook();
+            m_winEvent = new WinEvent();
         }
 
         public void AddGlobalHookedKey(Keys key)
         {
             m_globalKeyboardHook.HookedKeys.Add(key);
-        }
-
-        public void InitKillFileModificationDetectedDialog()
-        {
-            // https://stackoverflow.com/a/3497278/9449426
-            Automation.AddAutomationEventHandler(
-                WindowPattern.WindowOpenedEvent,
-                AutomationElement.RootElement,
-                TreeScope.Descendants,
-                (sender, e) =>
-                {
-                    var element = sender as AutomationElement;
-
-                    if (element.GetText() == "Microsoft Visual Studio")
-                    {
-                        // Focus and enter to accept external changes to Visual Studio files
-                        WinUtil.BringWindowToFront("Microsoft Visual Studio");
-                        WinUtil.SimulateKey("{ENTER}");
-                    }
-                });
         }
 
         #region Dispose pattern
@@ -69,7 +57,7 @@ namespace ScriptLinker.Services
             if (!IsDisposed)
             {
                 m_globalKeyboardHook.Dispose();
-                Automation.RemoveAllEventHandlers();
+                m_winEvent.Dispose();
                 IsDisposed = true;
             }
         }

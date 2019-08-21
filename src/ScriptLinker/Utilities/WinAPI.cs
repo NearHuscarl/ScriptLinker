@@ -453,6 +453,38 @@ namespace ScriptLinker.Utilities
         }
 
         /// <summary>
+        /// Sets an event hook function for a range of events.
+        /// </summary>
+        /// <param name="eventMin"></param>
+        /// <param name="eventMax"></param>
+        /// <param name="hmodWinEventProc"></param>
+        /// <param name="lpfnWinEventProc"></param>
+        /// <param name="idProcess"></param>
+        /// <param name="idThread"></param>
+        /// <param name="dwFlags"></param>
+        /// <returns></returns>
+        [DllImport("user32.dll")]
+        internal static extern IntPtr SetWinEventHook(WinEvent eventMin, WinEvent eventMax, IntPtr hmodWinEventProc,
+            WinEventDelegate lpfnWinEventProc, uint idProcess, uint idThread, WinEventFlag dwFlags);
+
+        internal delegate void WinEventDelegate(IntPtr hWinEventHook, WinAPI.WinEvent eventType,
+            IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
+
+        internal enum WinEvent
+        {
+            SystemForeground = 0x0003,
+            ObjectDestroy = 0x8001,
+        };
+
+        internal enum WinEventFlag
+        {
+            OutOfContext = 0x0000, // Events are ASYNC
+            SkipOwnThread = 0x0001, // Don't call back for events on installer's 
+            SkipOwnProcess = 0x0002, // Don't call back for events on installer's 
+            InContext = 0x0004, // Events are SYNC, this causes your dll to be injected into every process
+        }
+
+        /// <summary>
         /// Sets the specified window's show state.
         /// </summary>
         /// <param name="hWnd"></param>
@@ -496,5 +528,13 @@ namespace ScriptLinker.Utilities
         /// <returns></returns>
         [DllImport("user32.dll", SetLastError = true)]
         internal static extern bool UnhookWindowsHookEx(IntPtr hhk);
+
+        /// <summary>
+        /// Removes an event hook function created by a previous call to SetWinEventHook.
+        /// </summary>
+        /// <param name="hWinEventHook"></param>
+        /// <returns></returns>
+        [DllImport("user32.dll")]
+        internal static extern bool UnhookWinEvent(IntPtr hWinEventHook);
     }
 }

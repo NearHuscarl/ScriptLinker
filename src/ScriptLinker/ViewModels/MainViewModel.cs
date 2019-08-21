@@ -10,7 +10,6 @@ using System.Linq;
 // https://stackoverflow.com/a/41511598/9449426
 // Install-Package WindowsAPICodePack-Shell
 using System.Collections.Generic;
-using ScriptLinker.DataLogic;
 using System.Diagnostics;
 using System.Timers;
 using ScriptLinker.Access;
@@ -138,7 +137,7 @@ namespace ScriptLinker.ViewModels
             m_winService = new WinService();
             m_winService.AddGlobalHookedKey(System.Windows.Forms.Keys.F6);
             m_winService.GlobalKeyUp += (sender, e) => Compile();
-            m_winService.InitKillFileModificationDetectedDialog();
+            m_winService.ForegroundChanged += RemoveFileModificationDetectedDialog;
 
             m_scriptService = new ScriptService();
             m_scheduledTask = new ScheduledTask();
@@ -246,6 +245,16 @@ namespace ScriptLinker.ViewModels
                 }
             }
         }
+
+        private readonly WinEventHandler RemoveFileModificationDetectedDialog = (sender, args) =>
+        {
+            if (WinUtil.GetWindowTitle(args.HWnd) == "Microsoft Visual Studio")
+            {
+                // Focus and enter to accept external changes to Visual Studio files
+                WinUtil.BringWindowToFront("Microsoft Visual Studio");
+                WinUtil.SimulateKey("{ENTER}");
+            }
+        };
 
         private void CopyToClipboard()
         {

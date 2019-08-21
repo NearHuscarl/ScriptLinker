@@ -115,6 +115,8 @@ namespace ScriptLinker.Utilities
                 if (disposing)
                 {
                     // Release managed resource
+                    KeyDown = null;
+                    KeyUp = null;
                 }
 
                 // Release unmanaged resource

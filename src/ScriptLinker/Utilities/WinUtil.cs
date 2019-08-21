@@ -107,6 +107,15 @@ namespace ScriptLinker.Utilities
             return null;
         }
 
+        public static string GetWindowTitle(IntPtr hWnd)
+        {
+            var textLength = WinAPI.GetWindowTextLength(hWnd);
+            var sb = new StringBuilder(textLength + 1);
+
+            WinAPI.GetWindowText(hWnd, sb, sb.Capacity);
+            return sb.ToString();
+        }
+
         public class Window
         {
             public string Title;

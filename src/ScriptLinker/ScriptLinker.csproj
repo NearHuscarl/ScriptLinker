@@ -96,8 +96,6 @@
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
-    <Reference Include="UIAutomationClient" />
-    <Reference Include="UIAutomationTypes" />
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -145,6 +143,7 @@
     <Compile Include="Utilities\ProjectUtil.cs" />
     <Compile Include="Utilities\Vk.cs" />
     <Compile Include="Utilities\WinAPI.cs" />
+    <Compile Include="Utilities\WinEvent.cs" />
     <Compile Include="Utilities\WinUtil.cs" />
     <Compile Include="ViewModels\CreateNewScriptViewModel.cs" />
     <Compile Include="IValidator.cs" />
