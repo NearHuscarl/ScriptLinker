@@ -22,6 +22,7 @@ namespace ScriptLinker.Views
             {
                 Save = SaveAction,
                 OpenNewScriptWindow = OpenNewWindowAction,
+                OpenOptionWindow = OpenOptionWindowAction,
             };
             DataContext = viewModel;
             Closing += viewModel.OnWindowClosing;
@@ -51,6 +52,14 @@ namespace ScriptLinker.Views
             var window = new CreateNewScriptWindow();
 
             // Make child window always on top of this window but not all other windows
+            window.Owner = this;
+            window.ShowDialog();
+        }
+
+        private void OpenOptionWindowAction()
+        {
+            var window = new OptionWindow();
+
             window.Owner = this;
             window.ShowDialog();
         }

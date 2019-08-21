@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
-using System.Windows.Forms;
+using System.Windows.Input;
+using System.Windows.Interop;
 
 namespace ScriptLinker.Utilities
 {
@@ -17,7 +17,7 @@ namespace ScriptLinker.Utilities
         /// <summary>
         /// The collections of keys to watch for
         /// </summary>
-        public HashSet<Keys> HookedKeys = new HashSet<Keys>();
+        private HashSet<System.Windows.Forms.Keys> _hookedKeys = new HashSet<System.Windows.Forms.Keys>();
         /// <summary>
         /// Handle to the hook, need this to unhook and call the next hook
         /// </summary>
@@ -66,6 +66,12 @@ namespace ScriptLinker.Utilities
             WinAPI.UnhookWindowsHookEx(hookID);
         }
 
+        public void AddHookedKey(Key key)
+        {
+            var winformKey = InputUtil.WPFToWinformsKey(key);
+            _hookedKeys.Add(winformKey);
+        }
+
         /// <summary>
         /// The callback for the keyboard hook
         /// </summary>
@@ -77,11 +83,17 @@ namespace ScriptLinker.Utilities
         {
             if (code >= 0)
             {
-                var key = (Keys)lParam.vkCode;
+                var key = (System.Windows.Forms.Keys)lParam.vkCode;
 
-                if (HookedKeys.Contains(key))
+                if (_hookedKeys.Contains(key))
                 {
-                    var eventArgs = new KeyEventArgs(key);
+                    var wpfKey = InputUtil.WinformsToWPFKey(key);
+                    var eventArgs = new KeyEventArgs(
+                        Keyboard.PrimaryDevice,
+                        new HwndSource(0, 0, 0, 0, 0, "", IntPtr.Zero),
+                        0,
+                        wpfKey);
+
                     if ((wParam == (IntPtr)WM_KEYDOWN || wParam == (IntPtr)WM_SYSKEYDOWN) && (KeyDown != null))
                     {
                         KeyDown(this, eventArgs);

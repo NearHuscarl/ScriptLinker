@@ -18,15 +18,8 @@
         Width="575">
 
     <Window.Resources>
-        <System:Double x:Key="TextBoxWidth">350</System:Double>
-        <System:Double x:Key="TextBoxHeight">20</System:Double>
         <System:Double x:Key="DefaultLinkedFileWindowHeight">110</System:Double>
         <converters:BoolToGridRowHeightConverter x:Key="GridRowHeightConverter" />
-        <System:String x:Key="CompileButtonTooltip" xml:space="preserve">Clicking this button (or pressing F6 globally) will automate the compiling task by:
-    1. Concat all C# files from the specified project into one single text file
-    2. Switch to Superfighters Deluxe's script editor window (script tab in the Map Editor)
-    3. Paste the resulted text from Step 1
-    4. Compile</System:String>
         <System:String x:Key="CopyToClipboardButtonTooltip" xml:space="preserve">Concat all C# files from the specified project into one single text file and add the result to clipboard</System:String>
     </Window.Resources>
     
@@ -35,7 +28,7 @@
         <KeyBinding Key="S" Modifiers="Ctrl" Command="{Binding SaveScriptInfoCommand}"/>
         <KeyBinding Key="Delete" Command="{Binding DeleteScriptInfoCommand}"/>
         <KeyBinding Key="I" Modifiers="Ctrl" Command="{Binding AddTemplateToEntryPointCommand}"/>
-        <KeyBinding Key="F7" Command="{Binding CopyToClipboardCommand}" />
+        <KeyBinding Key="T" Modifiers="Ctrl" Command="{Binding OpenOptionWindowCommand}"/>
     </Window.InputBindings>
 
     <Grid>
@@ -53,10 +46,20 @@
                 <MenuItem Header="_Save" Command="{Binding SaveScriptInfoCommand}" InputGestureText="Ctrl+S"/>
                 <MenuItem Header="_Delete" Command="{Binding DeleteScriptInfoCommand}" InputGestureText="Delete"/>
                 <MenuItem Header="_Add template" Command="{Binding AddTemplateToEntryPointCommand}"
-                          ToolTip="Init gamescript template to current script. A backup file will be created in the Backup/ folder"
+                          ToolTip="{StaticResource InitTemplateTooltip}"
                           InputGestureText="Ctrl+I"/>
             </MenuItem>
-            <!--<MenuItem Header="_About">
+            <MenuItem Header="_Tools">
+                <MenuItem Header="_Copy to Clipboard" Command="{Binding CopyToClipboardCommand}" InputGestureText="F4 (Global)"/>
+                <MenuItem Header="_Compile" Command="{Binding CompileCommand}" InputGestureText="F6 (Global)"
+                          ToolTip="{StaticResource CompileTooltip}"
+                          ToolTipService.ShowDuration="999999"/>
+                <MenuItem Header="_Compile and Run" Command="{Binding CompileAndRunCommand}" InputGestureText="F8 (Global)"/>
+                <!--<MenuItem Header="_Option" Command="{Binding OpenOptionWindowCommand}" InputGestureText="Ctrl+T"/>-->
+            </MenuItem>
+            <!--<MenuItem Header="_Help">
+                <MenuItem Header="_View Readme" Command="{Binding ViewReadme}"/>
+                <MenuItem Header="_About" Command="{Binding OpenAboutCommand}"/>
             </MenuItem>-->
         </Menu>
 
@@ -85,6 +88,7 @@
             <CheckBox
                 Content="Standalone Script"
                 IsChecked="{Binding IsStandaloneScript}"
+                HorizontalAlignment="Left"
                 Margin="143,10,0,0" />
 
             <Label
@@ -93,29 +97,6 @@
                 HorizontalAlignment="Center"
                 Content="{Binding SuccessInfo, FallbackValue='Successfully linked 8 files', TargetNullValue={}}"/>
             <!--TargetNullValue={} prevents Content control from collapsing when empty-->
-
-            <StackPanel
-                Orientation="Horizontal"
-                HorizontalAlignment="Center">
-                <Button
-                    Command="{Binding CopyToClipboardCommand}"
-                    Content="Copy to clipboard (F7)"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    Width="140"
-                    Height="30"
-                    Margin="0,0,20,0"
-                    ToolTip="{StaticResource CopyToClipboardButtonTooltip}"/>
-                <Button
-                    Command="{Binding CompileCommand}"
-                    Content="Compile (F6)"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    Width="140"
-                    Height="30"
-                    ToolTip="{StaticResource CompileButtonTooltip}"
-                    ToolTipService.ShowDuration="999999"/>
-            </StackPanel>
 
             <Button
                 Content="{Binding ExpandIcon, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"

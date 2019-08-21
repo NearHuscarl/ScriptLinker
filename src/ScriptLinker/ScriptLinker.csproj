@@ -129,6 +129,7 @@
     <Compile Include="Services\WinService.cs" />
     <Compile Include="Utilities\GlobalKeyboardHook.cs" />
     <Compile Include="Utilities\HotKey.cs" />
+    <Compile Include="Utilities\InputUtil.cs" />
     <Compile Include="Utilities\PathUtil.cs" />
     <Compile Include="Utilities\ScheduledTask.cs" />
     <Content Include="ScriptTemplate.txt">
@@ -157,6 +158,9 @@
     </Compile>
     <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\OptionWindow.xaml.cs">
+      <DependentUpon>OptionWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\ScriptInfoForm.xaml.cs">
       <DependentUpon>ScriptInfoForm.xaml</DependentUpon>
@@ -195,6 +199,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\MainWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\OptionWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

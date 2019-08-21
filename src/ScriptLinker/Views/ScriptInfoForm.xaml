@@ -17,10 +17,6 @@
              Background="White">
 
     <UserControl.Resources>
-        <System:Double x:Key="TextBoxWidth">350</System:Double>
-        <System:Double x:Key="TextBoxHeight">20</System:Double>
-        <System:Double x:Key="LabelWidth">100</System:Double>
-
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
     </UserControl.Resources>

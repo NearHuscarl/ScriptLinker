@@ -7,6 +7,7 @@
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
         Title="New script"
+        ResizeMode="NoResize"
         Height="375"
         Width="530">
 
@@ -20,7 +21,8 @@
         <CheckBox
             Content="Init game script template"
             IsChecked="{Binding InitTemplate}"
-            ToolTip="Init gamescript template to current script. A backup file will be created in the Backup/ folder"
+            HorizontalAlignment="Left"
+            ToolTip="{StaticResource InitTemplateTooltip}"
             Margin="123,20,0,0" />
     </StackPanel>
 

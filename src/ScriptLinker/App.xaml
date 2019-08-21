@@ -2,8 +2,17 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:ScriptLinker"
+             xmlns:System="clr-namespace:System;assembly=mscorlib"
              StartupUri="Views/MainWindow.xaml">
     <Application.Resources>
-         
+        <System:Double x:Key="TextBoxWidth">350</System:Double>
+        <System:Double x:Key="TextBoxHeight">20</System:Double>
+        <System:Double x:Key="LabelWidth">100</System:Double>
+        <System:String x:Key="InitTemplateTooltip">Init gamescript template to current script. A backup file will be created in the Backup/ folder</System:String>
+        <System:String x:Key="CompileTooltip" xml:space="preserve">Clicking this button (or pressing F6 globally) will automate the compiling task by:
+    1. Concat all C# files from the specified project into one single text file
+    2. Switch to Superfighters Deluxe's script editor window (script tab in the Map Editor)
+    3. Paste the resulted text from Step 1
+    4. Compile</System:String>
     </Application.Resources>
 </Application>

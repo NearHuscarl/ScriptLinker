@@ -32,8 +32,10 @@ namespace ScriptLinker.ViewModels
         public ICommand SaveScriptInfoCommand { get; private set; }
         public ICommand DeleteScriptInfoCommand { get; private set; }
         public ICommand AddTemplateToEntryPointCommand { get; private set; }
+        public ICommand OpenOptionWindowCommand { get; private set; }
         public ICommand CopyToClipboardCommand { get; private set; }
         public ICommand CompileCommand { get; private set; }
+        public ICommand CompileAndRunCommand { get; private set; }
         public ICommand ExpandLinkedFilesWindowCommand { get; private set; }
         public ICommand OpenFileCommand { get; private set; }
 
@@ -114,6 +116,17 @@ namespace ScriptLinker.ViewModels
             }
         }
 
+        private Action openOptionWindow;
+        public Action OpenOptionWindow
+        {
+            get { return openNewScriptWindow; }
+            set
+            {
+                openOptionWindow = value;
+                OpenOptionWindowCommand = new DelegateCommand(openOptionWindow);
+            }
+        }
+
         private Action save;
         public Action Save
         {
@@ -135,8 +148,8 @@ namespace ScriptLinker.ViewModels
             m_scriptAccess = new ScriptAccess();
 
             m_winService = new WinService();
-            m_winService.AddGlobalHookedKey(System.Windows.Forms.Keys.F6);
-            m_winService.GlobalKeyUp += (sender, e) => Compile();
+            m_winService.AddGlobalHookedKey(Key.F4, Key.F6, Key.F8);
+            m_winService.GlobalKeyUp += OnGlobalHotkeyPressed;
             m_winService.ForegroundChanged += RemoveFileModificationDetectedDialog;
 
             m_scriptService = new ScriptService();
@@ -146,12 +159,29 @@ namespace ScriptLinker.ViewModels
             LoadData();
         }
 
+        private void OnGlobalHotkeyPressed(object sender, KeyEventArgs args)
+        {
+            switch (args.Key)
+            {
+                case Key.F4:
+                    CopyToClipboardCommand.Execute(null);
+                    break;
+                case Key.F6:
+                    CompileCommand.Execute(null);
+                    break;
+                case Key.F8:
+                    CompileAndRunCommand.Execute(null);
+                    break;
+            }
+        }
+
         private void LoadCommands()
         {
             DeleteScriptInfoCommand = new DelegateCommand(DeleteScriptInfo);
             AddTemplateToEntryPointCommand = new DelegateCommand(AddTemplateToEntryPoint);
             CopyToClipboardCommand = new DelegateCommand(CopyToClipboard);
-            CompileCommand = new DelegateCommand(Compile);
+            CompileCommand = new DelegateCommand(() => Compile(false));
+            CompileAndRunCommand = new DelegateCommand(() => Compile(true));
             ExpandLinkedFilesWindowCommand = new DelegateCommand(ExpandLinkedFilesWindow);
             OpenFileCommand = new DelegateCommand<string>(FileUtil.OpenFile);
         }
@@ -216,7 +246,7 @@ namespace ScriptLinker.ViewModels
             ShowInlineMessage($"Init template to {entryPointFile}", 1500);
         }
 
-        private void Compile()
+        private void Compile(bool runAfterCompiling)
         {
             var sfdProcess = Process.GetProcessesByName("Superfighters Deluxe").FirstOrDefault();
 
@@ -242,7 +272,34 @@ namespace ScriptLinker.ViewModels
                     WinUtil.SimulateKey("^(v)");
                     // Compile newly pasted code
                     WinUtil.SimulateKey("{F5}");
+
+                    if (runAfterCompiling)
+                        RunMapEditorTestIfSuccess();
                 }
+            }
+        }
+
+        private void RunMapEditorTestIfSuccess()
+        {
+            m_winService.ForegroundChanged += OnCompileResultDialogOpened;
+        }
+
+        private void OnCompileResultDialogOpened(object sender, WinEventArgs args)
+        {
+            var windowTitle = WinUtil.GetWindowTitle(args.HWnd);
+
+            if (windowTitle == "Success" || windowTitle == "Error")
+            {
+                // Enter to close the result dialog after compiling
+                WinUtil.SimulateKey("{ENTER}");
+
+                if (windowTitle == "Success")
+                {
+                    WinUtil.BringWindowToFront("Superfighters Deluxe Map Editor");
+                    WinUtil.SimulateKey("{F5}"); // Run map editor test
+                }
+
+                m_winService.ForegroundChanged -= OnCompileResultDialogOpened;
             }
         }
 

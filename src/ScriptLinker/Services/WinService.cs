@@ -1,10 +1,6 @@
 ﻿using ScriptLinker.Utilities;
 using System;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Windows.Forms;
-using System.Windows.Automation;
-using System.Diagnostics;
+using System.Windows.Input;
 
 namespace ScriptLinker.Services
 {
@@ -37,9 +33,16 @@ namespace ScriptLinker.Services
             m_winEvent = new WinEvent();
         }
 
-        public void AddGlobalHookedKey(Keys key)
+        public void AddGlobalHookedKey(Key key)
         {
-            m_globalKeyboardHook.HookedKeys.Add(key);
+            m_globalKeyboardHook.AddHookedKey(key);
+        }
+        public void AddGlobalHookedKey(params Key[] keys)
+        {
+            foreach (var key in keys)
+            {
+                m_globalKeyboardHook.AddHookedKey(key);
+            }
         }
 
         #region Dispose pattern
