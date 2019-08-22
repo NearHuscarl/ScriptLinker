@@ -62,10 +62,10 @@
                           ToolTip="{StaticResource CompileAndRunTooltip}"/>
                 <MenuItem Header="_Option" Command="{Binding OpenOptionWindowCommand}" InputGestureText="Ctrl+T"/>
             </MenuItem>
-            <!--<MenuItem Header="_Help">
-                <MenuItem Header="_View Readme" Command="{Binding ViewReadme}"/>
-                <MenuItem Header="_About" Command="{Binding OpenAboutCommand}"/>
-            </MenuItem>-->
+            <MenuItem Header="_Help">
+                <MenuItem Header="_View README" Command="{Binding ViewReadMeCommand}"/>
+                <MenuItem Header="_About" Command="{Binding OpenAboutWindowCommand}"/>
+            </MenuItem>
         </Menu>
 
         <StackPanel

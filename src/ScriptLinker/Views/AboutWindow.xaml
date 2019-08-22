@@ -1,0 +1,102 @@
+﻿<Window x:Class="ScriptLinker.Views.AboutWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ScriptLinker.Views"
+        xmlns:fa="http://schemas.fontawesome.io/icons/"
+        mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Title="About"
+        Height="290"
+        Width="310">
+
+    <Grid>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="130"/>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="140"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
+            <StackPanel Orientation="Vertical">
+                <Image Source="../Icon.png"
+				    RenderOptions.BitmapScalingMode="HighQuality"
+				    Height="80" Margin="0,15,0,5"/>
+                <Label
+                    FontWeight="SemiBold"
+				    Content="ScriptLinker"
+				    HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Grid>
+
+        <Label Grid.Row="1" Grid.Column="0"
+            FontWeight="SemiBold"
+			Content="Version:"
+			HorizontalAlignment="Right"
+			VerticalAlignment="Top"/>
+
+        <Label Grid.Row="1" Grid.Column="1"
+			Content="{Binding Version, FallbackValue=1.0.0}"
+			HorizontalAlignment="Left"
+			VerticalAlignment="Top"/>
+
+        <Label Grid.Row="2" Grid.Column="0"
+            FontWeight="SemiBold"
+			Content="Authors:"
+			HorizontalAlignment="Right"
+			VerticalAlignment="Top"/>
+
+        <Label Grid.Row="2" Grid.Column="1"
+			Content="{Binding Authors, FallbackValue=Near Huscarl}"
+			HorizontalAlignment="Left"
+			VerticalAlignment="Top"/>
+
+        <Label Grid.Row="3" Grid.Column="0"
+            FontWeight="SemiBold"
+			Content="License:"
+			HorizontalAlignment="Right"
+			VerticalAlignment="Top"/>
+
+        <Label Grid.Row="3" Grid.Column="1"
+			HorizontalAlignment="Left"
+			VerticalAlignment="Top">
+            <Hyperlink
+                TextDecorations="{x:Null}"
+				Command="{Binding OpenLicenseCommand}">
+                <Hyperlink.Inlines>
+                    <Run Text="{Binding License, Mode=OneWay, FallbackValue=BSD 3-Clauses}"/>
+                </Hyperlink.Inlines>
+            </Hyperlink>
+        </Label>
+
+        <Grid Grid.Row="4" Grid.ColumnSpan="2">
+
+            <Label Grid.Column="1" Margin="2"
+				HorizontalAlignment="Right"
+				VerticalAlignment="Bottom">
+                <Hyperlink
+                    TextDecorations="{x:Null}"
+					Command="{Binding OpenSourceCodeCommand}">
+                    <Hyperlink.Inlines>
+                        <fa:FontAwesome Icon="Github"
+							RenderOptions.BitmapScalingMode="HighQuality"
+							FontSize="14" />
+                        <Run Text="Source Code"/>
+                    </Hyperlink.Inlines>
+                </Hyperlink>
+            </Label>
+
+        </Grid>
+    </Grid>
+
+</Window>

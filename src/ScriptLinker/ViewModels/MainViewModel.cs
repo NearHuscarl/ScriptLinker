@@ -15,8 +15,6 @@ using ScriptLinker.Access;
 using Prism.Events;
 using ScriptLinker.Events;
 using ScriptLinker.Services;
-using System.Windows.Threading;
-using System.Threading;
 
 namespace ScriptLinker.ViewModels
 {
@@ -38,6 +36,8 @@ namespace ScriptLinker.ViewModels
         public ICommand CopyToClipboardCommand { get; private set; }
         public ICommand CompileCommand { get; private set; }
         public ICommand CompileAndRunCommand { get; private set; }
+        public ICommand ViewReadMeCommand { get; private set; }
+        public ICommand OpenAboutWindowCommand { get; private set; }
         public ICommand ExpandLinkedFilesWindowCommand { get; private set; }
         public ICommand OpenFileCommand { get; private set; }
         public ICommand PendingGlobalCommand { get; private set; } = null;
@@ -190,11 +190,22 @@ namespace ScriptLinker.ViewModels
         private Action openOptionWindow;
         public Action OpenOptionWindow
         {
-            get { return openNewScriptWindow; }
+            get { return openOptionWindow; }
             set
             {
                 openOptionWindow = value;
                 OpenOptionWindowCommand = new DelegateCommand(openOptionWindow);
+            }
+        }
+
+        private Action openAboutWindow;
+        public Action OpenAboutWindow
+        {
+            get { return openAboutWindow; }
+            set
+            {
+                openAboutWindow = value;
+                OpenAboutWindowCommand = new DelegateCommand(openAboutWindow);
             }
         }
 
@@ -238,6 +249,43 @@ namespace ScriptLinker.ViewModels
             LoadSettings(m_settings);
             ScriptNames = m_scriptAccess.GetScriptNames();
         }
+        private void LoadCommands()
+        {
+            DeleteScriptInfoCommand = new DelegateCommand(DeleteScriptInfo);
+            AddTemplateToEntryPointCommand = new DelegateCommand(AddTemplateToEntryPoint);
+            CopyToClipboardCommand = new DelegateCommand(CopyToClipboard);
+            CompileCommand = new DelegateCommand(() => Compile(false));
+            CompileAndRunCommand = new DelegateCommand(() => Compile(true));
+            ViewReadMeCommand = new DelegateCommand(ViewReadMe);
+            ExpandLinkedFilesWindowCommand = new DelegateCommand(ExpandLinkedFilesWindow);
+            OpenFileCommand = new DelegateCommand<string>(FileUtil.OpenFile);
+        }
+
+        private void LoadSettings(Settings settings)
+        {
+            GenerateExtensionScript = settings.GenerateExtensionScript;
+            IsLinkedFileWindowExpanded = settings.IsLinkedFileWindowExpanded;
+            ScriptName = settings.LastOpenedScript;
+
+            CopyToClipboardHotkey = InputUtil.Parse(settings.CopyToClipboardHotkey);
+            CompileHotkey = InputUtil.Parse(settings.CompileHotkey);
+            CompileAndRunHotkey = InputUtil.Parse(settings.CompileAndRunHotkey);
+
+            m_winService.ClearGlobalHookedKey();
+            m_winService.AddGlobalHookedKey(
+                Key.LeftShift,
+                Key.RightShift,
+                Key.LeftCtrl,
+                Key.RightCtrl,
+                Key.LeftAlt,
+                Key.RightAlt,
+                CopyToClipboardHotkey.Key,
+                CompileHotkey.Key,
+                CompileAndRunHotkey.Key
+            );
+
+            m_settings = settings;
+        }
 
         private void OnGlobalHotkeyDown(object sender, GlobalKeyEventArgs e)
         {
@@ -280,43 +328,6 @@ namespace ScriptLinker.ViewModels
                     m_winService.GlobalKeyUp += OnGlobalHotkeyUp;
                 }, 1);
             }
-        }
-
-        private void LoadCommands()
-        {
-            DeleteScriptInfoCommand = new DelegateCommand(DeleteScriptInfo);
-            AddTemplateToEntryPointCommand = new DelegateCommand(AddTemplateToEntryPoint);
-            CopyToClipboardCommand = new DelegateCommand(CopyToClipboard);
-            CompileCommand = new DelegateCommand(() => Compile(false));
-            CompileAndRunCommand = new DelegateCommand(() => Compile(true));
-            ExpandLinkedFilesWindowCommand = new DelegateCommand(ExpandLinkedFilesWindow);
-            OpenFileCommand = new DelegateCommand<string>(FileUtil.OpenFile);
-        }
-
-        private void LoadSettings(Settings settings)
-        {
-            GenerateExtensionScript = settings.GenerateExtensionScript;
-            IsLinkedFileWindowExpanded = settings.IsLinkedFileWindowExpanded;
-            ScriptName = settings.LastOpenedScript;
-
-            CopyToClipboardHotkey = InputUtil.Parse(settings.CopyToClipboardHotkey);
-            CompileHotkey = InputUtil.Parse(settings.CompileHotkey);
-            CompileAndRunHotkey = InputUtil.Parse(settings.CompileAndRunHotkey);
-
-            m_winService.ClearGlobalHookedKey();
-            m_winService.AddGlobalHookedKey(
-                Key.LeftShift,
-                Key.RightShift,
-                Key.LeftCtrl,
-                Key.RightCtrl,
-                Key.LeftAlt,
-                Key.RightAlt,
-                CopyToClipboardHotkey.Key,
-                CompileHotkey.Key,
-                CompileAndRunHotkey.Key
-            );
-
-            m_settings = settings;
         }
 
         public Action<ScriptInfo> SaveScriptInfo
@@ -498,6 +509,11 @@ namespace ScriptLinker.ViewModels
             var destinationPath = Path.Combine(sfdScriptPath, scriptName);
 
             await FileUtil.CopyFileAsync(sourcePath, destinationPath);
+        }
+
+        private void ViewReadMe()
+        {
+            Process.Start((string)Application.Current.Properties[Constants.SourceCodeUrl] + "/blob/master/README.md");
         }
 
         private void ExpandLinkedFilesWindow()

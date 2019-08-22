@@ -38,6 +38,9 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FontAwesome.WPF, Version=4.7.0.37774, Culture=neutral, PublicKeyToken=0758b07a11a4f466, processorArchitecture=MSIL">
+      <HintPath>..\packages\FontAwesome.WPF.4.7.0.9\lib\net40\FontAwesome.WPF.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Build.Framework, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Build.Framework.15.9.20\lib\net46\Microsoft.Build.Framework.dll</HintPath>
     </Reference>
@@ -112,6 +115,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Constants.cs" />
     <Compile Include="Converters\StringToColorConverter.cs" />
     <Compile Include="Events\GlobalKeyEventArgs.cs" />
     <Compile Include="Events\GlobalKeyEventHandler.cs" />
@@ -140,7 +144,14 @@
     <Compile Include="Utilities\InputUtil.cs" />
     <Compile Include="Utilities\PathUtil.cs" />
     <Compile Include="Utilities\ScheduledTask.cs" />
+    <Resource Include="Icon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
     <Content Include="ScriptTemplate.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="../../LICENSE.md">
+      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Compile Include="Utilities\StopwatchExtensions.cs" />
@@ -155,6 +166,7 @@
     <Compile Include="Utilities\WinAPI.cs" />
     <Compile Include="Utilities\WinEvent.cs" />
     <Compile Include="Utilities\WinUtil.cs" />
+    <Compile Include="ViewModels\AboutViewModel.cs" />
     <Compile Include="ViewModels\CreateNewScriptViewModel.cs" />
     <Compile Include="IValidator.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
@@ -163,6 +175,9 @@
     <Compile Include="ViewModels\ScriptInfoFormViewModel.cs" />
     <Compile Include="Events\ScriptInfoSelectedEvent.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />
+    <Compile Include="Views\AboutWindow.xaml.cs">
+      <DependentUpon>AboutWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\CreateNewScriptWindow.xaml.cs">
       <DependentUpon>CreateNewScriptWindow.xaml</DependentUpon>
     </Compile>
@@ -204,6 +219,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Views\AboutWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\CreateNewScriptWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

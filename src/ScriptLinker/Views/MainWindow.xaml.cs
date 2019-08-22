@@ -23,6 +23,7 @@ namespace ScriptLinker.Views
                 Save = SaveAction,
                 OpenNewScriptWindow = OpenNewWindowAction,
                 OpenOptionWindow = OpenOptionWindowAction,
+                OpenAboutWindow = OpenAboutWindowAction,
             };
             DataContext = viewModel;
             Closing += viewModel.OnWindowClosing;
@@ -59,6 +60,14 @@ namespace ScriptLinker.Views
         private void OpenOptionWindowAction()
         {
             var window = new OptionWindow();
+
+            window.Owner = this;
+            window.ShowDialog();
+        }
+
+        private void OpenAboutWindowAction()
+        {
+            var window = new AboutWindow();
 
             window.Owner = this;
             window.ShowDialog();

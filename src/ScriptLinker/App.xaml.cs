@@ -7,5 +7,9 @@ namespace ScriptLinker
     /// </summary>
     public partial class App : Application
     {
+        public App()
+        {
+            Current.Properties[Constants.SourceCodeUrl] = "https://github.com/NearHuscarl/ScriptLinker";
+        }
     }
 }
