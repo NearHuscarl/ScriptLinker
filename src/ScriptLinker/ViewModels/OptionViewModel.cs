@@ -86,6 +86,7 @@ namespace ScriptLinker.ViewModels
         public OptionViewModel(IEventAggregator eventAggregator, Action closeAction)
         {
             m_eventAggregator = eventAggregator;
+            m_eventAggregator.GetEvent<SettingsWindowOpenEvent>().Publish();
             m_settingsAccess = new SettingsAccess();
 
             m_settings = m_settingsAccess.LoadSettings();
@@ -109,15 +110,15 @@ namespace ScriptLinker.ViewModels
 
             var sb = new StringBuilder();
 
-            if ((Keyboard.Modifiers & ModifierKeys.Control) != 0)
+            if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control))
             {
                 sb.Append("Ctrl+");
             }
-            if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0)
+            if (Keyboard.Modifiers.HasFlag(ModifierKeys.Shift))
             {
                 sb.Append("Shift+");
             }
-            if ((Keyboard.Modifiers & ModifierKeys.Alt) != 0)
+            if (Keyboard.Modifiers.HasFlag(ModifierKeys.Alt))
             {
                 sb.Append("Alt+");
             }
@@ -202,6 +203,7 @@ namespace ScriptLinker.ViewModels
 
             m_settingsAccess.SaveSettings(m_settings);
             m_eventAggregator.GetEvent<SettingsChangedEvent>().Publish(m_settings);
+            m_eventAggregator.GetEvent<SettingsWindowClosedEvent>().Publish();
 
             Close();
         }

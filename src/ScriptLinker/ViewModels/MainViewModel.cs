@@ -215,6 +215,12 @@ namespace ScriptLinker.ViewModels
             m_eventAggregator.GetEvent<ScriptInfoAddedEvent>().Subscribe(OnScriptInfoAdded);
             m_eventAggregator.GetEvent<ScriptInfoChangedEvent>().Subscribe(OnScriptInfoChanged);
             m_eventAggregator.GetEvent<SettingsChangedEvent>().Subscribe((settings) => LoadSettings(settings));
+            
+            // Disable global hotkeys while user changing hotkey
+            m_eventAggregator.GetEvent<SettingsWindowOpenEvent>().Subscribe(
+                () => m_winService.GlobalKeyDown -= OnGlobalHotkeyDown);
+            m_eventAggregator.GetEvent<SettingsWindowClosedEvent>().Subscribe(
+                () => m_winService.GlobalKeyDown += OnGlobalHotkeyDown);
 
             m_settingsAccess = new SettingsAccess();
             m_scriptAccess = new ScriptAccess();
@@ -474,7 +480,7 @@ namespace ScriptLinker.ViewModels
                     CopyToScriptFolder(sourceCode);
                 }
             }
-            catch (IOException ex)
+            catch (IOException)
             {
                 MessageBox.Show($"Don't spam the button bruh", "Info",
                     MessageBoxButton.OK,

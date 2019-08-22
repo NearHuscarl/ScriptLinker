@@ -116,6 +116,8 @@
     <Compile Include="Events\GlobalKeyEventArgs.cs" />
     <Compile Include="Events\GlobalKeyEventHandler.cs" />
     <Compile Include="Events\SettingsChangedEvent.cs" />
+    <Compile Include="Events\SettingsWindowClosedEvent.cs" />
+    <Compile Include="Events\SettingsWindowOpenEvent.cs" />
     <Compile Include="Services\ApplicationService.cs" />
     <Compile Include="Behaviors\Margin.cs" />
     <Compile Include="Behaviors\ScrollViewerBehavior.cs" />
@@ -126,7 +128,6 @@
     <Compile Include="Models\Breakpoint.cs" />
     <Compile Include="Models\CSharpFileInfo.cs" />
     <Compile Include="Models\LinkResult.cs" />
-    <Compile Include="Models\ProjectDirectory.cs" />
     <Compile Include="Models\ProjectInfo.cs" />
     <Compile Include="Models\ScriptInfo.cs" />
     <Compile Include="Models\Settings.cs" />
