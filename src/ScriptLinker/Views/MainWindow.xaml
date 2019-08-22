@@ -20,7 +20,7 @@
     <Window.Resources>
         <System:Double x:Key="DefaultLinkedFileWindowHeight">110</System:Double>
         <converters:BoolToGridRowHeightConverter x:Key="GridRowHeightConverter" />
-        <System:String x:Key="CopyToClipboardButtonTooltip" xml:space="preserve">Concat all C# files from the specified project into one single text file and add the result to clipboard</System:String>
+        <converters:StringToColorConverter x:Key="StringToColorConverter" />
     </Window.Resources>
     
     <Window.InputBindings>
@@ -50,12 +50,17 @@
                           InputGestureText="Ctrl+I"/>
             </MenuItem>
             <MenuItem Header="_Tools">
-                <MenuItem Header="_Copy to Clipboard" Command="{Binding CopyToClipboardCommand}" InputGestureText="F4 (Global)"/>
-                <MenuItem Header="_Compile" Command="{Binding CompileCommand}" InputGestureText="F6 (Global)"
+                <MenuItem Header="_Copy to Clipboard" Command="{Binding CopyToClipboardCommand}"
+                          InputGestureText="{Binding CopyToClipboardHotkeyName}"
+                          ToolTip="{StaticResource CopyToClipboardButtonTooltip}"/>
+                <MenuItem Header="_Compile" Command="{Binding CompileCommand}"
+                          InputGestureText="{Binding CompileHotkeyName}"
                           ToolTip="{StaticResource CompileTooltip}"
                           ToolTipService.ShowDuration="999999"/>
-                <MenuItem Header="_Compile and Run" Command="{Binding CompileAndRunCommand}" InputGestureText="F8 (Global)"/>
-                <!--<MenuItem Header="_Option" Command="{Binding OpenOptionWindowCommand}" InputGestureText="Ctrl+T"/>-->
+                <MenuItem Header="_Compile and Run" Command="{Binding CompileAndRunCommand}"
+                          InputGestureText="{Binding CompileAndRunHotkeyName}"
+                          ToolTip="{StaticResource CompileAndRunTooltip}"/>
+                <MenuItem Header="_Option" Command="{Binding OpenOptionWindowCommand}" InputGestureText="Ctrl+T"/>
             </MenuItem>
             <!--<MenuItem Header="_Help">
                 <MenuItem Header="_View Readme" Command="{Binding ViewReadme}"/>
@@ -85,17 +90,11 @@
                     RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"
                 HotKey="S" HotKeyModifiers="Ctrl" />
 
-            <CheckBox
-                Content="Standalone Script"
-                IsChecked="{Binding IsStandaloneScript}"
-                HorizontalAlignment="Left"
-                Margin="143,10,0,0" />
-
             <Label
-                FontWeight="Bold"
-                Foreground="Green"
+                FontWeight="DemiBold"
                 HorizontalAlignment="Center"
-                Content="{Binding SuccessInfo, FallbackValue='Successfully linked 8 files', TargetNullValue={}}"/>
+                Foreground="{Binding ResultInfoColor, Converter={StaticResource StringToColorConverter}}"
+                Content="{Binding ResultInfo, FallbackValue='Successfully linked 8 files', TargetNullValue={}}"/>
             <!--TargetNullValue={} prevents Content control from collapsing when empty-->
 
             <Button

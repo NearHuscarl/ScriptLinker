@@ -87,6 +87,6 @@ namespace ScriptLinker.ViewModels
         {
         }
 
-        public Action CloseAction { get; protected set; }
+        public Action Close { get; protected set; }
     }
 }

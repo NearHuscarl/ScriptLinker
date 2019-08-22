@@ -11,11 +11,12 @@ using System.Linq;
 // Install-Package WindowsAPICodePack-Shell
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Timers;
 using ScriptLinker.Access;
 using Prism.Events;
 using ScriptLinker.Events;
 using ScriptLinker.Services;
+using System.Windows.Threading;
+using System.Threading;
 
 namespace ScriptLinker.ViewModels
 {
@@ -27,6 +28,7 @@ namespace ScriptLinker.ViewModels
         private WinService m_winService;
         private SettingsAccess m_settingsAccess;
         private ScriptAccess m_scriptAccess;
+        private Settings m_settings;
 
         public ICommand OpenCreateNewScriptCommand { get; private set; }
         public ICommand SaveScriptInfoCommand { get; private set; }
@@ -38,6 +40,7 @@ namespace ScriptLinker.ViewModels
         public ICommand CompileAndRunCommand { get; private set; }
         public ICommand ExpandLinkedFilesWindowCommand { get; private set; }
         public ICommand OpenFileCommand { get; private set; }
+        public ICommand PendingGlobalCommand { get; private set; } = null;
 
         private List<string> scriptNames;
         public List<string> ScriptNames
@@ -62,33 +65,101 @@ namespace ScriptLinker.ViewModels
         private ScriptInfo scriptInfo = new ScriptInfo();
         public ScriptInfo ScriptInfo
         {
+            get { return scriptInfo; }
             set
             {
                 SetPropertyAndNotify(ref scriptInfo, value);
                 ProjectInfo = m_scriptService.GetProjectInfo(scriptInfo);
             }
-            get { return scriptInfo; }
         }
 
-        private bool isStandaloneScript;
-        public bool IsStandaloneScript
+        private bool generateExtensionScript;
+        public bool GenerateExtensionScript
         {
-            get { return isStandaloneScript; }
-            set { SetPropertyAndNotify(ref isStandaloneScript, value); }
+            get { return generateExtensionScript; }
+            set { SetPropertyAndNotify(ref generateExtensionScript, value); }
         }
 
-        private string successInfo;
-        public string SuccessInfo
+        private HotKey copyToClipboardHotkey;
+        public HotKey CopyToClipboardHotkey
         {
-            get { return successInfo; }
-            set { SetPropertyAndNotify(ref successInfo, value); }
+            get { return copyToClipboardHotkey; }
+            set
+            {
+                copyToClipboardHotkey = value;
+                CopyToClipboardHotkeyName = copyToClipboardHotkey.ToString() + " (Global)";
+            }
+        }
+
+        private string copyToClipboardHotkeyName;
+        public string CopyToClipboardHotkeyName
+        {
+            get { return copyToClipboardHotkeyName; }
+            set { SetPropertyAndNotify(ref copyToClipboardHotkeyName, value); }
+        }
+
+        private HotKey compileHotkey;
+        public HotKey CompileHotkey
+        {
+            get { return compileHotkey; }
+            set
+            {
+                compileHotkey = value;
+                CompileHotkeyName = compileHotkey.ToString() + " (Global)";
+            }
+        }
+
+        private string compileHotkeyName;
+        public string CompileHotkeyName
+        {
+            get { return compileHotkeyName; }
+            set { SetPropertyAndNotify(ref compileHotkeyName, value); }
+        }
+
+        private HotKey compileAndRunHotkey;
+        public HotKey CompileAndRunHotkey
+        {
+            get { return compileAndRunHotkey; }
+            set
+            {
+                compileAndRunHotkey = value;
+                CompileAndRunHotkeyName = compileAndRunHotkey.ToString() + " (Global)";
+            }
+        }
+
+        private string compileAndRunHotkeyName;
+        public string CompileAndRunHotkeyName
+        {
+            get { return compileAndRunHotkeyName; }
+            set { SetPropertyAndNotify(ref compileAndRunHotkeyName, value); }
+        }
+
+        private string resultInfo;
+        public string ResultInfo
+        {
+            get { return resultInfo; }
+            set { SetPropertyAndNotify(ref resultInfo, value); }
+        }
+
+        private string resultInfoColor;
+        public string ResultInfoColor
+        {
+            get { return resultInfoColor; }
+            set { SetPropertyAndNotify(ref resultInfoColor, value); }
         }
 
         private bool isLinkedFileWindowExpanded = false;
         public bool IsLinkedFileWindowExpanded
         {
             get { return isLinkedFileWindowExpanded; }
-            set { SetPropertyAndNotify(ref isLinkedFileWindowExpanded, value); }
+            set
+            {
+                SetPropertyAndNotify(ref isLinkedFileWindowExpanded, value);
+                if (IsLinkedFileWindowExpanded)
+                    ExpandIcon = "▲";
+                else
+                    ExpandIcon = "▼";
+            }
         }
 
         private string expandIcon = "▼"; //▲
@@ -143,35 +214,65 @@ namespace ScriptLinker.ViewModels
             m_eventAggregator = eventAggregator;
             m_eventAggregator.GetEvent<ScriptInfoAddedEvent>().Subscribe(OnScriptInfoAdded);
             m_eventAggregator.GetEvent<ScriptInfoChangedEvent>().Subscribe(OnScriptInfoChanged);
+            m_eventAggregator.GetEvent<SettingsChangedEvent>().Subscribe((settings) => LoadSettings(settings));
 
             m_settingsAccess = new SettingsAccess();
             m_scriptAccess = new ScriptAccess();
 
             m_winService = new WinService();
-            m_winService.AddGlobalHookedKey(Key.F4, Key.F6, Key.F8);
-            m_winService.GlobalKeyUp += OnGlobalHotkeyPressed;
+            m_winService.GlobalKeyDown += OnGlobalHotkeyDown;
+            m_winService.GlobalKeyUp += OnGlobalHotkeyUp;
             m_winService.ForegroundChanged += RemoveFileModificationDetectedDialog;
 
             m_scriptService = new ScriptService();
             m_scheduledTask = new ScheduledTask();
+            m_settings = m_settingsAccess.LoadSettings();
 
             LoadCommands();
-            LoadData();
+            LoadSettings(m_settings);
+            ScriptNames = m_scriptAccess.GetScriptNames();
         }
 
-        private void OnGlobalHotkeyPressed(object sender, KeyEventArgs args)
+        private void OnGlobalHotkeyDown(object sender, GlobalKeyEventArgs e)
         {
-            switch (args.Key)
+            var hotKey = e.HotKey;
+
+            if (hotKey.Equals(CopyToClipboardHotkey))
             {
-                case Key.F4:
-                    CopyToClipboardCommand.Execute(null);
-                    break;
-                case Key.F6:
-                    CompileCommand.Execute(null);
-                    break;
-                case Key.F8:
-                    CompileAndRunCommand.Execute(null);
-                    break;
+                PendingGlobalCommand = CopyToClipboardCommand;
+            }
+            else if (hotKey.Equals(CompileHotkey))
+            {
+                PendingGlobalCommand = CompileCommand;
+            }
+            else if (hotKey.Equals(CompileAndRunHotkey))
+            {
+                PendingGlobalCommand = CompileAndRunCommand;
+            }
+        }
+
+        private void OnGlobalHotkeyUp(object sender, GlobalKeyEventArgs e)
+        {
+            if (PendingGlobalCommand == null) return;
+
+            var hotKey = e.HotKey;
+
+            // Execute the pending command only if no modifier key is pressed or it will mess up the keystrokes
+            // sent from the command
+            if (InputUtil.IsSame(hotKey.Key, hotKey.Modifiers) || !InputUtil.IsModifierKey(hotKey.Key))
+            {
+                // If hotKey.Key is a modifier key, that modifier key state is still down at the time this event
+                // is fired, which may interfere with the keystrokes sent from the automation command below, so we
+                // will have to wait a bit more
+                TimerUtil.RunOnce(() =>
+                {
+                    // The automation command will probably send some keystrokes (e.g. Ctrl-V to paste text or something)
+                    // We dont want the global hook receives and processes those events, thus run this command again
+                    m_winService.GlobalKeyUp -= OnGlobalHotkeyUp;
+                    PendingGlobalCommand.Execute(null);
+                    PendingGlobalCommand = null;
+                    m_winService.GlobalKeyUp += OnGlobalHotkeyUp;
+                }, 1);
             }
         }
 
@@ -186,15 +287,30 @@ namespace ScriptLinker.ViewModels
             OpenFileCommand = new DelegateCommand<string>(FileUtil.OpenFile);
         }
 
-        private void LoadData()
+        private void LoadSettings(Settings settings)
         {
-            var settings = m_settingsAccess.LoadSettings();
-
-            IsStandaloneScript = settings.StandaloneScript;
+            GenerateExtensionScript = settings.GenerateExtensionScript;
             IsLinkedFileWindowExpanded = settings.IsLinkedFileWindowExpanded;
             ScriptName = settings.LastOpenedScript;
 
-            ScriptNames = m_scriptAccess.GetScriptNames();
+            CopyToClipboardHotkey = InputUtil.Parse(settings.CopyToClipboardHotkey);
+            CompileHotkey = InputUtil.Parse(settings.CompileHotkey);
+            CompileAndRunHotkey = InputUtil.Parse(settings.CompileAndRunHotkey);
+
+            m_winService.ClearGlobalHookedKey();
+            m_winService.AddGlobalHookedKey(
+                Key.LeftShift,
+                Key.RightShift,
+                Key.LeftCtrl,
+                Key.RightCtrl,
+                Key.LeftAlt,
+                Key.RightAlt,
+                CopyToClipboardHotkey.Key,
+                CompileHotkey.Key,
+                CompileAndRunHotkey.Key
+            );
+
+            m_settings = settings;
         }
 
         public Action<ScriptInfo> SaveScriptInfo
@@ -240,10 +356,17 @@ namespace ScriptLinker.ViewModels
 
         private void AddTemplateToEntryPoint()
         {
-            var entryPointFile = Path.GetFileName(ScriptInfo.EntryPoint);
+            if (!ScriptInfo.IsEmpty())
+            {
+                var entryPointFile = Path.GetFileName(ScriptInfo.EntryPoint);
 
-            m_scriptService.AddTemplate(ProjectInfo, ScriptInfo.EntryPoint);
-            ShowInlineMessage($"Init template to {entryPointFile}", 1500);
+                m_scriptService.AddTemplate(ProjectInfo, ScriptInfo.EntryPoint);
+                ShowInlineMessage($"Init template to {entryPointFile}", 1500);
+            }
+            else
+            {
+                ShowInlineMessage("Script info is empty", 1500, TextColor.Failed);
+            }
         }
 
         private void Compile(bool runAfterCompiling)
@@ -332,16 +455,11 @@ namespace ScriptLinker.ViewModels
             stopwatch.PrintTime("CopyToClipboard() Gen output file");
         }
 
-        private Timer m_successMessageTimer = new Timer();
-        private void ShowInlineMessage(string message, int timeoutMs)
+        private void ShowInlineMessage(string message, int timeoutMs, string textColor = TextColor.Success)
         {
-            SuccessInfo = message;
-
-            m_successMessageTimer.Stop();
-            m_successMessageTimer.Elapsed += (sender, e) => SuccessInfo = "";
-            m_successMessageTimer.AutoReset = false; // run once
-            m_successMessageTimer.Interval = timeoutMs;
-            m_successMessageTimer.Start();
+            ResultInfoColor = textColor;
+            ResultInfo = message;
+            TimerUtil.RunOnce(() => ResultInfo = "", timeoutMs);
         }
 
         private async void GenerateOutputFile(string sourceCode)
@@ -351,12 +469,12 @@ namespace ScriptLinker.ViewModels
                 var outputPath = Path.ChangeExtension(ScriptInfo.EntryPoint, "txt");
                 await FileUtil.WriteTextAsync(outputPath, sourceCode);
 
-                if (IsStandaloneScript)
+                if (GenerateExtensionScript)
                 {
                     CopyToScriptFolder(sourceCode);
                 }
             }
-            catch (IOException)
+            catch (IOException ex)
             {
                 MessageBox.Show($"Don't spam the button bruh", "Info",
                     MessageBoxButton.OK,
@@ -370,7 +488,7 @@ namespace ScriptLinker.ViewModels
             var sourcePath = Path.ChangeExtension(entryPoint, "txt");
             var myDocument = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             var sfdScriptPath = Path.Combine(myDocument, @"Superfighters Deluxe\Scripts");
-            var scriptName = Path.GetFileNameWithoutExtension(entryPoint) + ".txt";
+            var scriptName = Path.GetFileName(sourcePath);
             var destinationPath = Path.Combine(sfdScriptPath, scriptName);
 
             await FileUtil.CopyFileAsync(sourcePath, destinationPath);
@@ -379,11 +497,6 @@ namespace ScriptLinker.ViewModels
         private void ExpandLinkedFilesWindow()
         {
             IsLinkedFileWindowExpanded = !IsLinkedFileWindowExpanded;
-
-            if (IsLinkedFileWindowExpanded)
-                ExpandIcon = "▲";
-            else
-                ExpandIcon = "▼";
         }
 
         private void CheckRemoveBackupFiles()
@@ -405,12 +518,11 @@ namespace ScriptLinker.ViewModels
 
         public override void OnWindowClosing(object sender, CancelEventArgs e)
         {
-            m_settingsAccess.SaveSettings(new Settings()
-            {
-                LastOpenedScript = ScriptName,
-                StandaloneScript = IsStandaloneScript,
-                IsLinkedFileWindowExpanded = IsLinkedFileWindowExpanded,
-            });
+            m_settings.GenerateExtensionScript = GenerateExtensionScript;
+            m_settings.IsLinkedFileWindowExpanded = IsLinkedFileWindowExpanded;
+            m_settings.LastOpenedScript = ScriptName;
+
+            m_settingsAccess.SaveSettings(m_settings);
             m_scriptAccess.RemoveNotFoundScriptInfo();
             m_scriptAccess.UpdateScriptInfo(ScriptInfo);
             CheckRemoveBackupFiles();

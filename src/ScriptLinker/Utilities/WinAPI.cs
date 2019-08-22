@@ -160,6 +160,15 @@ namespace ScriptLinker.Utilities
         [DllImport("user32.dll")]
         internal static extern IntPtr GetForegroundWindow();
 
+        /// <summary>
+        /// Retrieves the status of the specified virtual key. The status specifies whether the key is up, down,
+        /// or toggled (on, off—alternating each time the key is pressed).
+        /// </summary>
+        /// <param name="nVirtKey"></param>
+        /// <returns></returns>
+        [DllImport("user32.dll")]
+        static public extern short GetKeyState(System.Windows.Forms.Keys nVirtKey);
+
         [DllImport("user32.dll", EntryPoint = "GetWindowLong")]
         private static extern IntPtr GetWindowLongPtr32(IntPtr hWnd, GWL nIndex);
 

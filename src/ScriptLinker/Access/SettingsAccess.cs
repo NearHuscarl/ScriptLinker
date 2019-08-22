@@ -1,8 +1,11 @@
 ﻿using ScriptLinker.Models;
+using ScriptLinker.Utilities;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using System.Xml.Linq;
+using System.Xml.Serialization;
 
 namespace ScriptLinker.Access
 {
@@ -14,19 +17,14 @@ namespace ScriptLinker.Access
         {
             try
             {
-                if (!File.Exists(ConfigPath))
-                    return new Settings();
+                var settings = new Settings();
 
-                var doc = XDocument.Load(ConfigPath);
-                var settingsElement = doc.Element("Settings");
-                var settings = new Settings
+                using (FileStream stream = new FileStream(ConfigPath, FileMode.Open))
                 {
-                    InitTemplateOnCreated = XmlConvert.ToBoolean(settingsElement.Element("InitTemplateOnCreated").Value),
-                    LastOpenedScript = settingsElement.Element("LastOpenedScript").Value,
-                    StandaloneScript = XmlConvert.ToBoolean(settingsElement.Element("StandaloneScript").Value),
-                    IsLinkedFileWindowExpanded = XmlConvert.ToBoolean(
-                        settingsElement.Element("IsLinkedFileWindowExpanded").Value)
-                };
+                    var serializer = new XmlSerializer(typeof(Settings));
+                    settings = serializer.Deserialize(stream) as Settings;
+                }
+
                 return settings;
             }
             catch (Exception)
@@ -37,26 +35,11 @@ namespace ScriptLinker.Access
 
         public void SaveSettings(Settings settings)
         {
-            var settingsDoc = new XDocument(new XElement("Settings",
-                new XElement("InitTemplateOnCreated", settings.InitTemplateOnCreated),
-                new XElement("LastOpenedScript", settings.LastOpenedScript),
-                new XElement("StandaloneScript", settings.StandaloneScript),
-                new XElement("IsLinkedFileWindowExpanded", settings.IsLinkedFileWindowExpanded)));
-
-            settingsDoc.Save(ConfigPath);
-        }
-
-        public void SaveSettings(string field, string value)
-        {
-            var settingsDoc = File.Exists(ConfigPath) ? XDocument.Load(ConfigPath) : new XDocument();
-
-            settingsDoc.Element("Settings").Element(field).Value = value;
-            settingsDoc.Save(ConfigPath);
-        }
-
-        public void SaveSettings(string field, bool value)
-        {
-            SaveSettings(field, XmlConvert.ToString(value));
+            using (FileStream stream = new FileStream(ConfigPath, FileMode.Create))
+            {
+                var serializer = new XmlSerializer(typeof(Settings));
+                serializer.Serialize(stream, settings);
+            }
         }
     }
 }

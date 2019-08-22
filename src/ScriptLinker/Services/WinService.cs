@@ -1,4 +1,5 @@
-﻿using ScriptLinker.Utilities;
+﻿using ScriptLinker.Events;
+using ScriptLinker.Utilities;
 using System;
 using System.Windows.Input;
 
@@ -9,13 +10,13 @@ namespace ScriptLinker.Services
         private GlobalKeyboardHook m_globalKeyboardHook;
         private WinEvent m_winEvent;
 
-        public event KeyEventHandler GlobalKeyDown
+        public event GlobalKeyEventHandler GlobalKeyDown
         {
             add { m_globalKeyboardHook.KeyDown += value; }
             remove { m_globalKeyboardHook.KeyDown -= value; }
         }
 
-        public event KeyEventHandler GlobalKeyUp
+        public event GlobalKeyEventHandler GlobalKeyUp
         {
             add { m_globalKeyboardHook.KeyUp += value; }
             remove { m_globalKeyboardHook.KeyUp -= value; }
@@ -43,6 +44,10 @@ namespace ScriptLinker.Services
             {
                 m_globalKeyboardHook.AddHookedKey(key);
             }
+        }
+        public void ClearGlobalHookedKey()
+        {
+            m_globalKeyboardHook.ClearHookedKeys();
         }
 
         #region Dispose pattern

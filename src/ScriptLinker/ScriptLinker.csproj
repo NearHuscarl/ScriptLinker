@@ -41,6 +41,7 @@
     <Reference Include="Microsoft.Build.Framework, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Build.Framework.15.9.20\lib\net46\Microsoft.Build.Framework.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Expression.Interactions, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.VisualStudio.Setup.Configuration.Interop, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.VisualStudio.Setup.Configuration.Interop.1.16.30\lib\net35\Microsoft.VisualStudio.Setup.Configuration.Interop.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
@@ -111,6 +112,10 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Converters\StringToColorConverter.cs" />
+    <Compile Include="Events\GlobalKeyEventArgs.cs" />
+    <Compile Include="Events\GlobalKeyEventHandler.cs" />
+    <Compile Include="Events\SettingsChangedEvent.cs" />
     <Compile Include="Services\ApplicationService.cs" />
     <Compile Include="Behaviors\Margin.cs" />
     <Compile Include="Behaviors\ScrollViewerBehavior.cs" />
@@ -127,6 +132,8 @@
     <Compile Include="Models\Settings.cs" />
     <Compile Include="Services\ScriptService.cs" />
     <Compile Include="Services\WinService.cs" />
+    <Compile Include="Utilities\EnumExtensions.cs" />
+    <Compile Include="Utilities\TextColor.cs" />
     <Compile Include="Utilities\GlobalKeyboardHook.cs" />
     <Compile Include="Utilities\HotKey.cs" />
     <Compile Include="Utilities\InputUtil.cs" />
@@ -140,6 +147,7 @@
     <Compile Include="Utilities\FileUtil.cs" />
     <Compile Include="Utilities\RegexPattern.cs" />
     <Compile Include="Utilities\TextUtil.cs" />
+    <Compile Include="Utilities\TimerUtil.cs" />
     <Compile Include="Utilities\VisualSln.cs" />
     <Compile Include="Utilities\ProjectUtil.cs" />
     <Compile Include="Utilities\Vk.cs" />
@@ -150,6 +158,7 @@
     <Compile Include="IValidator.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="Events\ScriptInfoAddedEvent.cs" />
+    <Compile Include="ViewModels\OptionViewModel.cs" />
     <Compile Include="ViewModels\ScriptInfoFormViewModel.cs" />
     <Compile Include="Events\ScriptInfoSelectedEvent.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />

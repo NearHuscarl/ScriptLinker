@@ -1,8 +1,8 @@
-﻿using System;
+﻿using ScriptLinker.Events;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows.Input;
-using System.Windows.Interop;
 
 namespace ScriptLinker.Utilities
 {
@@ -26,11 +26,11 @@ namespace ScriptLinker.Utilities
         /// <summary>
         /// Occurs when one of the hooked keys is pressed
         /// </summary>
-        public event KeyEventHandler KeyDown;
+        public event GlobalKeyEventHandler KeyDown;
         /// <summary>
         /// Occurs when one of the hooked keys is released
         /// </summary>
-        public event KeyEventHandler KeyUp;
+        public event GlobalKeyEventHandler KeyUp;
         /// <summary>
         /// Occurs when one of the hooked keys is pressed and released
         /// </summary>
@@ -72,6 +72,11 @@ namespace ScriptLinker.Utilities
             _hookedKeys.Add(winformKey);
         }
 
+        public void ClearHookedKeys()
+        {
+            _hookedKeys.Clear();
+        }
+
         /// <summary>
         /// The callback for the keyboard hook
         /// </summary>
@@ -88,11 +93,7 @@ namespace ScriptLinker.Utilities
                 if (_hookedKeys.Contains(key))
                 {
                     var wpfKey = InputUtil.WinformsToWPFKey(key);
-                    var eventArgs = new KeyEventArgs(
-                        Keyboard.PrimaryDevice,
-                        new HwndSource(0, 0, 0, 0, 0, "", IntPtr.Zero),
-                        0,
-                        wpfKey);
+                    var eventArgs = new GlobalKeyEventArgs(wpfKey, IsShiftPressed(), IsCtrlPressed(), IsAltPressed());
 
                     if ((wParam == (IntPtr)WM_KEYDOWN || wParam == (IntPtr)WM_SYSKEYDOWN) && (KeyDown != null))
                     {
@@ -102,12 +103,41 @@ namespace ScriptLinker.Utilities
                     {
                         KeyUp(this, eventArgs);
                     }
-                    if (eventArgs.Handled)
-                        return new IntPtr(1);
                 }
             }
 
             return WinAPI.CallNextHookEx(hookID, code, wParam, ref lParam);
+        }
+
+        public static bool GetCapslock()
+        {
+            return Convert.ToBoolean(WinAPI.GetKeyState(System.Windows.Forms.Keys.CapsLock)) & true;
+        }
+        public static bool GetNumlock()
+        {
+            return Convert.ToBoolean(WinAPI.GetKeyState(System.Windows.Forms.Keys.NumLock)) & true;
+        }
+        public static bool GetScrollLock()
+        {
+            return Convert.ToBoolean(WinAPI.GetKeyState(System.Windows.Forms.Keys.Scroll)) & true;
+        }
+        public static bool IsShiftPressed()
+        {
+            int state = WinAPI.GetKeyState(System.Windows.Forms.Keys.ShiftKey);
+            if (state > 1 || state < -1) return true;
+            return false;
+        }
+        public static bool IsCtrlPressed()
+        {
+            int state = WinAPI.GetKeyState(System.Windows.Forms.Keys.ControlKey);
+            if (state > 1 || state < -1) return true;
+            return false;
+        }
+        public static bool IsAltPressed()
+        {
+            int state = WinAPI.GetKeyState(System.Windows.Forms.Keys.Menu);
+            if (state > 1 || state < -1) return true;
+            return false;
         }
 
         #region Dispose pattern
@@ -143,6 +173,5 @@ namespace ScriptLinker.Utilities
         }
 
         #endregion
-
     }
 }

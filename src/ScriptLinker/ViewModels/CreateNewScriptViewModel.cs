@@ -3,6 +3,7 @@ using ScriptLinker.Access;
 using ScriptLinker.Events;
 using ScriptLinker.Models;
 using ScriptLinker.Services;
+using ScriptLinker.Utilities;
 using System;
 
 namespace ScriptLinker.ViewModels
@@ -14,15 +15,13 @@ namespace ScriptLinker.ViewModels
         private ScriptAccess m_scriptAccess;
         private SettingsAccess m_settingsAccess;
 
+        private Settings m_settings;
+
         private bool initTemplate;
         public bool InitTemplate
         {
-            get { return initTemplate; }
-            set
-            {
-                SetPropertyAndNotify(ref initTemplate, value);
-                m_settingsAccess.SaveSettings("InitTemplateOnCreated", initTemplate);
-            }
+            get { return m_settings.InitTemplateOnCreated; }
+            set { SetPropertyAndNotify(ref initTemplate, value); }
         }
 
         public CreateNewScriptViewModel(IEventAggregator eventAggregator, Action closeAction)
@@ -32,9 +31,8 @@ namespace ScriptLinker.ViewModels
             m_scriptAccess = new ScriptAccess();
             m_settingsAccess = new SettingsAccess();
 
-            var settings = m_settingsAccess.LoadSettings();
-            InitTemplate = settings.InitTemplateOnCreated;
-            CloseAction = closeAction;
+            m_settings = m_settingsAccess.LoadSettings();
+            Close = closeAction;
         }
 
         public Action<ScriptInfo> AddScriptInfo
@@ -51,8 +49,12 @@ namespace ScriptLinker.ViewModels
                         m_scriptService.AddTemplate(projectInfo, scriptInfo.EntryPoint);
                     }
 
+                    m_settings.InitTemplateOnCreated = InitTemplate;
+                    m_settingsAccess.SaveSettings(m_settings);
                     m_eventAggregator.GetEvent<ScriptInfoAddedEvent>().Publish(scriptInfo);
-                    CloseAction();
+                    m_eventAggregator.GetEvent<SettingsChangedEvent>().Publish(m_settings);
+
+                    Close();
                 };
             }
         }

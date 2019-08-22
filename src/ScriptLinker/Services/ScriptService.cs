@@ -45,6 +45,8 @@ namespace ScriptLinker.Services
 
         public void AddTemplate(ProjectInfo projectInfo, string entryPoint)
         {
+            if (string.IsNullOrWhiteSpace(entryPoint)) return;
+
             BackupFile(entryPoint);
 
             var fileInfo = m_linker.ReadCSharpFile(projectInfo, entryPoint);
