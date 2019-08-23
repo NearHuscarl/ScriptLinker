@@ -526,6 +526,8 @@ namespace ScriptLinker.ViewModels
             var entryPoint = ScriptInfo.EntryPoint;
             var backupFolder = new DirectoryInfo(m_scriptService.GetBackupFolder());
 
+            if (!backupFolder.Exists) return;
+
             foreach (var backupFile in backupFolder.GetFiles("~*"))
             {
                 var creationTime = backupFile.CreationTimeUtc;

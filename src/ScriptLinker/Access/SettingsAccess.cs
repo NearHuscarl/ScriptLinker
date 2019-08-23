@@ -1,17 +1,14 @@
 ﻿using ScriptLinker.Models;
 using ScriptLinker.Utilities;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Xml;
-using System.Xml.Linq;
 using System.Xml.Serialization;
 
 namespace ScriptLinker.Access
 {
     public class SettingsAccess
     {
-        public string ConfigPath { get; set; } = Path.Combine(Directory.GetCurrentDirectory(), "settings.xml");
+        public string ConfigPath { get; set; } = Path.Combine(ApplicationPath.ApplicationData, "settings.xml");
 
         public Settings LoadSettings()
         {

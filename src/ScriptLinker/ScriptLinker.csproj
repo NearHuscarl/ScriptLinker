@@ -137,7 +137,9 @@
     <Compile Include="Models\Settings.cs" />
     <Compile Include="Services\ScriptService.cs" />
     <Compile Include="Services\WinService.cs" />
+    <Compile Include="Utilities\ApplicationPath.cs" />
     <Compile Include="Utilities\EnumExtensions.cs" />
+    <Compile Include="Utilities\Logger.cs" />
     <Compile Include="Utilities\TextColor.cs" />
     <Compile Include="Utilities\GlobalKeyboardHook.cs" />
     <Compile Include="Utilities\HotKey.cs" />

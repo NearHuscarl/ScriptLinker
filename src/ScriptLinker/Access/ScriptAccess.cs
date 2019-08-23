@@ -1,4 +1,5 @@
 ﻿using ScriptLinker.Models;
+using ScriptLinker.Utilities;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,7 +10,7 @@ namespace ScriptLinker.Access
 {
     public class ScriptAccess
     {
-        public string ConfigPath { get; set; } = Path.Combine(Directory.GetCurrentDirectory(), "script.xml");
+        public string ConfigPath { get; set; } = Path.Combine(ApplicationPath.ApplicationData, "script.xml");
 
         public List<string> GetScriptNames()
         {
