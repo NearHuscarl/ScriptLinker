@@ -4,19 +4,13 @@
              xmlns:local="clr-namespace:ScriptLinker"
              xmlns:System="clr-namespace:System;assembly=mscorlib"
              StartupUri="Views/MainWindow.xaml">
+
     <Application.Resources>
-        <System:Double x:Key="TextBoxWidth">350</System:Double>
-        <System:Double x:Key="TextBoxHeight">20</System:Double>
-        <System:Double x:Key="LabelWidth">100</System:Double>
-        <System:String x:Key="InitTemplateTooltip">Init gamescript template to current script. A backup file will be created in the Backup/ folder</System:String>
-        <System:String x:Key="CopyToClipboardButtonTooltip" xml:space="preserve">Concat all C# files from the specified project into one single string and add the result to clipboard</System:String>
-        <System:String x:Key="CompileTooltip" xml:space="preserve">Proceed to automate the compiling task by:
-    1. Concat all C# files from the specified project into one single string
-    2. Switch to Superfighters Deluxe's script editor window (script tab in the Map Editor)
-    3. Paste the resulted text from Step 1
-    4. Compile</System:String>
-        <System:String x:Key="CompileAndRunTooltip" xml:space="preserve">Compile and run the map editor test</System:String>
-        <System:String x:Key="GenerateExtensionScriptTooltip" xml:space="preserve">Generate an extension script in %USERPROFILE%\Documents\Superfighters Deluxe\Scripts\
-that can be loaded using /startscript &lt;scriptname&gt;</System:String>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resource.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Application.Resources>
+    
 </Application>
