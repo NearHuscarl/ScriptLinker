@@ -10,6 +10,7 @@
 	    WindowStartupLocation="CenterScreen"
         xmlns:converters="clr-namespace:ScriptLinker.Converters"
 	    xmlns:behaviors="clr-namespace:ScriptLinker.Behaviors"
+        xmlns:fa="http://schemas.fontawesome.io/icons/"
         Title="Script Linker"
         ResizeMode="NoResize"
         Icon="../Icon.ico"
@@ -19,6 +20,18 @@
 
     <Window.Resources>
         <System:Double x:Key="DefaultLinkedFileWindowHeight">110</System:Double>
+
+        <fa:FontAwesome x:Key="CreateIcon" Icon="FileOutline" />
+        <fa:FontAwesome x:Key="SaveIcon" Icon="FloppyOutline" />
+        <fa:FontAwesome x:Key="RemoveIcon" Icon="Remove" Foreground="{StaticResource Red}" />
+        <fa:FontAwesome x:Key="FileCodeIcon" Icon="FileCodeOutline" />
+        <fa:FontAwesome x:Key="ClipboardIcon" Icon="Clipboard" />
+        <Image x:Key="BuildIcon" Source="../Resources/Build.png" Style="{StaticResource ImageIcon}" />
+        <fa:FontAwesome x:Key="RunIcon" Icon="Play" Foreground="{StaticResource Green}" />
+        <fa:FontAwesome x:Key="CogIcon" Icon="Cog" />
+        <fa:FontAwesome x:Key="QuestionIcon" Icon="QuestionCircleOutline" Foreground="{StaticResource Blue}" />
+        <fa:FontAwesome x:Key="InfoIcon" Icon="Info" />
+
         <converters:BoolToGridRowHeightConverter x:Key="GridRowHeightConverter" />
         <converters:StringToColorConverter x:Key="StringToColorConverter" />
     </Window.Resources>
@@ -42,32 +55,42 @@
 
         <Menu>
             <MenuItem Header="_Script">
-                <MenuItem Header="_New" Command="{Binding OpenCreateNewScriptCommand}" InputGestureText="Ctrl+N"/>
-                <MenuItem Header="_Save" Command="{Binding SaveScriptInfoCommand}" InputGestureText="Ctrl+S"/>
-                <MenuItem Header="_Delete" Command="{Binding DeleteScriptInfoCommand}" InputGestureText="Delete"/>
-                <MenuItem Header="_Add template" Command="{Binding AddTemplateToEntryPointCommand}"
+                <MenuItem Header="_New" Icon="{StaticResource CreateIcon}"
+                          Command="{Binding OpenCreateNewScriptCommand}" InputGestureText="Ctrl+N"/>
+                <MenuItem Header="_Save" Icon="{StaticResource SaveIcon}"
+                          Command="{Binding SaveScriptInfoCommand}" InputGestureText="Ctrl+S"/>
+                <MenuItem Header="_Delete" Icon="{StaticResource RemoveIcon}"
+                          Command="{Binding DeleteScriptInfoCommand}" InputGestureText="Delete"/>
+                <MenuItem Header="_Add template" Icon="{StaticResource FileCodeIcon}"
+                          Command="{Binding AddTemplateToEntryPointCommand}"
                           ToolTip="{StaticResource InitTemplateTooltip}"
                           InputGestureText="Ctrl+I"/>
             </MenuItem>
             <MenuItem Header="_Tools">
-                <MenuItem Header="_Copy to Clipboard" Command="{Binding CopyToClipboardCommand}"
+                <MenuItem Header="_Copy to Clipboard" Icon="{StaticResource ClipboardIcon}"
+                          Command="{Binding CopyToClipboardCommand}"
                           InputGestureText="{Binding CopyToClipboardHotkeyName}"
                           ToolTip="{StaticResource CopyToClipboardButtonTooltip}"/>
-                <MenuItem Header="_Compile" Command="{Binding CompileCommand}"
+                <MenuItem Header="_Compile" Icon="{StaticResource BuildIcon}"
+                          Command="{Binding CompileCommand}"
                           InputGestureText="{Binding CompileHotkeyName}"
                           ToolTip="{StaticResource CompileTooltip}"
                           ToolTipService.ShowDuration="999999"/>
-                <MenuItem Header="_Compile and Run" Command="{Binding CompileAndRunCommand}"
+                <MenuItem Header="_Compile and Run" Icon="{StaticResource RunIcon}"
+                          Command="{Binding CompileAndRunCommand}"
                           InputGestureText="{Binding CompileAndRunHotkeyName}"
-                          ToolTip="{StaticResource CompileAndRunTooltip}"/>
-                <MenuItem Header="_Option" Command="{Binding OpenOptionWindowCommand}" InputGestureText="Ctrl+T"/>
+                          ToolTip="{StaticResource CompileAndRunTooltip}" />
+                <MenuItem Header="_Option" Icon="{StaticResource CogIcon}"
+                          Command="{Binding OpenOptionWindowCommand}" InputGestureText="Ctrl+T"/>
             </MenuItem>
             <MenuItem Header="_Help">
-                <MenuItem Header="_View README" Command="{Binding ViewReadMeCommand}"/>
-                <MenuItem Header="_About" Command="{Binding OpenAboutWindowCommand}"/>
+                <MenuItem Header="_View README" Icon="{StaticResource QuestionIcon}"
+                          Command="{Binding ViewReadMeCommand}"/>
+                <MenuItem Header="_About" Icon="{StaticResource InfoIcon}"
+                          Command="{Binding OpenAboutWindowCommand}"/>
             </MenuItem>
         </Menu>
-
+        
         <StackPanel
             Grid.Row="1" Grid.Column="0"
             Orientation="Vertical">
