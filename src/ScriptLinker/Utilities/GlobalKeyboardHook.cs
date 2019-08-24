@@ -95,13 +95,13 @@ namespace ScriptLinker.Utilities
                     var wpfKey = InputUtil.WinformsToWPFKey(key);
                     var eventArgs = new GlobalKeyEventArgs(wpfKey, IsShiftPressed(), IsCtrlPressed(), IsAltPressed());
 
-                    if ((wParam == (IntPtr)WM_KEYDOWN || wParam == (IntPtr)WM_SYSKEYDOWN) && (KeyDown != null))
+                    if (wParam == (IntPtr)WM_KEYDOWN || wParam == (IntPtr)WM_SYSKEYDOWN)
                     {
-                        KeyDown(this, eventArgs);
+                        KeyDown?.Invoke(this, eventArgs);
                     }
-                    else if ((wParam == (IntPtr)WM_KEYUP || wParam == (IntPtr)WM_SYSKEYUP) && (KeyUp != null))
+                    else if (wParam == (IntPtr)WM_KEYUP || wParam == (IntPtr)WM_SYSKEYUP)
                     {
-                        KeyUp(this, eventArgs);
+                        KeyUp?.Invoke(this, eventArgs);
                     }
                 }
             }

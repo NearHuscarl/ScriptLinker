@@ -16,11 +16,7 @@ namespace ScriptLinker.ViewModels
 
         public string Version
         {
-            get
-            {
-                var version = Assembly.GetExecutingAssembly().GetName().Version;
-                return $"{version.Major}.{version.Minor}.{version.Build}";
-            }
+            get { return App.Version; }
         }
         public string Authors { get; private set; }
         public string License { get; private set; }

@@ -12,10 +12,10 @@ namespace ScriptLinker.ViewModels
 {
     class OptionViewModel : ViewModelBase
     {
-        protected readonly IEventAggregator m_eventAggregator;
-        private SettingsAccess m_settingsAccess;
-        private Settings m_settings;
-        private Dictionary<string, int> m_hotKeys = new Dictionary<string, int>();
+        protected readonly IEventAggregator _eventAggregator;
+        private SettingsAccess _settingsAccess;
+        private Settings _settings;
+        private Dictionary<string, int> _hotKeys = new Dictionary<string, int>();
 
         public ICommand SaveSettingsCommand { get; private set; }
 
@@ -85,16 +85,16 @@ namespace ScriptLinker.ViewModels
 
         public OptionViewModel(IEventAggregator eventAggregator, Action closeAction)
         {
-            m_eventAggregator = eventAggregator;
-            m_eventAggregator.GetEvent<SettingsWindowOpenEvent>().Publish();
-            m_settingsAccess = new SettingsAccess();
+            _eventAggregator = eventAggregator;
+            _eventAggregator.GetEvent<SettingsWindowOpenEvent>().Publish();
+            _settingsAccess = new SettingsAccess();
 
-            m_settings = m_settingsAccess.LoadSettings();
+            _settings = _settingsAccess.LoadSettings();
 
-            CopyToClipboardHotkey = m_settings.CopyToClipboardHotkey;
-            CompileHotkey = m_settings.CompileHotkey;
-            CompileAndRunHotkey = m_settings.CompileAndRunHotkey;
-            GenerateExtensionScript = m_settings.GenerateExtensionScript;
+            CopyToClipboardHotkey = _settings.CopyToClipboardHotkey;
+            CompileHotkey = _settings.CompileHotkey;
+            CompileAndRunHotkey = _settings.CompileAndRunHotkey;
+            GenerateExtensionScript = _settings.GenerateExtensionScript;
 
             Close = closeAction;
 
@@ -151,32 +151,32 @@ namespace ScriptLinker.ViewModels
         {
             if (!string.IsNullOrEmpty(oldHotKey))
             {
-                if (m_hotKeys.ContainsKey(oldHotKey))
-                    m_hotKeys[oldHotKey]--;
+                if (_hotKeys.ContainsKey(oldHotKey))
+                    _hotKeys[oldHotKey]--;
                 else
-                    m_hotKeys.Add(oldHotKey, 1);
+                    _hotKeys.Add(oldHotKey, 1);
             }
-            if (m_hotKeys.ContainsKey(newHotKey))
-                m_hotKeys[newHotKey]++;
+            if (_hotKeys.ContainsKey(newHotKey))
+                _hotKeys[newHotKey]++;
             else
-                m_hotKeys.Add(newHotKey, 1);
+                _hotKeys.Add(newHotKey, 1);
         }
 
         private bool Validate()
         {
             ResetErrorMessages();
 
-            if (m_hotKeys[CopyToClipboardHotkey] > 1)
+            if (_hotKeys[CopyToClipboardHotkey] > 1)
             {
                 CopyToClipboardHotkeyError = "Duplicated hotkey";
                 return false;
             }
-            if (m_hotKeys[CompileHotkey] > 1)
+            if (_hotKeys[CompileHotkey] > 1)
             {
                 CompileHotkeyError = "Duplicated hotkey";
                 return false;
             }
-            if (m_hotKeys[CompileAndRunHotkey] > 1)
+            if (_hotKeys[CompileAndRunHotkey] > 1)
             {
                 CompileAndRunHotkeyError = "Duplicated hotkey";
                 return false;
@@ -196,14 +196,14 @@ namespace ScriptLinker.ViewModels
         {
             if (!Validate()) return;
 
-            m_settings.CopyToClipboardHotkey = CopyToClipboardHotkey;
-            m_settings.CompileHotkey = CompileHotkey;
-            m_settings.CompileAndRunHotkey = CompileAndRunHotkey;
-            m_settings.GenerateExtensionScript = GenerateExtensionScript;
+            _settings.CopyToClipboardHotkey = CopyToClipboardHotkey;
+            _settings.CompileHotkey = CompileHotkey;
+            _settings.CompileAndRunHotkey = CompileAndRunHotkey;
+            _settings.GenerateExtensionScript = GenerateExtensionScript;
 
-            m_settingsAccess.SaveSettings(m_settings);
-            m_eventAggregator.GetEvent<SettingsChangedEvent>().Publish(m_settings);
-            m_eventAggregator.GetEvent<SettingsWindowClosedEvent>().Publish();
+            _settingsAccess.SaveSettings(_settings);
+            _eventAggregator.GetEvent<SettingsChangedEvent>().Publish(_settings);
+            _eventAggregator.GetEvent<SettingsWindowClosedEvent>().Publish();
 
             Close();
         }

@@ -5,13 +5,13 @@ namespace ScriptLinker.Utilities
 {
     static class StopwatchExtensions
     {
-        private static long m_previousTime; // in milliseconds
-        private static long m_elapsedTime; // in milliseconds
+        private static long _previousTime; // in milliseconds
+        private static long _elapsedTime; // in milliseconds
 
         public static void StartPrinting(this Stopwatch sw)
         {
-            m_previousTime = 0;
-            m_elapsedTime = 0;
+            _previousTime = 0;
+            _elapsedTime = 0;
             Console.WriteLine();
             sw.Start();
         }
@@ -19,10 +19,10 @@ namespace ScriptLinker.Utilities
         public static void PrintTime(this Stopwatch sw, string msg)
         {
             var totalTime = sw.ElapsedMilliseconds;
-            m_elapsedTime = totalTime - m_previousTime;
+            _elapsedTime = totalTime - _previousTime;
 
-            Console.WriteLine($"{msg} -> {m_elapsedTime}/{totalTime} ms");
-            m_previousTime = totalTime;
+            Console.WriteLine($"{msg} -> {_elapsedTime}/{totalTime} ms");
+            _previousTime = totalTime;
         }
     }
 }

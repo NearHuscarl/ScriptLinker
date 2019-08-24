@@ -1,6 +1,7 @@
 ﻿using ScriptLinker.DataLogic;
 using ScriptLinker.Models;
 using ScriptLinker.Utilities;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -8,11 +9,11 @@ namespace ScriptLinker.Services
 {
     class ScriptService
     {
-        private Linker m_linker;
+        private Linker _linker;
 
         public ScriptService()
         {
-            m_linker = new Linker();
+            _linker = new Linker();
         }
 
         //public bool Validate(ScriptInfo scriptInfo)
@@ -49,7 +50,7 @@ namespace ScriptLinker.Services
 
             BackupFile(entryPoint);
 
-            var fileInfo = m_linker.ReadCSharpFile(projectInfo, entryPoint);
+            var fileInfo = _linker.ReadCSharpFile(projectInfo, entryPoint);
             var myNamespace = string.IsNullOrEmpty(fileInfo.Namespace) ? "SFDScript" : fileInfo.Namespace;
             var className = string.IsNullOrEmpty(fileInfo.ClassName) ?
                 Path.GetFileNameWithoutExtension(entryPoint) : fileInfo.ClassName;
@@ -62,7 +63,7 @@ namespace ScriptLinker.Services
 
         public string GetBackupFolder()
         {
-            return Path.Combine(Directory.GetCurrentDirectory(), "Backup");
+            return Path.Combine(ApplicationPath.ApplicationData, "Backup");
         }
 
         public string GetBackupFile(string path)
@@ -82,9 +83,31 @@ namespace ScriptLinker.Services
             File.WriteAllText(backupFile, text);
         }
 
-        public LinkResult Link(ProjectInfo projectInfo, ScriptInfo scriptInfo)
+        public void CheckRemoveBackupFiles()
         {
-            return m_linker.Link(projectInfo, scriptInfo);
+            var backupFolder = new DirectoryInfo(GetBackupFolder());
+
+            if (!backupFolder.Exists) return;
+
+            foreach (var backupFile in backupFolder.GetFiles("~*"))
+            {
+                var creationTime = backupFile.CreationTimeUtc;
+                var timeNow = DateTime.UtcNow;
+
+                if (timeNow.Subtract(creationTime).Hours >= 72)
+                {
+                    backupFile.Delete();
+                }
+            }
+        }
+
+        public async void CreateExtensionScript(string fileName, string sourceCode)
+        {
+            var sourcePath = Path.ChangeExtension(fileName, "txt");
+            var scriptName = Path.GetFileName(sourcePath);
+            var destinationPath = Path.Combine(ApplicationPath.ScriptFolder, scriptName);
+
+            await FileUtil.CopyFileAsync(sourcePath, destinationPath);
         }
     }
 }

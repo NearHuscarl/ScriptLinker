@@ -1,5 +1,6 @@
 ﻿using ScriptLinker.Utilities;
 using System;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -10,6 +11,15 @@ namespace ScriptLinker
     /// </summary>
     public partial class App : Application
     {
+        public static string Version
+        {
+            get
+            {
+                var version = Assembly.GetExecutingAssembly().GetName().Version;
+                return $"{version.Major}.{version.Minor}.{version.Build}";
+            }
+        }
+
         public App()
         {
             Current.Properties[Constants.SourceCodeUrl] = "https://github.com/NearHuscarl/ScriptLinker";

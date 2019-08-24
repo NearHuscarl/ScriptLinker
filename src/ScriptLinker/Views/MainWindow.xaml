@@ -41,6 +41,7 @@
         <KeyBinding Key="S" Modifiers="Ctrl" Command="{Binding SaveScriptInfoCommand}"/>
         <KeyBinding Key="Delete" Command="{Binding DeleteScriptInfoCommand}"/>
         <KeyBinding Key="I" Modifiers="Ctrl" Command="{Binding AddTemplateToEntryPointCommand}"/>
+        <KeyBinding Key="O" Modifiers="Ctrl" Command="{Binding OpenScriptFolderCommand}"/>
         <KeyBinding Key="T" Modifiers="Ctrl" Command="{Binding OpenOptionWindowCommand}"/>
     </Window.InputBindings>
 
@@ -67,6 +68,9 @@
                           InputGestureText="Ctrl+I"/>
             </MenuItem>
             <MenuItem Header="_Tools">
+                <MenuItem Header="_Open Script Folder"
+                          Command="{Binding OpenScriptFolderCommand}"
+                          InputGestureText="Ctrl-O" />
                 <MenuItem Header="_Copy to Clipboard" Icon="{StaticResource ClipboardIcon}"
                           Command="{Binding CopyToClipboardCommand}"
                           InputGestureText="{Binding CopyToClipboardHotkeyName}"

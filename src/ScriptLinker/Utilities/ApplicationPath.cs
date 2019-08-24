@@ -6,12 +6,12 @@ namespace ScriptLinker.Utilities
 {
     public static class ApplicationPath
     {
-        private static string applicationName = Path.GetFileName(Assembly.GetEntryAssembly().GetName().Name);
+        private static readonly string _applicationName = Path.GetFileName(Assembly.GetEntryAssembly().GetName().Name);
 
         public static string BaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
 
-        private static string _commonApplicationData = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), applicationName);
+        private static readonly string _commonApplicationData = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), _applicationName);
 
         /// <summary>
         /// Accessible to all users
@@ -26,8 +26,8 @@ namespace ScriptLinker.Utilities
             }
         }
 
-        private static string _applicationData = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), applicationName);
+        private static readonly string _applicationData = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), _applicationName);
 
         /// <summary>
         /// Accessible to the currently logged-in user only
@@ -39,6 +39,15 @@ namespace ScriptLinker.Utilities
                 if (!Directory.Exists(_applicationData))
                     Directory.CreateDirectory(_applicationData);
                 return _applicationData;
+            }
+        }
+
+        public static string ScriptFolder
+        {
+            get {
+                return Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                    @"Superfighters Deluxe\Scripts");
             }
         }
     }

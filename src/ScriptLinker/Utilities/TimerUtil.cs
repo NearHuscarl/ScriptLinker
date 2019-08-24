@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 
@@ -7,12 +7,12 @@ namespace ScriptLinker.Utilities
 {
     class TimerUtil
     {
-        public static void RunOnce(Action callback, int msDelay)
+        public static void SetTimeOut(Action callback, int msDelay)
         {
-            var timer = new Timer((state) =>
+            Task.Delay(msDelay).ContinueWith((task) =>
             {
                 Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Send, callback);
-            }, null, msDelay, Timeout.Infinite);
+            });
         }
     }
 }

@@ -12,23 +12,23 @@ namespace ScriptLinker.Utilities
     {
         private string Path { get; set; }
 
-        private string m_suoPath;
+        private string _suoPath;
         public string SuoPath
         {
             get
             {
-                if (m_suoPath != null) return m_suoPath;
+                if (_suoPath != null) return _suoPath;
 
                 var directory = new DirectoryInfo(Path);
 
-                m_suoPath = directory.EnumerateFiles(".suo", SearchOption.AllDirectories)
+                _suoPath = directory.EnumerateFiles(".suo", SearchOption.AllDirectories)
                     .Select(f => f.FullName)
                     .FirstOrDefault();
 
-                return m_suoPath;
+                return _suoPath;
             }
         }
-        private Decoder m_uniDecoder;
+        private Decoder _uniDecoder;
 
         public VisualSln(string slnPath)
         {
@@ -38,7 +38,7 @@ namespace ScriptLinker.Utilities
             }
 
             Path = slnPath;
-            m_uniDecoder = Encoding.Unicode.GetDecoder();
+            _uniDecoder = Encoding.Unicode.GetDecoder();
         }
 
         public static bool IsValidSolutionPath(string path)
@@ -48,7 +48,7 @@ namespace ScriptLinker.Utilities
 
         private class BreakpointBuilder
         {
-            private Breakpoint m_breakpoint = new Breakpoint();
+            private Breakpoint _breakpoint = new Breakpoint();
             private StringBuilder sb = new StringBuilder();
             private int filePathcharOffset = 0;
             private bool shouldBuild = false;
@@ -74,13 +74,13 @@ namespace ScriptLinker.Utilities
 
                     if (str.Length >= 3) // Valid property like File path or Symbol
                     {
-                        if (m_breakpoint.File == "")
+                        if (_breakpoint.File == "")
                         {
-                            m_breakpoint.File = str;
+                            _breakpoint.File = str;
                         }
                         else
                         {
-                            m_breakpoint.Symbol = str;
+                            _breakpoint.Symbol = str;
                         }
 
                         shouldBuild = false;
@@ -92,27 +92,27 @@ namespace ScriptLinker.Utilities
                     }
                 }
 
-                if (m_breakpoint.File != "")
+                if (_breakpoint.File != "")
                 {
                     filePathcharOffset++;
                 }
                 if (filePathcharOffset == 2)
                 {
-                    m_breakpoint.LineNumber = chr;
+                    _breakpoint.LineNumber = chr;
                 }
                 lastChar = chr;
             }
 
             public Breakpoint GetBreakpoint()
             {
-                return m_breakpoint;
+                return _breakpoint;
             }
 
             public bool Complete()
             {
-                return m_breakpoint.File != ""
-                    && m_breakpoint.Symbol != ""
-                    && m_breakpoint.LineNumber != -1;
+                return _breakpoint.File != ""
+                    && _breakpoint.Symbol != ""
+                    && _breakpoint.LineNumber != -1;
             }
         }
 
@@ -128,10 +128,10 @@ namespace ScriptLinker.Utilities
             byte[] bytes = foundStream.GetData();
             char[] chars;
 
-            var charCount = m_uniDecoder.GetCharCount(bytes, 0, bytes.Length);
+            var charCount = _uniDecoder.GetCharCount(bytes, 0, bytes.Length);
             chars = new char[charCount];
 
-            var charsDecodedCount = m_uniDecoder.GetChars(bytes, 0, bytes.Length, chars, 0);
+            var charsDecodedCount = _uniDecoder.GetChars(bytes, 0, bytes.Length, chars, 0);
             var loopOverSlnPath = false;
             var breakpoints = new List<Breakpoint>();
             var lastChar = '\0';

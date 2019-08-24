@@ -5,7 +5,7 @@ namespace ScriptLinker.Utilities
 {
     class InputUtil
     {
-        private static KeyConverter m_keyConverter = new KeyConverter();
+        private static KeyConverter _keyConverter = new KeyConverter();
 
         public static Key WinformsToWPFKey(System.Windows.Forms.Keys formsKey)
         {
@@ -41,7 +41,7 @@ namespace ScriptLinker.Utilities
             
             foreach (var keyName in keyNames)
             {
-                var keyVal = (Key)m_keyConverter.ConvertFromString(keyName);
+                var keyVal = (Key)_keyConverter.ConvertFromString(keyName);
 
                 switch (keyVal)
                 {

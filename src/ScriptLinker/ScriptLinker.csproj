@@ -135,6 +135,8 @@
     <Compile Include="Models\ProjectInfo.cs" />
     <Compile Include="Models\ScriptInfo.cs" />
     <Compile Include="Models\Settings.cs" />
+    <Compile Include="Services\AutomationService.cs" />
+    <Compile Include="Services\DialogService.cs" />
     <Compile Include="Services\ScriptService.cs" />
     <Compile Include="Services\WinService.cs" />
     <Compile Include="Utilities\ApplicationPath.cs" />

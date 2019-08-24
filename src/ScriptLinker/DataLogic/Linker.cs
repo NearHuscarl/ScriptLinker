@@ -2,6 +2,7 @@
 using ScriptLinker.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -51,6 +52,7 @@ namespace ScriptLinker.DataLogic
         {
             if (!File.Exists(projectInfo.EntryPoint)) return new LinkResult();
 
+            var stopwatch = Stopwatch.StartNew();
             var linkedFiles = new HashSet<string>();
             var usingNamespaces = new HashSet<string>();
             var newNamespaces = new List<string>();
@@ -108,6 +110,7 @@ namespace ScriptLinker.DataLogic
             {
                 Content = sb.ToString(),
                 LinkedFiles = linkedFiles,
+                Elapsed = stopwatch.ElapsedMilliseconds,
             };
         }
 

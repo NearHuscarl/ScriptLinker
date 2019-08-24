@@ -11,9 +11,9 @@ namespace ScriptLinker.ViewModels
 {
     class ScriptInfoFormViewModel : ViewModelBase, IValidator
     {
-        protected readonly IEventAggregator m_eventAggregator;
-        private ScriptAccess m_scriptAccess;
-        private FileSystemWatcher m_fileWatcher;
+        protected readonly IEventAggregator _eventAggregator;
+        private ScriptAccess _scriptAccess;
+        private FileSystemWatcher _fileWatcher;
 
         public ICommand OpenEntryPointCommand { get; private set; }
         public ICommand BrowseEntryPointCommand { get; private set; }
@@ -133,7 +133,7 @@ namespace ScriptLinker.ViewModels
                 Author = value.Author;
                 Description = value.Description;
                 MapModes = value.MapModes;
-                m_eventAggregator.GetEvent<ScriptInfoChangedEvent>().Publish(ScriptInfo);
+                _eventAggregator.GetEvent<ScriptInfoChangedEvent>().Publish(ScriptInfo);
             }
         }
 
@@ -149,9 +149,9 @@ namespace ScriptLinker.ViewModels
 
         public ScriptInfoFormViewModel(IEventAggregator eventAggregator)
         {
-            m_eventAggregator = eventAggregator;
-            m_eventAggregator.GetEvent<ScriptInfoSelectedEvent>().Subscribe(OnScriptInfoSelected);
-            m_scriptAccess = new ScriptAccess();
+            _eventAggregator = eventAggregator;
+            _eventAggregator.GetEvent<ScriptInfoSelectedEvent>().Subscribe(OnScriptInfoSelected);
+            _scriptAccess = new ScriptAccess();
 
             BrowseEntryPointCommand = new DelegateCommand(BrowseEntryPoint);
             OpenEntryPointCommand = new DelegateCommand<string>(FileUtil.OpenFile);
@@ -161,7 +161,7 @@ namespace ScriptLinker.ViewModels
 
         private void OnScriptInfoSelected(string scriptName)
         {
-            var scriptInfo = m_scriptAccess.LoadScriptInfo(scriptName);
+            var scriptInfo = _scriptAccess.LoadScriptInfo(scriptName);
 
             ScriptInfo = new ScriptInfo()
             {
@@ -262,15 +262,15 @@ namespace ScriptLinker.ViewModels
         {
             if (!Directory.Exists(ProjectDir) || !File.Exists(EntryPoint)) return;
 
-            if (m_fileWatcher != null)
+            if (_fileWatcher != null)
             {
-                m_fileWatcher.EnableRaisingEvents = false;
-                m_fileWatcher.Created -= OnCreatedFile();
-                m_fileWatcher.Renamed -= OnRenamedFile();
-                m_fileWatcher.Dispose();
+                _fileWatcher.EnableRaisingEvents = false;
+                _fileWatcher.Created -= OnCreatedFile();
+                _fileWatcher.Renamed -= OnRenamedFile();
+                _fileWatcher.Dispose();
             }
 
-            m_fileWatcher = new FileSystemWatcher
+            _fileWatcher = new FileSystemWatcher
             {
                 Path = ProjectDir,
                 NotifyFilter = NotifyFilters.LastWrite |
@@ -280,11 +280,11 @@ namespace ScriptLinker.ViewModels
                 IncludeSubdirectories = true,
             };
 
-            m_fileWatcher.Created += OnCreatedFile();
-            m_fileWatcher.Renamed += OnRenamedFile();
+            _fileWatcher.Created += OnCreatedFile();
+            _fileWatcher.Renamed += OnRenamedFile();
 
             // Begin watching.
-            m_fileWatcher.EnableRaisingEvents = true;
+            _fileWatcher.EnableRaisingEvents = true;
         }
 
         private FileSystemEventHandler OnCreatedFile()

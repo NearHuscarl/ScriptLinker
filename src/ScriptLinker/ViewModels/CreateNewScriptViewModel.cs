@@ -10,28 +10,28 @@ namespace ScriptLinker.ViewModels
 {
     class CreateNewScriptViewModel : ViewModelBase
     {
-        protected readonly IEventAggregator m_eventAggregator;
-        private ScriptService m_scriptService;
-        private ScriptAccess m_scriptAccess;
-        private SettingsAccess m_settingsAccess;
+        protected readonly IEventAggregator _eventAggregator;
+        private ScriptService _scriptService;
+        private ScriptAccess _scriptAccess;
+        private SettingsAccess _settingsAccess;
 
-        private Settings m_settings;
+        private Settings _settings;
 
         private bool initTemplate;
         public bool InitTemplate
         {
-            get { return m_settings.InitTemplateOnCreated; }
+            get { return _settings.InitTemplateOnCreated; }
             set { SetPropertyAndNotify(ref initTemplate, value); }
         }
 
         public CreateNewScriptViewModel(IEventAggregator eventAggregator, Action closeAction)
         {
-            m_eventAggregator = eventAggregator;
-            m_scriptService = new ScriptService();
-            m_scriptAccess = new ScriptAccess();
-            m_settingsAccess = new SettingsAccess();
+            _eventAggregator = eventAggregator;
+            _scriptService = new ScriptService();
+            _scriptAccess = new ScriptAccess();
+            _settingsAccess = new SettingsAccess();
 
-            m_settings = m_settingsAccess.LoadSettings();
+            _settings = _settingsAccess.LoadSettings();
             Close = closeAction;
         }
 
@@ -41,18 +41,18 @@ namespace ScriptLinker.ViewModels
             {
                 return (scriptInfo) =>
                 {
-                    m_scriptAccess.UpdateScriptInfo(scriptInfo);
+                    _scriptAccess.UpdateScriptInfo(scriptInfo);
 
                     if (InitTemplate)
                     {
-                        var projectInfo = m_scriptService.GetProjectInfo(scriptInfo);
-                        m_scriptService.AddTemplate(projectInfo, scriptInfo.EntryPoint);
+                        var projectInfo = _scriptService.GetProjectInfo(scriptInfo);
+                        _scriptService.AddTemplate(projectInfo, scriptInfo.EntryPoint);
                     }
 
-                    m_settings.InitTemplateOnCreated = InitTemplate;
-                    m_settingsAccess.SaveSettings(m_settings);
-                    m_eventAggregator.GetEvent<ScriptInfoAddedEvent>().Publish(scriptInfo);
-                    m_eventAggregator.GetEvent<SettingsChangedEvent>().Publish(m_settings);
+                    _settings.InitTemplateOnCreated = InitTemplate;
+                    _settingsAccess.SaveSettings(_settings);
+                    _eventAggregator.GetEvent<ScriptInfoAddedEvent>().Publish(scriptInfo);
+                    _eventAggregator.GetEvent<SettingsChangedEvent>().Publish(_settings);
 
                     Close();
                 };

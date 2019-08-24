@@ -32,7 +32,6 @@ namespace ScriptLinker.Utilities
                 0,
                 0,
                 WinAPI.WinEventFlag.OutOfContext);
-
         }
 
         void WinEventCallback(IntPtr hWinEventHook, WinAPI.WinEvent eventType, IntPtr hWnd,
@@ -41,7 +40,7 @@ namespace ScriptLinker.Utilities
             switch (eventType)
             {
                 case WinAPI.WinEvent.SystemForeground:
-                    ForegroundChanged(this, new WinEventArgs(hWnd));
+                    ForegroundChanged?.Invoke(this, new WinEventArgs(hWnd));
                     break;
             }
         }
