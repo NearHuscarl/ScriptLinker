@@ -29,6 +29,27 @@ Download [here](https://github.com/NearHuscarl/ScriptLinker/releases) (ScriptLin
 
 * [BotExtended]
 
+## Development
+
+For anyone wondering why I dont have any Notification calls inside the properties from the ViewModel like this:
+
+```C#
+private string copyToClipboardHotkeyName;
+public string CopyToClipboardHotkeyName
+{
+    get { return copyToClipboardHotkeyName; }
+    set { SetPropertyAndNotify(ref copyToClipboardHotkeyName, value); }
+}
+```
+
+but just the shorthand auto property
+
+```C#
+public string CopyToClipboardHotkeyName { get; set; }
+```
+
+That's because I'm using this awesome Fody plugin [PropertyChanged] which help you cut down the verbose part when declaring binding property in WPF
+
 ## Guides
 
 * [Set up Visual Studio]
@@ -36,4 +57,5 @@ Download [here](https://github.com/NearHuscarl/ScriptLinker/releases) (ScriptLin
 
 [Superfighters Deluxe]: http://mythologicinteractive.com/SuperfightersDeluxe
 [BotExtended]: https://github.com/NearHuscarl/SFDScript/tree/master/SFDScript/BotExtended
+[PropertyChanged]: https://github.com/Fody/PropertyChanged
 [Set up Visual Studio]: https://www.mythologicinteractiveforums.com/viewtopic.php?f=15&t=1588

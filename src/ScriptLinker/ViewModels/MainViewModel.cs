@@ -16,6 +16,7 @@ using Prism.Events;
 using ScriptLinker.Events;
 using ScriptLinker.Services;
 using System.Timers;
+using PropertyChanged;
 
 namespace ScriptLinker.ViewModels
 {
@@ -45,139 +46,41 @@ namespace ScriptLinker.ViewModels
         public ICommand OpenFileCommand { get; private set; }
         public ICommand PendingGlobalCommand { get; private set; } = null;
 
-        private List<string> scriptNames;
-        public List<string> ScriptNames
+        public List<string> ScriptNames { get; set; }
+
+        public string ScriptName { get; set; } = "";
+        private void OnScriptNameChanged()
         {
-            get { return scriptNames; }
-            set { SetPropertyAndNotify(ref scriptNames, value); }
+            _eventAggregator.GetEvent<ScriptInfoSelectedEvent>().Publish(ScriptName);
         }
 
-        private string scriptName = "";
-        public string ScriptName
-        {
-            get { return scriptName; }
-            set
-            {
-                SetPropertyAndNotify(ref scriptName, value);
-                _eventAggregator.GetEvent<ScriptInfoSelectedEvent>().Publish(scriptName);
-            }
-        }
-
+        [DoNotNotify]
         public ProjectInfo ProjectInfo { get; private set; }
 
-        private ScriptInfo scriptInfo = new ScriptInfo();
-        public ScriptInfo ScriptInfo
+        public ScriptInfo ScriptInfo { get; set; } = new ScriptInfo();
+        private void OnScriptInfoChanged()
         {
-            get { return scriptInfo; }
-            set
-            {
-                SetPropertyAndNotify(ref scriptInfo, value);
-                ProjectInfo = _scriptService.GetProjectInfo(scriptInfo);
-            }
+            ProjectInfo = _scriptService.GetProjectInfo(ScriptInfo);
         }
 
-        private bool generateExtensionScript;
-        public bool GenerateExtensionScript
-        {
-            get { return generateExtensionScript; }
-            set { SetPropertyAndNotify(ref generateExtensionScript, value); }
-        }
+        public bool GenerateExtensionScript { get; set; }
 
-        private HotKey copyToClipboardHotkey;
-        public HotKey CopyToClipboardHotkey
-        {
-            get { return copyToClipboardHotkey; }
-            set
-            {
-                copyToClipboardHotkey = value;
-                CopyToClipboardHotkeyName = copyToClipboardHotkey.ToString() + " (Global)";
-            }
-        }
+        public HotKey CopyToClipboardHotkey { get; set; }
+        public string CopyToClipboardHotkeyName => CopyToClipboardHotkey.ToString() + " (Global)";
 
-        private string copyToClipboardHotkeyName;
-        public string CopyToClipboardHotkeyName
-        {
-            get { return copyToClipboardHotkeyName; }
-            set { SetPropertyAndNotify(ref copyToClipboardHotkeyName, value); }
-        }
+        public HotKey CompileHotkey { get; set; }
+        public string CompileHotkeyName => CompileHotkey.ToString() + " (Global)";
 
-        private HotKey compileHotkey;
-        public HotKey CompileHotkey
-        {
-            get { return compileHotkey; }
-            set
-            {
-                compileHotkey = value;
-                CompileHotkeyName = compileHotkey.ToString() + " (Global)";
-            }
-        }
+        public HotKey CompileAndRunHotkey { get; set; }
+        public string CompileAndRunHotkeyName => CompileAndRunHotkey.ToString() + " (Global)";
 
-        private string compileHotkeyName;
-        public string CompileHotkeyName
-        {
-            get { return compileHotkeyName; }
-            set { SetPropertyAndNotify(ref compileHotkeyName, value); }
-        }
+        public string ResultInfo { get; set; }
+        public string ResultInfoColor { get; set; }
 
-        private HotKey compileAndRunHotkey;
-        public HotKey CompileAndRunHotkey
-        {
-            get { return compileAndRunHotkey; }
-            set
-            {
-                compileAndRunHotkey = value;
-                CompileAndRunHotkeyName = compileAndRunHotkey.ToString() + " (Global)";
-            }
-        }
+        public bool IsLinkedFileWindowExpanded { get; set; }
+        public string ExpandIcon => IsLinkedFileWindowExpanded ? "▲" : "▼";
 
-        private string compileAndRunHotkeyName;
-        public string CompileAndRunHotkeyName
-        {
-            get { return compileAndRunHotkeyName; }
-            set { SetPropertyAndNotify(ref compileAndRunHotkeyName, value); }
-        }
-
-        private string resultInfo;
-        public string ResultInfo
-        {
-            get { return resultInfo; }
-            set { SetPropertyAndNotify(ref resultInfo, value); }
-        }
-
-        private string resultInfoColor;
-        public string ResultInfoColor
-        {
-            get { return resultInfoColor; }
-            set { SetPropertyAndNotify(ref resultInfoColor, value); }
-        }
-
-        private bool isLinkedFileWindowExpanded = false;
-        public bool IsLinkedFileWindowExpanded
-        {
-            get { return isLinkedFileWindowExpanded; }
-            set
-            {
-                SetPropertyAndNotify(ref isLinkedFileWindowExpanded, value);
-                if (IsLinkedFileWindowExpanded)
-                    ExpandIcon = "▲";
-                else
-                    ExpandIcon = "▼";
-            }
-        }
-
-        private string expandIcon = "▼"; //▲
-        public string ExpandIcon
-        {
-            get { return expandIcon; }
-            set { SetPropertyAndNotify(ref expandIcon, value); }
-        }
-
-        private HashSet<string> linkedFiles;
-        public HashSet<string> LinkedFiles
-        {
-            get { return linkedFiles; }
-            set { SetPropertyAndNotify(ref linkedFiles, value); }
-        }
+        public HashSet<string> LinkedFiles { get; set; }
 
         private Action openNewScriptWindow;
         public Action OpenNewScriptWindow
@@ -227,7 +130,7 @@ namespace ScriptLinker.ViewModels
         {
             _eventAggregator = eventAggregator;
             _eventAggregator.GetEvent<ScriptInfoAddedEvent>().Subscribe(OnScriptInfoAdded);
-            _eventAggregator.GetEvent<ScriptInfoChangedEvent>().Subscribe(OnScriptInfoChanged);
+            _eventAggregator.GetEvent<ScriptInfoChangedEvent>().Subscribe((scriptInfo) => ScriptInfo = scriptInfo);
             _eventAggregator.GetEvent<SettingsChangedEvent>().Subscribe((settings) => LoadSettings(settings));
             
             // Disable global hotkeys while user is changing hotkey
@@ -357,11 +260,6 @@ namespace ScriptLinker.ViewModels
         {
             ScriptNames = _scriptAccess.GetScriptNames();
             ScriptName = scriptInfo.Name;
-        }
-
-        private void OnScriptInfoChanged(ScriptInfo scriptInfo)
-        {
-            ScriptInfo = scriptInfo;
         }
 
         private void DeleteScriptInfo()

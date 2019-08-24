@@ -17,12 +17,7 @@ namespace ScriptLinker.ViewModels
 
         private Settings _settings;
 
-        private bool initTemplate;
-        public bool InitTemplate
-        {
-            get { return _settings.InitTemplateOnCreated; }
-            set { SetPropertyAndNotify(ref initTemplate, value); }
-        }
+        public bool InitTemplate { get; set; }
 
         public CreateNewScriptViewModel(IEventAggregator eventAggregator, Action closeAction)
         {

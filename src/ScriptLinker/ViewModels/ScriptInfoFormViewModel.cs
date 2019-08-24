@@ -1,5 +1,6 @@
 ﻿using Microsoft.WindowsAPICodePack.Dialogs;
 using Prism.Events;
+using PropertyChanged;
 using ScriptLinker.Access;
 using ScriptLinker.Events;
 using ScriptLinker.Models;
@@ -20,96 +21,26 @@ namespace ScriptLinker.ViewModels
         public ICommand OpenProjectDirCommand { get; private set; }
         public ICommand BrowseProjectDirCommand { get; private set; }
 
-        private string scriptName;
-        public string ScriptName
+        public string ScriptName { get; set; }
+        public string EntryPoint { get; set; }
+
+        private void OnEntryPointChanged()
         {
-            get { return scriptName; }
-            set
-            {
-                SetPropertyAndNotify(ref scriptName, value);
-                NotifyPropertyChanged("ScriptInfo");
-            }
+            if (string.IsNullOrEmpty(ScriptName))
+                ScriptName = Path.GetFileNameWithoutExtension(EntryPoint);
+            ResetFileWatcher();
         }
 
-        private string scriptNameError;
-        public string ScriptNameError
+        public string ProjectDir { get; set; }
+
+        private void OnProjectDirChanged()
         {
-            get { return scriptNameError; }
-            set { SetPropertyAndNotify(ref scriptNameError, value); }
+            ResetFileWatcher();
         }
 
-        private string entryPoint;
-        public string EntryPoint
-        {
-            get { return entryPoint; }
-            set
-            {
-                SetPropertyAndNotify(ref entryPoint, value);
-                NotifyPropertyChanged("ScriptInfo", "EntryPointTooltip");
-                if (string.IsNullOrEmpty(ScriptName))
-                    ScriptName = Path.GetFileNameWithoutExtension(entryPoint);
-                ResetFileWatcher();
-            }
-        }
-
-        private string entryPointError;
-        public string EntryPointError
-        {
-            get { return entryPointError; }
-            set { SetPropertyAndNotify(ref entryPointError, value); }
-        }
-
-        private string projectDir;
-        public string ProjectDir
-        {
-            get { return projectDir; }
-            set
-            {
-                SetPropertyAndNotify(ref projectDir, value);
-                NotifyPropertyChanged("ScriptInfo", "ProjectDirTooltip");
-                ResetFileWatcher();
-            }
-        }
-
-        private string projectDirError;
-        public string ProjectDirError
-        {
-            get { return projectDirError; }
-            set { SetPropertyAndNotify(ref projectDirError, value); }
-        }
-
-        private string author;
-        public string Author
-        {
-            get { return author; }
-            set
-            {
-                SetPropertyAndNotify(ref author, value);
-                NotifyPropertyChanged("ScriptInfo");
-            }
-        }
-
-        private string description;
-        public string Description
-        {
-            get { return description; }
-            set
-            {
-                SetPropertyAndNotify(ref description, value);
-                NotifyPropertyChanged("ScriptInfo");
-            }
-        }
-
-        private string mapModes;
-        public string MapModes
-        {
-            get { return mapModes; }
-            set
-            {
-                SetPropertyAndNotify(ref mapModes, value);
-                NotifyPropertyChanged("ScriptInfo");
-            }
-        }
+        public string Author { get; set; } = "";
+        public string Description { get; set; } = "";
+        public string MapModes { get; set; } = "";
 
         public ScriptInfo ScriptInfo
         {
@@ -120,32 +51,22 @@ namespace ScriptLinker.ViewModels
                     Name = ScriptName,
                     EntryPoint = EntryPoint,
                     ProjectDirectory = ProjectDir,
-                    Author = author,
-                    Description = description,
-                    MapModes = mapModes,
+                    Author = Author,
+                    Description = Description,
+                    MapModes = MapModes,
                 };
             }
-            set
-            {
-                ScriptName = value.Name;
-                EntryPoint = value.EntryPoint;
-                ProjectDir = value.ProjectDirectory;
-                Author = value.Author;
-                Description = value.Description;
-                MapModes = value.MapModes;
-                _eventAggregator.GetEvent<ScriptInfoChangedEvent>().Publish(ScriptInfo);
-            }
         }
 
-        public string EntryPointTooltip
-        {
-            get { return !string.IsNullOrEmpty(EntryPoint) ? EntryPoint + "\nDouble click to open" : null; }
-        }
+        public string ScriptNameError { get; set; }
+        public string EntryPointError { get; set; }
+        public string ProjectDirError { get; set; }
 
-        public string ProjectDirTooltip
-        {
-            get { return !string.IsNullOrEmpty(ProjectDir) ? ProjectDir + "\nDouble click to open in explorer" : null; }
-        }
+        public string EntryPointTooltip => !string.IsNullOrEmpty(EntryPoint) ?
+            EntryPoint + "\nDouble click to open" : null;
+
+        public string ProjectDirTooltip => !string.IsNullOrEmpty(ProjectDir) ?
+            ProjectDir + "\nDouble click to open in explorer" : null;
 
         public ScriptInfoFormViewModel(IEventAggregator eventAggregator)
         {
@@ -163,15 +84,13 @@ namespace ScriptLinker.ViewModels
         {
             var scriptInfo = _scriptAccess.LoadScriptInfo(scriptName);
 
-            ScriptInfo = new ScriptInfo()
-            {
-                Name = scriptInfo.Name,
-                EntryPoint = scriptInfo.EntryPoint,
-                ProjectDirectory = scriptInfo.ProjectDirectory,
-                Author = scriptInfo.Author,
-                Description = scriptInfo.Description,
-                MapModes = scriptInfo.MapModes,
-            };
+            ScriptName = scriptInfo.Name;
+            EntryPoint = scriptInfo.EntryPoint;
+            ProjectDir = scriptInfo.ProjectDirectory;
+            Author = scriptInfo.Author;
+            Description = scriptInfo.Description;
+            MapModes = scriptInfo.MapModes;
+            _eventAggregator.GetEvent<ScriptInfoChangedEvent>().Publish(ScriptInfo);
         }
 
         private void BrowseEntryPoint()

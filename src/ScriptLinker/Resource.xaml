@@ -4,7 +4,6 @@
                     xmlns:System="clr-namespace:System;assembly=mscorlib"
                     xmlns:fa="http://schemas.fontawesome.io/icons/">
 
-
     <!-- Stylings -->
 
     <Color x:Key="RedColor">#d9534f</Color>

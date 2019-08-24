@@ -14,10 +14,7 @@ namespace ScriptLinker.ViewModels
         public DelegateCommand OpenSourceCodeCommand { get; private set; }
         public DelegateCommand OpenLicenseCommand { get; private set; }
 
-        public string Version
-        {
-            get { return App.Version; }
-        }
+        public string Version => App.Version;
         public string Authors { get; private set; }
         public string License { get; private set; }
 

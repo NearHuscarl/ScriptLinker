@@ -27,15 +27,8 @@ namespace ScriptLinker.ViewModels
             {
                 if (string.IsNullOrEmpty(value)) return;
                 ChangeHotKey(copyToClipboardHotkey, value);
-                SetPropertyAndNotify(ref copyToClipboardHotkey, value);
+                copyToClipboardHotkey = value;
             }
-        }
-
-        private string copyToClipboardHotkeyError;
-        public string CopyToClipboardHotkeyError
-        {
-            get { return copyToClipboardHotkeyError; }
-            set { SetPropertyAndNotify(ref copyToClipboardHotkeyError, value); }
         }
 
         private string compileHotkey;
@@ -46,15 +39,8 @@ namespace ScriptLinker.ViewModels
             {
                 if (string.IsNullOrEmpty(value)) return;
                 ChangeHotKey(compileHotkey, value);
-                SetPropertyAndNotify(ref compileHotkey, value);
+                compileHotkey = value;
             }
-        }
-
-        private string compileHotkeyError;
-        public string CompileHotkeyError
-        {
-            get { return compileHotkeyError; }
-            set { SetPropertyAndNotify(ref compileHotkeyError, value); }
         }
 
         private string compileAndRunHotkey;
@@ -65,23 +51,15 @@ namespace ScriptLinker.ViewModels
             {
                 if (string.IsNullOrEmpty(value)) return;
                 ChangeHotKey(compileAndRunHotkey, value);
-                SetPropertyAndNotify(ref compileAndRunHotkey, value);
+                compileAndRunHotkey = value;
             }
         }
 
-        private string compileAndRunHotkeyError;
-        public string CompileAndRunHotkeyError
-        {
-            get { return compileAndRunHotkeyError; }
-            set { SetPropertyAndNotify(ref compileAndRunHotkeyError, value); }
-        }
+        public bool GenerateExtensionScript { get; set; }
 
-        private bool generateExtensionScript;
-        public bool GenerateExtensionScript
-        {
-            get { return generateExtensionScript; }
-            set { SetPropertyAndNotify(ref generateExtensionScript, value); }
-        }
+        public string CopyToClipboardHotkeyError { get; set; }
+        public string CompileHotkeyError { get; set; }
+        public string CompileAndRunHotkeyError { get; set; }
 
         public OptionViewModel(IEventAggregator eventAggregator, Action closeAction)
         {
