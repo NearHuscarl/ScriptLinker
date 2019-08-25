@@ -9,6 +9,7 @@
         xmlns:System="clr-namespace:System;assembly=mscorlib"
         xmlns:behaviors="clr-namespace:ScriptLinker.Behaviors"
         xmlns:converters="clr-namespace:ScriptLinker.Converters"
+        xmlns:controls="clr-namespace:ScriptLinker.Controls"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
         Title="Option"
@@ -22,6 +23,10 @@
         <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
     </Window.Resources>
 
+    <Window.InputBindings>
+        <KeyBinding Key="Esc" Command="{Binding CloseCommand}"/>
+    </Window.InputBindings>
+    
     <StackPanel>
         <Label
             Margin="10,20,0,0"
@@ -53,20 +58,20 @@
                         HorizontalAlignment="Left"
                         HorizontalContentAlignment="Right"
                         VerticalAlignment="Top"/>
-                        <TextBox
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Center"
-                        TextAlignment="Center"
-				        Text="{Binding CopyToClipboardHotkey, Mode=OneWay, FallbackValue=Alt+0}"
-                        Margin="5,0,0,0"
-                        Height="{StaticResource TextBoxHeight}"
-                        Width="{StaticResource HotkeyTextBoxWidth}">
+                    <controls:NoShortcutTextBox
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Center"
+                            TextAlignment="Center"
+				            Text="{Binding CopyToClipboardHotkey, Mode=OneWay, FallbackValue=Alt+0}"
+                            Margin="5,0,0,0"
+                            Height="{StaticResource TextBoxHeight}"
+                            Width="{StaticResource HotkeyTextBoxWidth}">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="KeyDown">
                                 <ei:CallMethodAction MethodName="OnChangeCopyToClipboardHotkey" TargetObject="{Binding}" />
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
-                    </TextBox>
+                    </controls:NoShortcutTextBox>
                 </StackPanel>
             </StackPanel>
 
@@ -90,20 +95,20 @@
                         HorizontalAlignment="Left"
                         HorizontalContentAlignment="Right"
                         VerticalAlignment="Top"/>
-                        <TextBox
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Center"
-                        TextAlignment="Center"
-				        Text="{Binding CompileHotkey, Mode=OneWay, FallbackValue=Ctrl+Shift+F3}"
-                        Margin="5,0,0,0"
-                        Height="{StaticResource TextBoxHeight}"
-                        Width="{StaticResource HotkeyTextBoxWidth}">
+                    <controls:NoShortcutTextBox
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Center"
+                            TextAlignment="Center"
+				            Text="{Binding CompileHotkey, Mode=OneWay, FallbackValue=Ctrl+Shift+F3}"
+                            Margin="5,0,0,0"
+                            Height="{StaticResource TextBoxHeight}"
+                            Width="{StaticResource HotkeyTextBoxWidth}">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="KeyDown">
                                 <ei:CallMethodAction MethodName="OnChangeCompileHotkey" TargetObject="{Binding}" />
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
-                    </TextBox>
+                    </controls:NoShortcutTextBox>
                 </StackPanel>
             </StackPanel>
 
@@ -127,20 +132,20 @@
                         HorizontalAlignment="Left"
                         HorizontalContentAlignment="Right"
                         VerticalAlignment="Top"/>
-                        <TextBox
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Center"
-                        TextAlignment="Center"
-				        Text="{Binding CompileAndRunHotkey, Mode=OneWay, FallbackValue=F4}"
-                        Margin="5,0,0,0"
-                        Height="{StaticResource TextBoxHeight}"
-                        Width="{StaticResource HotkeyTextBoxWidth}">
+                    <controls:NoShortcutTextBox
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Center"
+                            TextAlignment="Center"
+                            Text="{Binding CompileAndRunHotkey, Mode=OneWay, FallbackValue=F4}"
+                            Margin="5,0,0,0"
+                            Height="{StaticResource TextBoxHeight}"
+                            Width="{StaticResource HotkeyTextBoxWidth}">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="KeyDown">
                                 <ei:CallMethodAction MethodName="OnChangeCompileAndRunHotkey" TargetObject="{Binding}" />
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
-                    </TextBox>
+                    </controls:NoShortcutTextBox>
                 </StackPanel>
             </StackPanel>
 

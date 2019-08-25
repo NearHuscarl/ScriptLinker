@@ -18,6 +18,7 @@ namespace ScriptLinker.ViewModels
         private Dictionary<string, int> _hotKeys = new Dictionary<string, int>();
 
         public ICommand SaveSettingsCommand { get; private set; }
+        public ICommand CloseCommand { get; private set; }
 
         private string copyToClipboardHotkey;
         public string CopyToClipboardHotkey
@@ -77,6 +78,7 @@ namespace ScriptLinker.ViewModels
             Close = closeAction;
 
             SaveSettingsCommand = new DelegateCommand(SaveSettings);
+            CloseCommand = new DelegateCommand(() => Close());
         }
 
         private string ReadKeyEvent(KeyEventArgs e)

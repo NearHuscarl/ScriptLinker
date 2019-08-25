@@ -5,6 +5,7 @@ using ScriptLinker.Models;
 using ScriptLinker.Services;
 using ScriptLinker.Utilities;
 using System;
+using System.Windows.Input;
 
 namespace ScriptLinker.ViewModels
 {
@@ -17,6 +18,8 @@ namespace ScriptLinker.ViewModels
 
         private Settings _settings;
 
+        public ICommand CloseCommand { get; private set; }
+
         public bool InitTemplate { get; set; }
 
         public CreateNewScriptViewModel(IEventAggregator eventAggregator, Action closeAction)
@@ -28,6 +31,7 @@ namespace ScriptLinker.ViewModels
 
             _settings = _settingsAccess.LoadSettings();
             Close = closeAction;
+            CloseCommand = new DelegateCommand(() => Close());
         }
 
         public Action<ScriptInfo> AddScriptInfo

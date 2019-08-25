@@ -14,7 +14,7 @@ namespace ScriptLinker.Views
         {
             InitializeComponent();
 
-            viewModel = new AboutViewModel();
+            viewModel = new AboutViewModel(Close);
             DataContext = viewModel;
         }
     }

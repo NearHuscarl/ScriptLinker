@@ -11,6 +11,10 @@
         Height="375"
         Width="530">
 
+    <Window.InputBindings>
+        <KeyBinding Key="Esc" Command="{Binding CloseCommand}"/>
+    </Window.InputBindings>
+
     <StackPanel Orientation="Vertical" VerticalAlignment="Center">
         <local:ScriptInfoForm
             HorizontalAlignment="Center"

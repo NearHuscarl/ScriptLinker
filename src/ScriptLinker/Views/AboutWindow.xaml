@@ -11,7 +11,11 @@
         Title="About"
         Height="290"
         Width="310">
-
+    
+    <Window.InputBindings>
+        <KeyBinding Key="Esc" Command="{Binding CloseCommand}"/>
+    </Window.InputBindings>
+    
     <Grid>
 
         <Grid.RowDefinitions>

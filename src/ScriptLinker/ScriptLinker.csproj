@@ -137,6 +137,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Constants.cs" />
+    <Compile Include="Controls\NoShortcutTextBox.cs" />
     <Compile Include="Converters\StringToColorConverter.cs" />
     <Compile Include="Events\GlobalKeyEventArgs.cs" />
     <Compile Include="Events\GlobalKeyEventHandler.cs" />

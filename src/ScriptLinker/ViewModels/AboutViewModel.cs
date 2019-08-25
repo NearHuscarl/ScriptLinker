@@ -2,7 +2,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
+using System.Windows.Input;
 
 namespace ScriptLinker.ViewModels
 {
@@ -11,14 +11,15 @@ namespace ScriptLinker.ViewModels
         private readonly string licensePath;
         private readonly string sourceCodeURL;
 
-        public DelegateCommand OpenSourceCodeCommand { get; private set; }
-        public DelegateCommand OpenLicenseCommand { get; private set; }
+        public ICommand OpenSourceCodeCommand { get; private set; }
+        public ICommand OpenLicenseCommand { get; private set; }
+        public ICommand CloseCommand { get; private set; }
 
         public string Version => App.Version;
         public string Authors { get; private set; }
         public string License { get; private set; }
 
-        public AboutViewModel()
+        public AboutViewModel(Action closeAction)
         {
             Authors = "Near Huscarl";
             License = "BSD 3-Clauses";
@@ -28,6 +29,9 @@ namespace ScriptLinker.ViewModels
 
             OpenSourceCodeCommand = new DelegateCommand(OpenSourceCode);
             OpenLicenseCommand = new DelegateCommand(OpenLicense);
+            CloseCommand = new DelegateCommand(() => Close());
+
+            Close = closeAction;
         }
 
         private void OpenSourceCode()

@@ -1,6 +1,5 @@
 ﻿using Microsoft.WindowsAPICodePack.Dialogs;
 using Prism.Events;
-using PropertyChanged;
 using ScriptLinker.Access;
 using ScriptLinker.Events;
 using ScriptLinker.Models;
