@@ -113,8 +113,7 @@
                 Loaded="ScriptInfoForm_Loaded"
                 HorizontalAlignment="Center"
                 DisplaySubmitButton="False"
-                OnSubmit="{Binding DataContext.SaveScriptInfo, Mode=OneTime,
-                    RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"
+                DataContext="{Binding FormViewModel, Mode=OneTime}"
                 HotKey="S" HotKeyModifiers="Ctrl" />
 
             <Label

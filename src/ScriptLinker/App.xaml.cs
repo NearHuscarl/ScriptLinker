@@ -41,11 +41,12 @@ namespace ScriptLinker
 
         private void LogUnhandledException(Exception exception, string source)
         {
-            string message = $"Unhandled exception ({source})";
+            var message = $"Unhandled exception ({source})";
+
             try
             {
-                System.Reflection.AssemblyName assemblyName = System.Reflection.Assembly.GetExecutingAssembly().GetName();
-                message = string.Format("Unhandled exception in {0} v{1}", assemblyName.Name, assemblyName.Version);
+                var assemblyName = Assembly.GetExecutingAssembly().GetName();
+                message = $"Unhandled exception in {assemblyName.Name} v{assemblyName.Version}";
             }
             catch (Exception ex)
             {

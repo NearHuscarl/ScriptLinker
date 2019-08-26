@@ -17,6 +17,8 @@ namespace ScriptLinker.Views
 
             viewModel = new CreateNewScriptViewModel(ApplicationService.Instance.EventAggregator, Close);
             DataContext = viewModel;
+
+            Closed += viewModel.OnWindowClosed;
         }
     }
 }

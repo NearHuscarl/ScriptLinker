@@ -21,6 +21,7 @@ namespace ScriptLinker.ViewModels
         public ICommand CloseCommand { get; private set; }
 
         public bool InitTemplate { get; set; }
+        public ScriptInfoViewModel FormViewModel { get; private set; }
 
         public CreateNewScriptViewModel(IEventAggregator eventAggregator, Action closeAction)
         {
@@ -30,32 +31,34 @@ namespace ScriptLinker.ViewModels
             _settingsAccess = new SettingsAccess();
 
             _settings = _settingsAccess.LoadSettings();
+
+            FormViewModel = new ScriptInfoViewModel(eventAggregator, AddScriptInfoAction);
             Close = closeAction;
             CloseCommand = new DelegateCommand(() => Close());
         }
 
-        public Action<ScriptInfo> AddScriptInfo
-        {
-            get
+        public Action<ScriptInfo> AddScriptInfoAction =>
+            (scriptInfo) =>
             {
-                return (scriptInfo) =>
+                _scriptAccess.UpdateScriptInfo(scriptInfo);
+
+                if (InitTemplate)
                 {
-                    _scriptAccess.UpdateScriptInfo(scriptInfo);
+                    var projectInfo = _scriptService.GetProjectInfo(scriptInfo);
+                    _scriptService.AddTemplate(projectInfo, scriptInfo.EntryPoint);
+                }
 
-                    if (InitTemplate)
-                    {
-                        var projectInfo = _scriptService.GetProjectInfo(scriptInfo);
-                        _scriptService.AddTemplate(projectInfo, scriptInfo.EntryPoint);
-                    }
+                _settings.InitTemplateOnCreated = InitTemplate;
+                _settingsAccess.SaveSettings(_settings);
+                _eventAggregator.GetEvent<ScriptInfoAddedEvent>().Publish(scriptInfo);
+                _eventAggregator.GetEvent<SettingsChangedEvent>().Publish(_settings);
 
-                    _settings.InitTemplateOnCreated = InitTemplate;
-                    _settingsAccess.SaveSettings(_settings);
-                    _eventAggregator.GetEvent<ScriptInfoAddedEvent>().Publish(scriptInfo);
-                    _eventAggregator.GetEvent<SettingsChangedEvent>().Publish(_settings);
+                Close();
+            };
 
-                    Close();
-                };
-            }
+        public override void OnWindowClosed(object sender, EventArgs e)
+        {
+            FormViewModel.Dispose();
         }
     }
 }

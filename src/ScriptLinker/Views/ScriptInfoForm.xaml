@@ -24,7 +24,7 @@
     <UserControl.InputBindings>
         <KeyBinding Key="{Binding HotKey, ElementName=Root}"
                     Modifiers="{Binding HotKeyModifiers, ElementName=Root}"
-                    Command="{Binding SubmitCommand, ElementName=Root}"
+                    Command="{Binding SubmitCommand}"
                     CommandParameter="{Binding ScriptInfo, Mode=OneWay}" />
     </UserControl.InputBindings>
 
@@ -212,7 +212,7 @@
             Margin="0,15,0,0"
             HorizontalAlignment="Center">
             <Button
-                Command="{Binding SubmitCommand, ElementName=Root}"
+                Command="{Binding SubmitCommand}"
                 CommandParameter="{Binding ScriptInfo, Mode=OneWay}"
                 Content="{Binding ButtonContent, ElementName=Root, FallbackValue=Create}"
                 Padding="10,3"

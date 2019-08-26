@@ -4,12 +4,14 @@ using ScriptLinker.Access;
 using ScriptLinker.Events;
 using ScriptLinker.Models;
 using ScriptLinker.Utilities;
+using System;
+using System.ComponentModel;
 using System.IO;
 using System.Windows.Input;
 
 namespace ScriptLinker.ViewModels
 {
-    class ScriptInfoFormViewModel : ViewModelBase, IValidator
+    class ScriptInfoViewModel : ViewModelBase, IDisposable
     {
         protected readonly IEventAggregator _eventAggregator;
         private ScriptAccess _scriptAccess;
@@ -19,6 +21,7 @@ namespace ScriptLinker.ViewModels
         public ICommand BrowseEntryPointCommand { get; private set; }
         public ICommand OpenProjectDirCommand { get; private set; }
         public ICommand BrowseProjectDirCommand { get; private set; }
+        public ICommand SubmitCommand { get; protected set; }
 
         public string ScriptName { get; set; }
         public string EntryPoint { get; set; }
@@ -41,7 +44,7 @@ namespace ScriptLinker.ViewModels
         public string Description { get; set; } = "";
         public string MapModes { get; set; } = "";
 
-        public ScriptInfo ScriptInfo
+        protected ScriptInfo ScriptInfo
         {
             get
             {
@@ -67,7 +70,9 @@ namespace ScriptLinker.ViewModels
         public string ProjectDirTooltip => !string.IsNullOrEmpty(ProjectDir) ?
             ProjectDir + "\nDouble click to open in explorer" : null;
 
-        public ScriptInfoFormViewModel(IEventAggregator eventAggregator)
+        public Action<ScriptInfo> Submit { get; private set; }
+
+        public ScriptInfoViewModel(IEventAggregator eventAggregator, Action<ScriptInfo> SubmitAction)
         {
             _eventAggregator = eventAggregator;
             _eventAggregator.GetEvent<ScriptInfoSelectedEvent>().Subscribe(OnScriptInfoSelected);
@@ -77,6 +82,9 @@ namespace ScriptLinker.ViewModels
             OpenEntryPointCommand = new DelegateCommand<string>(FileUtil.OpenFile);
             BrowseProjectDirCommand = new DelegateCommand(BrowseProjectDir);
             OpenProjectDirCommand = new DelegateCommand<string>(FileUtil.OpenDirectory);
+            SubmitCommand = new DelegateCommand(OnSubmit);
+
+            Submit = SubmitAction;
         }
 
         private void OnScriptInfoSelected(string scriptName)
@@ -130,10 +138,16 @@ namespace ScriptLinker.ViewModels
             }
         }
 
-        public bool Validate()
+        private void OnSubmit()
         {
             ResetErrorMessages();
 
+            if (Validate())
+                Submit(ScriptInfo);
+        }
+
+        public virtual bool Validate()
+        {
             if (string.IsNullOrWhiteSpace(ScriptName))
             {
                 ScriptNameError = "This field is required";
@@ -226,5 +240,26 @@ namespace ScriptLinker.ViewModels
                 }
             };
         }
+        
+        #region Dispose pattern
+
+        public bool IsDisposed { get; private set; }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!IsDisposed)
+            {
+                _eventAggregator.GetEvent<ScriptInfoSelectedEvent>().Unsubscribe(OnScriptInfoSelected);
+                IsDisposed = true;
+            }
+        }
+
+        #endregion
     }
 }

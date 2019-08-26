@@ -16,11 +16,6 @@ namespace ScriptLinker.Services
             _linker = new Linker();
         }
 
-        //public bool Validate(ScriptInfo scriptInfo)
-        //{
-
-        //}
-
         public ProjectInfo GetProjectInfo(ScriptInfo scriptInfo)
         {
             var projectInfo = new ProjectInfo

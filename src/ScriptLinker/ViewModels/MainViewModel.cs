@@ -54,6 +54,8 @@ namespace ScriptLinker.ViewModels
             _eventAggregator.GetEvent<ScriptInfoSelectedEvent>().Publish(ScriptName);
         }
 
+        public ScriptInfoViewModel FormViewModel { get; private set; }
+
         [DoNotNotify]
         public ProjectInfo ProjectInfo { get; private set; }
 
@@ -132,7 +134,7 @@ namespace ScriptLinker.ViewModels
             _eventAggregator.GetEvent<ScriptInfoAddedEvent>().Subscribe(OnScriptInfoAdded);
             _eventAggregator.GetEvent<ScriptInfoChangedEvent>().Subscribe((scriptInfo) => ScriptInfo = scriptInfo);
             _eventAggregator.GetEvent<SettingsChangedEvent>().Subscribe((settings) => LoadSettings(settings));
-            
+
             // Disable global hotkeys while user is changing hotkey
             _eventAggregator.GetEvent<SettingsWindowOpenEvent>().Subscribe(
                 () => _winService.GlobalKeyDown -= OnGlobalHotkeyDown);
@@ -154,10 +156,13 @@ namespace ScriptLinker.ViewModels
 
             _settings = _settingsAccess.LoadSettings();
 
+            FormViewModel = new ScriptInfoViewModel(eventAggregator, SaveScriptInfoAction);
+
             LoadCommands();
-            LoadSettings(_settings);
+            LoadSettings(_settings, firstTime: true);
             ScriptNames = _scriptAccess.GetScriptNames();
         }
+
         private void LoadCommands()
         {
             DeleteScriptInfoCommand = new DelegateCommand(DeleteScriptInfo);
@@ -171,11 +176,11 @@ namespace ScriptLinker.ViewModels
             OpenFileCommand = new DelegateCommand<string>(FileUtil.OpenFile);
         }
 
-        private void LoadSettings(Settings settings)
+        private void LoadSettings(Settings settings, bool firstTime = false)
         {
             GenerateExtensionScript = settings.GenerateExtensionScript;
             IsLinkedFileWindowExpanded = settings.IsLinkedFileWindowExpanded;
-            ScriptName = settings.LastOpenedScript;
+            if (firstTime) ScriptName = settings.LastOpenedScript;
 
             CopyToClipboardHotkey = InputUtil.Parse(settings.CopyToClipboardHotkey);
             CompileHotkey = InputUtil.Parse(settings.CompileHotkey);
@@ -240,21 +245,16 @@ namespace ScriptLinker.ViewModels
             }
         }
 
-        public Action<ScriptInfo> SaveScriptInfo
-        {
-            get
+        private Action<ScriptInfo> SaveScriptInfoAction =>
+            (ScriptInfo scriptInfo) =>
             {
-                return (scriptInfo) =>
+                if (!ScriptInfo.Equals(scriptInfo))
                 {
-                    if (!ScriptInfo.Equals(scriptInfo))
-                    {
-                        _scriptAccess.UpdateScriptInfo(scriptInfo);
-                        ScriptInfo = scriptInfo;
-                        ShowInlineMessage("Save successfully", 1200);
-                    }
-                };
-            }
-        }
+                    _scriptAccess.UpdateScriptInfo(scriptInfo);
+                    ScriptInfo = scriptInfo;
+                    ShowInlineMessage("Save successfully", 1200);
+                }
+            };
 
         private void OnScriptInfoAdded(ScriptInfo scriptInfo)
         {
@@ -380,6 +380,12 @@ namespace ScriptLinker.ViewModels
 
         public override void OnWindowClosed(object sender, EventArgs e)
         {
+            _eventAggregator.GetEvent<ScriptInfoAddedEvent>().Unsubscribe(OnScriptInfoAdded);
+            _eventAggregator.GetEvent<ScriptInfoChangedEvent>().Unsubscribe((scriptInfo) => ScriptInfo = scriptInfo);
+            _eventAggregator.GetEvent<SettingsChangedEvent>().Unsubscribe((settings) => LoadSettings(settings));
+            _eventAggregator.GetEvent<SettingsWindowOpenEvent>().Unsubscribe(() => _winService.GlobalKeyDown -= OnGlobalHotkeyDown);
+            _eventAggregator.GetEvent<SettingsWindowClosedEvent>().Unsubscribe(() => _winService.GlobalKeyDown += OnGlobalHotkeyDown);
+
             _automationService.Dispose();
             _winService.Dispose();
         }
