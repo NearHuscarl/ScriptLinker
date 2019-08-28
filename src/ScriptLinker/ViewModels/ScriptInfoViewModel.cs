@@ -1,18 +1,30 @@
 ﻿using Microsoft.WindowsAPICodePack.Dialogs;
 using Prism.Events;
+using PropertyChanged;
 using ScriptLinker.Access;
 using ScriptLinker.Events;
 using ScriptLinker.Models;
 using ScriptLinker.Utilities;
 using System;
-using System.ComponentModel;
 using System.IO;
 using System.Windows.Input;
 
 namespace ScriptLinker.ViewModels
 {
+    enum ChangeMode
+    {
+        Edit,
+        Add,
+    }
+
     class ScriptInfoViewModel : ViewModelBase, IDisposable
     {
+        const string ErrorMessage_FieldRequired = "This field is required";
+        const string ErrorMessage_PathNotExist = "Path does not exist";
+        const string ErrorMessage_InvalidProjectDir = "Project directory must contain *.csproj file";
+        const string ErrorMessage_NotCSharpFile = "Entry point must be a C# file";
+        const string ErrorMessage_NameAlreadyExists = "This name already exists";
+
         protected readonly IEventAggregator _eventAggregator;
         private ScriptAccess _scriptAccess;
         private FileSystemWatcher _fileWatcher;
@@ -44,6 +56,7 @@ namespace ScriptLinker.ViewModels
         public string Description { get; set; } = "";
         public string MapModes { get; set; } = "";
 
+        [DoNotNotify]
         protected ScriptInfo ScriptInfo
         {
             get
@@ -72,6 +85,9 @@ namespace ScriptLinker.ViewModels
 
         public Action<ScriptInfo> Submit { get; private set; }
 
+        [DoNotNotify]
+        public ChangeMode Mode { get; set; } = ChangeMode.Edit;
+
         public ScriptInfoViewModel(IEventAggregator eventAggregator, Action<ScriptInfo> SubmitAction)
         {
             _eventAggregator = eventAggregator;
@@ -98,6 +114,8 @@ namespace ScriptLinker.ViewModels
             Description = scriptInfo.Description;
             MapModes = scriptInfo.MapModes;
             _eventAggregator.GetEvent<ScriptInfoChangedEvent>().Publish(ScriptInfo);
+
+            ResetErrorMessages();
         }
 
         private void BrowseEntryPoint()
@@ -138,46 +156,92 @@ namespace ScriptLinker.ViewModels
             }
         }
 
+        protected override void OnPropsChanged(string propertyName, object before, object after)
+        {
+            // All fields have string type
+            if (!(after is string)) return;
+
+            switch (propertyName)
+            {
+                case nameof(ScriptName):
+                case nameof(EntryPoint):
+                case nameof(ProjectDir):
+                    Validate();
+                    break;
+            }
+        }
+
         private void OnSubmit()
         {
-            ResetErrorMessages();
-
-            if (Validate())
+            if (Validate(submit: true))
                 Submit(ScriptInfo);
         }
 
-        public virtual bool Validate()
+        public virtual bool Validate(bool submit = false)
         {
-            if (string.IsNullOrWhiteSpace(ScriptName))
+            ResetErrorMessages();
+
+            if (string.IsNullOrEmpty(ScriptName))
             {
-                ScriptNameError = "This field is required";
+                AddError(nameof(ScriptName), ErrorMessage_FieldRequired);
+                if (submit)
+                    ScriptNameError = ErrorMessage_FieldRequired;
                 return false;
             }
-            if (string.IsNullOrWhiteSpace(EntryPoint))
+            if (string.IsNullOrEmpty(EntryPoint))
             {
-                EntryPointError = "This field is required";
+                AddError(nameof(EntryPoint), ErrorMessage_FieldRequired);
+                if (submit)
+                    EntryPointError = ErrorMessage_FieldRequired;
                 return false;
             }
-            if (string.IsNullOrWhiteSpace(ProjectDir))
+            if (string.IsNullOrEmpty(ProjectDir))
             {
-                ProjectDirError = "This field is required";
+                AddError(nameof(ProjectDir), ErrorMessage_FieldRequired);
+                if (submit)
+                    ProjectDirError = ErrorMessage_FieldRequired;
                 return false;
             }
 
             if (!File.Exists(EntryPoint))
             {
-                EntryPointError = "Path does not exist";
+                AddError(nameof(EntryPoint), ErrorMessage_PathNotExist);
+                if (submit)
+                    EntryPointError = ErrorMessage_PathNotExist;
+                return false;
+            }
+            if (Path.GetExtension(EntryPoint) != ".cs")
+            {
+                AddError(nameof(EntryPoint), ErrorMessage_NotCSharpFile);
+                if (submit)
+                    EntryPointError = ErrorMessage_NotCSharpFile;
                 return false;
             }
             if (!Directory.Exists(ProjectDir))
             {
-                ProjectDirError = "Path does not exist";
+                AddError(nameof(ProjectDir), ErrorMessage_PathNotExist);
+                if (submit)
+                    ProjectDirError = ErrorMessage_PathNotExist;
                 return false;
             }
             if (!ProjectUtil.IsProjectDirectory(ProjectDir))
             {
-                ProjectDirError = "Project directory must contain *.csproj file";
+                AddError(nameof(ProjectDir), ErrorMessage_InvalidProjectDir);
+                if (submit)
+                    ProjectDirError = ErrorMessage_InvalidProjectDir;
                 return false;
+            }
+
+            if (submit && Mode == ChangeMode.Add)
+            {
+                var script = _scriptAccess.LoadScriptInfo(ScriptName);
+
+                if (!script.IsEmpty())
+                {
+                    AddError(nameof(ScriptName), ErrorMessage_NameAlreadyExists);
+                    ScriptNameError = ErrorMessage_NameAlreadyExists;
+                    return false;
+                }
             }
 
             return true;
@@ -185,6 +249,7 @@ namespace ScriptLinker.ViewModels
 
         private void ResetErrorMessages()
         {
+            ClearErrors();
             ScriptNameError = null;
             EntryPointError = null;
             ProjectDirError = null;

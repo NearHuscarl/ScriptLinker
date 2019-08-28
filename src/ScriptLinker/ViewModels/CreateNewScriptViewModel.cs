@@ -33,6 +33,8 @@ namespace ScriptLinker.ViewModels
             _settings = _settingsAccess.LoadSettings();
 
             FormViewModel = new ScriptInfoViewModel(eventAggregator, AddScriptInfoAction);
+            FormViewModel.Mode = ChangeMode.Add;
+
             Close = closeAction;
             CloseCommand = new DelegateCommand(() => Close());
         }

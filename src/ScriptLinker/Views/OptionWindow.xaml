@@ -59,13 +59,14 @@
                         HorizontalContentAlignment="Right"
                         VerticalAlignment="Top"/>
                     <controls:NoShortcutTextBox
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Center"
-                            TextAlignment="Center"
-				            Text="{Binding CopyToClipboardHotkey, Mode=OneWay, FallbackValue=Alt+0}"
-                            Margin="5,0,0,0"
-                            Height="{StaticResource TextBoxHeight}"
-                            Width="{StaticResource HotkeyTextBoxWidth}">
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center"
+                        TextAlignment="Center"
+				        Text="{Binding CopyToClipboardHotkey, Mode=OneWay, FallbackValue=Alt+0, NotifyOnValidationError=True}"
+                        Validation.ErrorTemplate="{StaticResource ValidationTemplate}"
+                        Margin="5,0,0,0"
+                        Height="{StaticResource TextBoxHeight}"
+                        Width="{StaticResource HotkeyTextBoxWidth}">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="KeyDown">
                                 <ei:CallMethodAction MethodName="OnChangeCopyToClipboardHotkey" TargetObject="{Binding}" />
@@ -96,13 +97,14 @@
                         HorizontalContentAlignment="Right"
                         VerticalAlignment="Top"/>
                     <controls:NoShortcutTextBox
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Center"
-                            TextAlignment="Center"
-				            Text="{Binding CompileHotkey, Mode=OneWay, FallbackValue=Ctrl+Shift+F3}"
-                            Margin="5,0,0,0"
-                            Height="{StaticResource TextBoxHeight}"
-                            Width="{StaticResource HotkeyTextBoxWidth}">
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center"
+                        TextAlignment="Center"
+				        Text="{Binding CompileHotkey, Mode=OneWay, FallbackValue=Ctrl+Shift+F3, NotifyOnValidationError=True}"
+                        Validation.ErrorTemplate="{StaticResource ValidationTemplate}"
+                        Margin="5,0,0,0"
+                        Height="{StaticResource TextBoxHeight}"
+                        Width="{StaticResource HotkeyTextBoxWidth}">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="KeyDown">
                                 <ei:CallMethodAction MethodName="OnChangeCompileHotkey" TargetObject="{Binding}" />
@@ -133,13 +135,14 @@
                         HorizontalContentAlignment="Right"
                         VerticalAlignment="Top"/>
                     <controls:NoShortcutTextBox
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Center"
-                            TextAlignment="Center"
-                            Text="{Binding CompileAndRunHotkey, Mode=OneWay, FallbackValue=F4}"
-                            Margin="5,0,0,0"
-                            Height="{StaticResource TextBoxHeight}"
-                            Width="{StaticResource HotkeyTextBoxWidth}">
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center"
+                        TextAlignment="Center"
+                        Text="{Binding CompileAndRunHotkey, Mode=OneWay, FallbackValue=F4, NotifyOnValidationError=True}"
+                        Validation.ErrorTemplate="{StaticResource ValidationTemplate}"
+                        Margin="5,0,0,0"
+                        Height="{StaticResource TextBoxHeight}"
+                        Width="{StaticResource HotkeyTextBoxWidth}">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="KeyDown">
                                 <ei:CallMethodAction MethodName="OnChangeCompileAndRunHotkey" TargetObject="{Binding}" />

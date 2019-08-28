@@ -1,6 +1,7 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:local="clr-namespace:ScriptLinker"
+                    xmlns:behaviors="clr-namespace:ScriptLinker.Behaviors"
                     xmlns:System="clr-namespace:System;assembly=mscorlib"
                     xmlns:fa="http://schemas.fontawesome.io/icons/">
 
@@ -35,6 +36,24 @@
     
     <Style TargetType="Image" x:Key="ImageIcon" BasedOn="{StaticResource BaseIconStyle}" />
 
+    <ControlTemplate x:Key="ValidationTemplate">
+        <Grid>
+            <Polygon Fill="Red" Opacity="0.8" Width="12" Height="12"
+                         Points="0,0 50,50, 100,0"
+                         HorizontalAlignment="Right" VerticalAlignment="Top">
+
+                <Polygon.ToolTip>
+                    <ToolTip Background="Red" BorderThickness="0">
+                        <TextBlock Text="{Binding Path=/ErrorContent}" Foreground="White" FontWeight="DemiBold" />
+                    </ToolTip>
+                </Polygon.ToolTip>
+            </Polygon>
+            <Border BorderBrush="Red" BorderThickness="1">
+                <AdornedElementPlaceholder />
+            </Border>
+        </Grid>
+    </ControlTemplate>
+    
     <!-- Control Sizes -->
     
     <System:Double x:Key="TextBoxWidth">350</System:Double>

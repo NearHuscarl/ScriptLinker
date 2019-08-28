@@ -68,13 +68,13 @@ namespace ScriptLinker.ViewModels
         public bool GenerateExtensionScript { get; set; }
 
         public HotKey CopyToClipboardHotkey { get; set; }
-        public string CopyToClipboardHotkeyName => CopyToClipboardHotkey.ToString() + " (Global)";
+        public string CopyToClipboardHotkeyName => $"{CopyToClipboardHotkey} (Global)";
 
         public HotKey CompileHotkey { get; set; }
-        public string CompileHotkeyName => CompileHotkey.ToString() + " (Global)";
+        public string CompileHotkeyName => $"{CompileHotkey} (Global)";
 
         public HotKey CompileAndRunHotkey { get; set; }
-        public string CompileAndRunHotkeyName => CompileAndRunHotkey.ToString() + " (Global)";
+        public string CompileAndRunHotkeyName => $"{CompileAndRunHotkey} (Global)";
 
         public string ResultInfo { get; set; }
         public string ResultInfoColor { get; set; }
@@ -251,7 +251,15 @@ namespace ScriptLinker.ViewModels
                 if (!ScriptInfo.Equals(scriptInfo))
                 {
                     _scriptAccess.UpdateScriptInfo(scriptInfo);
-                    ScriptInfo = scriptInfo;
+
+                    if (ScriptInfo.Name != scriptInfo.Name)
+                    {
+                        ScriptNames = _scriptAccess.GetScriptNames();
+                        ScriptName = scriptInfo.Name;
+                    }
+                    else
+                        ScriptInfo = scriptInfo;
+
                     ShowInlineMessage("Save successfully", 1200);
                 }
             };

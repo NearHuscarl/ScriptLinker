@@ -24,8 +24,7 @@
     <UserControl.InputBindings>
         <KeyBinding Key="{Binding HotKey, ElementName=Root}"
                     Modifiers="{Binding HotKeyModifiers, ElementName=Root}"
-                    Command="{Binding SubmitCommand}"
-                    CommandParameter="{Binding ScriptInfo, Mode=OneWay}" />
+                    Command="{Binding SubmitCommand}" />
     </UserControl.InputBindings>
 
     <StackPanel Orientation="Vertical"
@@ -54,9 +53,10 @@
                     HorizontalAlignment="Left"
                     VerticalAlignment="Center"
                     Margin="5,0,0,0"
+                    Validation.ErrorTemplate="{StaticResource ValidationTemplate}"
                     Height="20"
                     Width="{StaticResource TextBoxWidth}"
-                    Text="{Binding ScriptName, UpdateSourceTrigger=PropertyChanged}"/>
+                    Text="{Binding ScriptName, UpdateSourceTrigger=PropertyChanged, NotifyOnValidationError=True}"/>
             </StackPanel>
         </StackPanel>
 
@@ -82,7 +82,8 @@
                 <TextBox
                     HorizontalAlignment="Left"
                     VerticalAlignment="Center"
-				    Text="{Binding EntryPoint, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+				    Text="{Binding EntryPoint, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, NotifyOnValidationError=True}"
+                    Validation.ErrorTemplate="{StaticResource ValidationTemplate}"
                     ToolTip="{Binding EntryPointTooltip}"
                     Margin="5,0,0,0"
                     Height="{StaticResource TextBoxHeight}"
@@ -125,7 +126,8 @@
                 <TextBox
                     HorizontalAlignment="Left"
                     VerticalAlignment="Center"
-				    Text="{Binding ProjectDir, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+				    Text="{Binding ProjectDir, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, NotifyOnValidationError=True}"
+                    Validation.ErrorTemplate="{StaticResource ValidationTemplate}"
                     ToolTip="{Binding ProjectDirTooltip}"
                     Margin="5,0,0,0"
                     Height="{StaticResource TextBoxHeight}"
@@ -213,7 +215,6 @@
             HorizontalAlignment="Center">
             <Button
                 Command="{Binding SubmitCommand}"
-                CommandParameter="{Binding ScriptInfo, Mode=OneWay}"
                 Content="{Binding ButtonContent, ElementName=Root, FallbackValue=Create}"
                 Padding="10,3"
                 HorizontalAlignment="Center"

@@ -15,7 +15,7 @@ namespace ScriptLinker.ViewModels
         protected readonly IEventAggregator _eventAggregator;
         private SettingsAccess _settingsAccess;
         private Settings _settings;
-        private Dictionary<string, int> _hotKeys = new Dictionary<string, int>();
+        private Dictionary<string, int> _hotkeys = new Dictionary<string, int>();
 
         public ICommand SaveSettingsCommand { get; private set; }
         public ICommand CloseCommand { get; private set; }
@@ -127,38 +127,61 @@ namespace ScriptLinker.ViewModels
             CompileAndRunHotkey = ReadKeyEvent(e);
         }
 
+        protected override void OnPropsChanged(string propertyName, object before, object after)
+        {
+            if (before == null) return; // dont validate when initializing the first time
+
+            if (!(after is string))
+                return;
+
+            switch (propertyName)
+            {
+                case nameof(CopyToClipboardHotkey):
+                case nameof(CompileHotkey):
+                case nameof(CompileAndRunHotkey):
+                    Validate();
+                    break;
+            }
+        }
+
         private void ChangeHotKey(string oldHotKey, string newHotKey)
         {
             if (!string.IsNullOrEmpty(oldHotKey))
             {
-                if (_hotKeys.ContainsKey(oldHotKey))
-                    _hotKeys[oldHotKey]--;
+                if (_hotkeys.ContainsKey(oldHotKey))
+                    _hotkeys[oldHotKey]--;
                 else
-                    _hotKeys.Add(oldHotKey, 1);
+                    _hotkeys.Add(oldHotKey, 1);
             }
-            if (_hotKeys.ContainsKey(newHotKey))
-                _hotKeys[newHotKey]++;
+            if (_hotkeys.ContainsKey(newHotKey))
+                _hotkeys[newHotKey]++;
             else
-                _hotKeys.Add(newHotKey, 1);
+                _hotkeys.Add(newHotKey, 1);
         }
 
-        private bool Validate()
+        private bool Validate(bool submit = false)
         {
             ResetErrorMessages();
 
-            if (_hotKeys[CopyToClipboardHotkey] > 1)
+            if (_hotkeys[CopyToClipboardHotkey] > 1)
             {
-                CopyToClipboardHotkeyError = "Duplicated hotkey";
+                AddError(nameof(CopyToClipboardHotkey), "Duplicated hotkey");
+                if (submit)
+                    CopyToClipboardHotkeyError = "Duplicated hotkey";
                 return false;
             }
-            if (_hotKeys[CompileHotkey] > 1)
+            if (_hotkeys[CompileHotkey] > 1)
             {
-                CompileHotkeyError = "Duplicated hotkey";
+                AddError(nameof(CompileHotkey), "Duplicated hotkey");
+                if (submit)
+                    CompileHotkeyError = "Duplicated hotkey";
                 return false;
             }
-            if (_hotKeys[CompileAndRunHotkey] > 1)
+            if (_hotkeys[CompileAndRunHotkey] > 1)
             {
-                CompileAndRunHotkeyError = "Duplicated hotkey";
+                AddError(nameof(CompileAndRunHotkey), "Duplicated hotkey");
+                if (submit)
+                    CompileAndRunHotkeyError = "Duplicated hotkey";
                 return false;
             }
 
@@ -167,6 +190,8 @@ namespace ScriptLinker.ViewModels
 
         private void ResetErrorMessages()
         {
+            ClearErrors();
+
             CopyToClipboardHotkeyError = null;
             CompileHotkeyError = null;
             CompileAndRunHotkeyError = null;
@@ -174,7 +199,7 @@ namespace ScriptLinker.ViewModels
 
         private void SaveSettings()
         {
-            if (!Validate()) return;
+            if (!Validate(submit: true)) return;
 
             _settings.CopyToClipboardHotkey = CopyToClipboardHotkey;
             _settings.CompileHotkey = CompileHotkey;
