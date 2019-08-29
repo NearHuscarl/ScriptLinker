@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.28010.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScriptLinker", "ScriptLinker\ScriptLinker.csproj", "{2AE6061D-3E02-4C68-BC62-5D1E1D02D131}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoslynExamples", "RoslynExamples\RoslynExamples.csproj", "{014DA9EA-93EA-4C38-AACB-CCB99193A1E9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{2AE6061D-3E02-4C68-BC62-5D1E1D02D131}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2AE6061D-3E02-4C68-BC62-5D1E1D02D131}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2AE6061D-3E02-4C68-BC62-5D1E1D02D131}.Release|Any CPU.Build.0 = Release|Any CPU
+		{014DA9EA-93EA-4C38-AACB-CCB99193A1E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{014DA9EA-93EA-4C38-AACB-CCB99193A1E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{014DA9EA-93EA-4C38-AACB-CCB99193A1E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{014DA9EA-93EA-4C38-AACB-CCB99193A1E9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
