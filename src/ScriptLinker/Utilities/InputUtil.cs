@@ -1,5 +1,5 @@
-﻿using System;
-using System.Windows.Input;
+﻿using System.Windows.Input;
+using FormsKey = System.Windows.Forms.Keys;
 
 namespace ScriptLinker.Utilities
 {
@@ -7,14 +7,14 @@ namespace ScriptLinker.Utilities
     {
         private static KeyConverter _keyConverter = new KeyConverter();
 
-        public static Key WinformsToWPFKey(System.Windows.Forms.Keys formsKey)
+        public static Key WinformsToWPFKey(FormsKey formsKey)
         {
             return KeyInterop.KeyFromVirtualKey((int)formsKey);
         }
 
-        public static System.Windows.Forms.Keys WPFToWinformsKey(Key wpfKey)
+        public static FormsKey WPFToWinformsKey(Key wpfKey)
         {
-            return (System.Windows.Forms.Keys)KeyInterop.VirtualKeyFromKey(wpfKey);
+            return (FormsKey)KeyInterop.VirtualKeyFromKey(wpfKey);
         }
 
         public static bool IsModifierKey(Key key)

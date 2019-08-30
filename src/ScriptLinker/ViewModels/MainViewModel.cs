@@ -272,7 +272,7 @@ namespace ScriptLinker.ViewModels
 
         private void DeleteScriptInfo()
         {
-            _dialogService.ShowConfirmDialog($"Are you sure you want to delete {ScriptName} script", () =>
+            _dialogService.ShowConfirmDialog($"Are you sure you want to delete '{ScriptName}' script", () =>
             {
                 _scriptAccess.RemoveScriptInfo(ScriptName);
                 ScriptNames = _scriptAccess.GetScriptNames();

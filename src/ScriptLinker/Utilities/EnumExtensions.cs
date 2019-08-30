@@ -24,8 +24,7 @@ namespace ScriptLinker.Utilities
             }
             catch (Exception ex)
             {
-                throw new ArgumentException(
-                    string.Format("Could not append value from enumerated type '{0}'.", typeof(T).Name), ex);
+                throw new ArgumentException($"Could not append value from enumerated type '{typeof(T).Name}'.", ex);
             }
         }
 
@@ -37,8 +36,7 @@ namespace ScriptLinker.Utilities
             }
             catch (Exception ex)
             {
-                throw new ArgumentException(
-                    string.Format("Could not remove value from enumerated type '{0}'.", typeof(T).Name), ex);
+                throw new ArgumentException($"Could not remove value from enumerated type '{typeof(T).Name}'.", ex);
             }
         }
     }

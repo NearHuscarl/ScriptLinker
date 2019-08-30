@@ -55,6 +55,7 @@
                     Margin="5,0,0,0"
                     Validation.ErrorTemplate="{StaticResource ValidationTemplate}"
                     Height="20"
+                    ToolTip="Script name is case-sensitive and must be unique"
                     Width="{StaticResource TextBoxWidth}"
                     Text="{Binding ScriptName, UpdateSourceTrigger=PropertyChanged, NotifyOnValidationError=True}"/>
             </StackPanel>
