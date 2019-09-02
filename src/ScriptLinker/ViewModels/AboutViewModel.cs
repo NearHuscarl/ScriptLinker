@@ -1,8 +1,9 @@
-﻿using ScriptLinker.Utilities;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Input;
+using ScriptLinker.Infrastructure;
+using ScriptLinker.Utilities;
 
 namespace ScriptLinker.ViewModels
 {
@@ -15,7 +16,7 @@ namespace ScriptLinker.ViewModels
         public ICommand OpenLicenseCommand { get; private set; }
         public ICommand CloseCommand { get; private set; }
 
-        public string Version => App.Version;
+        public string Version => Constant.Version;
         public string Authors { get; private set; }
         public string License { get; private set; }
 
@@ -25,7 +26,7 @@ namespace ScriptLinker.ViewModels
             License = "BSD 3-Clauses";
 
             licensePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "LICENSE.md");
-            sourceCodeURL = (string)App.Current.Properties[Constants.SourceCodeUrl];
+            sourceCodeURL = Constant.Repository;
 
             OpenSourceCodeCommand = new DelegateCommand(OpenSourceCode);
             OpenLicenseCommand = new DelegateCommand(OpenLicense);

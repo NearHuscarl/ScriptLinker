@@ -5,13 +5,13 @@ using System;
 using System.IO;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace RoslynExamples
+namespace RoslynExamples.Examples
 {
     static class SyntaxTransformation
     {
         public static void ReplaceNamespace()
         {
-            var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "HelloWorld.cs");
+            var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", "HelloWorld.cs");
             var text = File.ReadAllText(filePath);
 
             NameSyntax name = IdentifierName("System");

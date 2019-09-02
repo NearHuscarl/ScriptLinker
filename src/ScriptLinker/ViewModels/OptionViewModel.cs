@@ -1,12 +1,13 @@
-﻿using Prism.Events;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Windows.Input;
+using Prism.Events;
 using ScriptLinker.Access;
 using ScriptLinker.Events;
 using ScriptLinker.Models;
 using ScriptLinker.Utilities;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Windows.Input;
+using ScriptLinker.Infrastructure.Utilities;
 
 namespace ScriptLinker.ViewModels
 {

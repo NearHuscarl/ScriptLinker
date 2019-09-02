@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ScriptLinker.Utilities
+namespace ScriptLinker.Infrastructure.Extensions
 {
     public static class EnumerationExtensions
     {

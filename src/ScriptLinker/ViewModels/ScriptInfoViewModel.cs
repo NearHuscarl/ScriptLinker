@@ -261,9 +261,6 @@ namespace ScriptLinker.ViewModels
 
             if (_fileWatcher != null)
             {
-                _fileWatcher.EnableRaisingEvents = false;
-                _fileWatcher.Created -= OnCreatedFile();
-                _fileWatcher.Renamed -= OnRenamedFile();
                 _fileWatcher.Dispose();
             }
 

@@ -1,12 +1,13 @@
-﻿using ScriptLinker.Events;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows.Input;
+using ScriptLinker.Infrastructure.Win;
+using ScriptLinker.Infrastructure.Utilities;
 
-namespace ScriptLinker.Utilities
+namespace ScriptLinker.Infrastructure.Hotkey
 {
-    class GlobalKeyboardHook
+    public class GlobalKeyboardHook
     {
         const int WM_KEYDOWN = 0x100;
         const int WM_KEYUP = 0x101;

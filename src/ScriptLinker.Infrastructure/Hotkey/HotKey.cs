@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Text;
 using System.Windows.Input;
+using ScriptLinker.Infrastructure.Utilities;
 
-namespace ScriptLinker.Utilities
+namespace ScriptLinker.Infrastructure.Hotkey
 {
     public class HotKey : IEquatable<HotKey>
     {

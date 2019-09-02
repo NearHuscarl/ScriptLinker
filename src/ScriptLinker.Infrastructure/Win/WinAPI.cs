@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace ScriptLinker.Utilities
+namespace ScriptLinker.Infrastructure.Win
 {
     public static class WinAPI
     {
@@ -452,7 +452,7 @@ namespace ScriptLinker.Utilities
         internal delegate IntPtr HookProc(int code, IntPtr wParam, IntPtr lParam);
         internal delegate IntPtr KeyboardHookProc(int code, IntPtr wParam, ref KeyboardHookStruct lParam);
 
-        internal struct KeyboardHookStruct
+        public struct KeyboardHookStruct
         {
             public int vkCode;
             public int scanCode;

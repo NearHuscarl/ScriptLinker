@@ -1,9 +1,11 @@
-﻿using ScriptLinker.DataLogic;
-using ScriptLinker.Models;
-using ScriptLinker.Utilities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using ScriptLinker.DataLogic;
+using ScriptLinker.Models;
+using ScriptLinker.Utilities;
+using ScriptLinker.Infrastructure;
+using ScriptLinker.Infrastructure.Utilities;
 
 namespace ScriptLinker.Services
 {
@@ -49,7 +51,7 @@ namespace ScriptLinker.Services
             var myNamespace = string.IsNullOrEmpty(fileInfo.Namespace) ? "SFDScript" : fileInfo.Namespace;
             var className = string.IsNullOrEmpty(fileInfo.ClassName) ?
                 Path.GetFileNameWithoutExtension(entryPoint) : fileInfo.ClassName;
-            var template = File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "ScriptTemplate.txt"));
+            var template = File.ReadAllText(Constant.TemplatePath);
 
             File.WriteAllText(entryPoint, template
                 .Replace("{{Namespace}}", myNamespace)
@@ -58,7 +60,7 @@ namespace ScriptLinker.Services
 
         public string GetBackupFolder()
         {
-            return Path.Combine(ApplicationPath.ApplicationData, "Backup");
+            return Path.Combine(Constant.DataDirectory, "Backup");
         }
 
         public string GetBackupFile(string path)
@@ -100,7 +102,7 @@ namespace ScriptLinker.Services
         {
             var sourcePath = Path.ChangeExtension(fileName, "txt");
             var scriptName = Path.GetFileName(sourcePath);
-            var destinationPath = Path.Combine(ApplicationPath.ScriptFolder, scriptName);
+            var destinationPath = Path.Combine(Constant.ScriptDirectory, scriptName);
 
             await FileUtil.CopyFileAsync(sourcePath, destinationPath);
         }

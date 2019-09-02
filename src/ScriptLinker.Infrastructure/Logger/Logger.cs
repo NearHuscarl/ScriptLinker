@@ -3,9 +3,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 
-namespace ScriptLinker.Utilities
+namespace ScriptLinker.Infrastructure.Logger
 {
-    enum LogLevel
+    public enum LogLevel
     {
         Info,
         Warning,
@@ -13,7 +13,7 @@ namespace ScriptLinker.Utilities
         Exception,
     }
 
-    static class Logger
+    public static class Logger
     {
         public static string LogDirectory { get; private set; }
         public static string FileName { get; private set; }
@@ -30,7 +30,7 @@ namespace ScriptLinker.Utilities
 
         static Logger()
         {
-            LogDirectory = Path.Combine(ApplicationPath.ApplicationData, "Reports");
+            LogDirectory = Path.Combine(Constant.DataDirectory, "Reports");
             FileName = string.Format("{0}.{1}", DateTime.Now.ToString(DateFormat), Extension);
 
             Directory.CreateDirectory(LogDirectory);
@@ -50,31 +50,44 @@ namespace ScriptLinker.Utilities
         }
         public static void Log(Exception exception)
         {
+#if !DEBUG
+            throw exception;
+#else
             Log(GetExceptionMessage(exception), LogLevel.Exception);
+#endif
         }
 
-        private static string GetExceptionMessage(Exception ex)
+        private static string GetExceptionMessage(Exception e)
         {
+            const int indentSize = 3;
+            var indent = new string(' ', indentSize);
             var sb = new StringBuilder();
-            var stackTrace = ex.StackTrace.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-            var indent = new string(' ', 3);
 
             sb.AppendLine();
-            sb.AppendLine(indent + "---");
-            sb.AppendLine(indent + "Type: " + ex.GetType().FullName);
-            sb.AppendLine(indent + "Source: " + ex.TargetSite == null || ex.TargetSite.DeclaringType == null
-                ? ex.Source
-                : string.Format("   {0}.{1}", ex.TargetSite.DeclaringType.FullName, ex.TargetSite.Name));
-            sb.AppendLine(indent + "Message: " + ex.Message);
-            sb.AppendLine(indent + "Stacktrace: ");
+            sb.AppendLine($"{indent}--------Exception Start--------");
 
-            foreach (var line in stackTrace)
+            do
             {
-                sb.AppendLine(indent + line);
-            }
+                sb.AppendLine($"{indent}Type: {e.GetType().FullName}");
+                sb.AppendLine($"{indent}Source: {e.Source}");
+                sb.AppendLine($"{indent}Target site: {e.TargetSite}");
+                sb.AppendLine($"{indent}Message: {e.Message}");
+                sb.AppendLine($"{indent}Stacktrace:");
 
-            sb.Append(indent + "---");
+                var stackTrace = e.StackTrace.Split(new string[] { Environment.NewLine },
+                    StringSplitOptions.RemoveEmptyEntries);
 
+                foreach (var line in stackTrace)
+                    sb.AppendLine(indent + line);
+
+                if (e.InnerException != null)
+                    sb.AppendLine(indent + "---");
+
+                indent += indent;
+                e = e.InnerException;
+            } while (e != null);
+
+            sb.AppendLine($"{new string(' ', indentSize)}--------Exception End--------");
             return sb.ToString();
         }
 
@@ -89,14 +102,12 @@ namespace ScriptLinker.Utilities
             sb.Append(GetCaller() + " ");
             sb.Append(message);
 
-            // Use filestream to be able to explicitly specify FileShare.None
-            using (var fileStream = new FileStream(FilePath, FileMode.Append, FileAccess.Write, FileShare.None))
-            {
-                using (var streamWriter = new StreamWriter(fileStream))
-                {
-                    streamWriter.WriteLine(sb.ToString());
-                }
-            }
+            var logMessage = sb.ToString();
+
+            if (level == LogLevel.Exception)
+                LogFile(logMessage);
+            else
+                LogConsole(logMessage);
         }
 
         private static string GetCaller()
@@ -128,6 +139,23 @@ namespace ScriptLinker.Utilities
             }
 
             return result;
+        }
+
+        private static void LogFile(string message)
+        {
+            // Use filestream to be able to explicitly specify FileShare.None
+            using (var fileStream = new FileStream(FilePath, FileMode.Append, FileAccess.Write, FileShare.None))
+            {
+                using (var streamWriter = new StreamWriter(fileStream))
+                {
+                    streamWriter.WriteLine(message);
+                }
+            }
+        }
+
+        private static void LogConsole(string message)
+        {
+            Debug.WriteLine(message);
         }
     }
 }

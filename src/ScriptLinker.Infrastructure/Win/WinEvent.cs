@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace ScriptLinker.Utilities
+namespace ScriptLinker.Infrastructure.Win
 {
     public class WinEventArgs : EventArgs
     {

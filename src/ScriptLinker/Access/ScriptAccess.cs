@@ -1,16 +1,16 @@
-﻿using ScriptLinker.Models;
-using ScriptLinker.Utilities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
+using ScriptLinker.Models;
+using ScriptLinker.Infrastructure;
 
 namespace ScriptLinker.Access
 {
     public class ScriptAccess
     {
-        public string ConfigPath { get; set; } = Path.Combine(ApplicationPath.ApplicationData, "script.xml");
+        public string ConfigPath { get; set; } = Path.Combine(Constant.DataDirectory, "script.xml");
 
         public List<string> GetScriptNames()
         {

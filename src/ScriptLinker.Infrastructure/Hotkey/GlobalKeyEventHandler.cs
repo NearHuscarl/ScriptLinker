@@ -1,4 +1,4 @@
-﻿namespace ScriptLinker.Events
+﻿namespace ScriptLinker.Infrastructure.Hotkey
 {
     public delegate void GlobalKeyEventHandler(object sender, GlobalKeyEventArgs e);
 }

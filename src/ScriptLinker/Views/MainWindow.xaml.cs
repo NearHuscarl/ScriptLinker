@@ -1,8 +1,8 @@
-﻿using ScriptLinker.Services;
-using ScriptLinker.Utilities;
-using ScriptLinker.ViewModels;
-using System;
+﻿using System;
 using System.Windows;
+using ScriptLinker.ViewModels;
+using ScriptLinker.Services;
+using ScriptLinker.Infrastructure.Win;
 
 namespace ScriptLinker.Views
 {

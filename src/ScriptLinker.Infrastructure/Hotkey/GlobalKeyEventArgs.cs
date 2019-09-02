@@ -1,7 +1,7 @@
-﻿using ScriptLinker.Utilities;
-using System.Windows.Input;
+﻿using System.Windows.Input;
+using ScriptLinker.Infrastructure.Extensions;
 
-namespace ScriptLinker.Events
+namespace ScriptLinker.Infrastructure.Hotkey
 {
     public class GlobalKeyEventArgs
     {

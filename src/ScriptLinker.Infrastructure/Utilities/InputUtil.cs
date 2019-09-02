@@ -1,9 +1,11 @@
 ﻿using System.Windows.Input;
+using ScriptLinker.Infrastructure.Extensions;
+using ScriptLinker.Infrastructure.Hotkey;
 using FormsKey = System.Windows.Forms.Keys;
 
-namespace ScriptLinker.Utilities
+namespace ScriptLinker.Infrastructure.Utilities
 {
-    class InputUtil
+    public class InputUtil
     {
         private static KeyConverter _keyConverter = new KeyConverter();
 

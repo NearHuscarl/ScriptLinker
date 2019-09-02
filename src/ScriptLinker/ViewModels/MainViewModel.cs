@@ -2,7 +2,6 @@
 using System.Windows.Input;
 using ScriptLinker.Models;
 using System.IO;
-using System.Windows;
 using System;
 using System.ComponentModel;
 using System.Linq;
@@ -11,12 +10,15 @@ using System.Linq;
 // Install-Package WindowsAPICodePack-Shell
 using System.Collections.Generic;
 using System.Diagnostics;
-using ScriptLinker.Access;
 using Prism.Events;
-using ScriptLinker.Events;
-using ScriptLinker.Services;
 using System.Timers;
 using PropertyChanged;
+using ScriptLinker.Access;
+using ScriptLinker.Events;
+using ScriptLinker.Services;
+using ScriptLinker.Infrastructure;
+using ScriptLinker.Infrastructure.Hotkey;
+using ScriptLinker.Infrastructure.Utilities;
 
 namespace ScriptLinker.ViewModels
 {
@@ -167,11 +169,11 @@ namespace ScriptLinker.ViewModels
         {
             DeleteScriptInfoCommand = new DelegateCommand(DeleteScriptInfo);
             AddTemplateToEntryPointCommand = new DelegateCommand(AddTemplateToEntryPoint);
-            OpenScriptFolderCommand = new DelegateCommand(() => Process.Start(ApplicationPath.ScriptFolder));
+            OpenScriptFolderCommand = new DelegateCommand(() => Process.Start(Constant.ScriptDirectory));
             CopyToClipboardCommand = new DelegateCommand(CopyToClipboard);
             CompileCommand = new DelegateCommand(() => Compile(false));
             CompileAndRunCommand = new DelegateCommand(() => Compile(true));
-            ViewReadMeCommand = new DelegateCommand(ViewReadMe);
+            ViewReadMeCommand = new DelegateCommand(() => Process.Start(Constant.Readme));
             ExpandLinkedFilesWindowCommand = new DelegateCommand(ExpandLinkedFilesWindow);
             OpenFileCommand = new DelegateCommand<string>(FileUtil.OpenFile);
         }
@@ -362,11 +364,6 @@ namespace ScriptLinker.ViewModels
             {
                 _dialogService.ShowInfoDialog("Don't spam the button bruh");
             }
-        }
-
-        private void ViewReadMe()
-        {
-            Process.Start((string)Application.Current.Properties[Constants.SourceCodeUrl] + "/blob/master/README.md");
         }
 
         private void ExpandLinkedFilesWindow()

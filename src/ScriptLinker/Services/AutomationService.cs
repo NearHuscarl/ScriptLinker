@@ -1,10 +1,10 @@
-﻿using ScriptLinker.DataLogic;
-using ScriptLinker.Models;
-using ScriptLinker.Utilities;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
+using ScriptLinker.DataLogic;
+using ScriptLinker.Models;
+using ScriptLinker.Infrastructure.Win;
 
 namespace ScriptLinker.Services
 {

@@ -1,4 +1,6 @@
-﻿namespace RoslynExamples
+﻿using RoslynExamples.Examples;
+
+namespace RoslynExamples
 {
     /// <summary>
     /// https://github.com/dotnet/roslyn/wiki/Samples-and-Walkthroughs
@@ -14,7 +16,7 @@
             //SemanticAnalysis.SemanticModel();
 
             //SyntaxTransformation.ReplaceNamespace();
-            SyntaxTransformation.UseTypeInference();
+            //SyntaxTransformation.UseTypeInference();
 
             //WorkspaceSample.Sample();
         }

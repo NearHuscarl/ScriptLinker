@@ -128,16 +128,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="SemanticAnalysis.cs" />
-    <Compile Include="StopwatchExtensions.cs" />
-    <Compile Include="SyntaxAnalysis.cs" />
-    <Compile Include="SyntaxTransformation.cs" />
-    <Compile Include="TypeInferenceRewriter.cs" />
+    <Compile Include="Collectors\UnusedUsingCollector.cs" />
+    <Compile Include="Extensions\WorkspaceExtensions.cs" />
+    <Compile Include="ScriptInfo.cs" />
+    <Compile Include="Examples\SemanticAnalysis.cs" />
+    <Compile Include="SolutionUtil.cs" />
+    <Compile Include="Examples\SyntaxAnalysis.cs" />
+    <Compile Include="Examples\SyntaxTransformation.cs" />
+    <Compile Include="Examples\TypeInferenceRewriter.cs" />
     <Compile Include="Collectors\UsingCollector.cs" />
-    <Content Include="HelloWorld.cs">
+    <Content Include="TestFiles\HelloWorld.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="NamespaceTest.cs">
+    <Content Include="TestFiles\NamespaceTest.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Compile Include="Program.cs" />
@@ -150,6 +153,12 @@
   <ItemGroup>
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.2.9.3\analyzers\dotnet\cs\Microsoft.CodeAnalysis.Analyzers.dll" />
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.2.9.3\analyzers\dotnet\cs\Microsoft.CodeAnalysis.CSharp.Analyzers.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ScriptLinker.Infrastructure\ScriptLinker.Infrastructure.csproj">
+      <Project>{07ee3780-5ae1-478e-8511-92a4c4b0147b}</Project>
+      <Name>ScriptLinker.Infrastructure</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

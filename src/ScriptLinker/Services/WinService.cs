@@ -1,7 +1,7 @@
-﻿using ScriptLinker.Events;
-using ScriptLinker.Utilities;
-using System;
+﻿using System;
 using System.Windows.Input;
+using ScriptLinker.Infrastructure.Hotkey;
+using ScriptLinker.Infrastructure.Win;
 
 namespace ScriptLinker.Services
 {

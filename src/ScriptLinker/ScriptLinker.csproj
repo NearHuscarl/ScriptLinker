@@ -59,14 +59,7 @@
     <Reference Include="FontAwesome.WPF, Version=4.7.0.37774, Culture=neutral, PublicKeyToken=0758b07a11a4f466, processorArchitecture=MSIL">
       <HintPath>..\packages\FontAwesome.WPF.4.7.0.9\lib\net40\FontAwesome.WPF.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Build.Framework, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Build.Framework.15.9.20\lib\net46\Microsoft.Build.Framework.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.Expression.Interactions, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
-    <Reference Include="Microsoft.VisualStudio.Setup.Configuration.Interop, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.VisualStudio.Setup.Configuration.Interop.1.16.30\lib\net35\Microsoft.VisualStudio.Setup.Configuration.Interop.dll</HintPath>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </Reference>
     <Reference Include="Microsoft.WindowsAPICodePack, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\WindowsAPICodePack-Core.1.1.1\lib\Microsoft.WindowsAPICodePack.dll</HintPath>
     </Reference>
@@ -98,6 +91,7 @@
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Runtime.InteropServices.RuntimeInformation, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.InteropServices.RuntimeInformation.4.3.0\lib\net45\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
       <Private>True</Private>
@@ -113,7 +107,6 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Windows.Interactivity, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Xml" />
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -136,11 +129,8 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Constants.cs" />
     <Compile Include="Controls\NoShortcutTextBox.cs" />
     <Compile Include="Converters\StringToColorConverter.cs" />
-    <Compile Include="Events\GlobalKeyEventArgs.cs" />
-    <Compile Include="Events\GlobalKeyEventHandler.cs" />
     <Compile Include="Events\ScriptInfoChangedEvent.cs" />
     <Compile Include="Events\SettingsChangedEvent.cs" />
     <Compile Include="Events\SettingsWindowClosedEvent.cs" />
@@ -161,14 +151,7 @@
     <Compile Include="Services\DialogService.cs" />
     <Compile Include="Services\ScriptService.cs" />
     <Compile Include="Services\WinService.cs" />
-    <Compile Include="Utilities\ApplicationPath.cs" />
-    <Compile Include="Utilities\EnumExtensions.cs" />
-    <Compile Include="Utilities\Logger.cs" />
     <Compile Include="Utilities\TextColor.cs" />
-    <Compile Include="Utilities\GlobalKeyboardHook.cs" />
-    <Compile Include="Utilities\HotKey.cs" />
-    <Compile Include="Utilities\InputUtil.cs" />
-    <Compile Include="Utilities\PathUtil.cs" />
     <Compile Include="Utilities\ScheduledTask.cs" />
     <Resource Include="Icon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -181,7 +164,6 @@
       <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Compile Include="Utilities\StopwatchExtensions.cs" />
     <Compile Include="Utilities\DelegateCommand.cs" />
     <Compile Include="Utilities\FileUtil.cs" />
     <Compile Include="Utilities\RegexPattern.cs" />
@@ -190,9 +172,6 @@
     <Compile Include="Utilities\VisualSln.cs" />
     <Compile Include="Utilities\ProjectUtil.cs" />
     <Compile Include="Utilities\Vk.cs" />
-    <Compile Include="Utilities\WinAPI.cs" />
-    <Compile Include="Utilities\WinEvent.cs" />
-    <Compile Include="Utilities\WinUtil.cs" />
     <Compile Include="ViewModels\AboutViewModel.cs" />
     <Compile Include="ViewModels\CreateNewScriptViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
@@ -287,6 +266,12 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ScriptLinker.Infrastructure\ScriptLinker.Infrastructure.csproj">
+      <Project>{07ee3780-5ae1-478e-8511-92a4c4b0147b}</Project>
+      <Name>ScriptLinker.Infrastructure</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Fody.4.2.1\build\Fody.targets" Condition="Exists('..\packages\Fody.4.2.1\build\Fody.targets')" />
