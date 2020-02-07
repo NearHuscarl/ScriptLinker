@@ -155,6 +155,7 @@ namespace ScriptLinker.Infrastructure.Logger
 
         private static void LogConsole(string message)
         {
+            Console.WriteLine(message);
             Debug.WriteLine(message);
         }
     }
