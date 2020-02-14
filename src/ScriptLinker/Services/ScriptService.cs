@@ -98,13 +98,11 @@ namespace ScriptLinker.Services
             }
         }
 
-        public async void CreateExtensionScript(string fileName, string sourceCode)
+        public async void CreateExtensionScript(string bundlePath, string sourceCode)
         {
-            var sourcePath = Path.ChangeExtension(fileName, "txt");
-            var scriptName = Path.GetFileName(sourcePath);
-            var destinationPath = Path.Combine(Constant.ScriptDirectory, scriptName);
+            var destinationPath = Path.Combine(Constant.ScriptDirectory, Path.GetFileName(bundlePath));
 
-            await FileUtil.CopyFileAsync(sourcePath, destinationPath);
+            await FileUtil.CopyFileAsync(bundlePath, destinationPath);
         }
     }
 }

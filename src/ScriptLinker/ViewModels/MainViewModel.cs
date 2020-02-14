@@ -352,17 +352,18 @@ namespace ScriptLinker.ViewModels
         {
             try
             {
-                var outputPath = Path.ChangeExtension(ScriptInfo.EntryPoint, "txt");
+                var entryPointDirectory = Path.GetDirectoryName(ScriptInfo.EntryPoint);
+                var outputPath = Path.Combine(entryPointDirectory, ScriptName + ".txt");
                 await FileUtil.WriteTextAsync(outputPath, sourceCode);
 
                 if (GenerateExtensionScript)
                 {
-                    _scriptService.CreateExtensionScript(ScriptInfo.EntryPoint, sourceCode);
+                    _scriptService.CreateExtensionScript(outputPath, sourceCode);
                 }
             }
             catch (IOException)
             {
-                _dialogService.ShowInfoDialog("Don't spam the button bruh");
+                _dialogService.ShowInfoDialog("Don't spam the button");
             }
         }
 

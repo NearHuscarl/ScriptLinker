@@ -21,22 +21,6 @@ namespace ScriptLinker.DataLogic
         private readonly string ProjectName = Assembly.GetCallingAssembly().GetName().Name;
         private readonly string BreakpointStatement = "System.Diagnostics.Debugger.Break();";
 
-        // It will print something like this:
-        // 
-        // // --------------------------------------------
-        // // File: E:\Github\SFDScript\BotExtended\Bot.cs
-        // // --------------------------------------------
-        private string GetFileHeader(string filePath, string projectPath)
-        {
-            var relativePath = filePath.Substring(projectPath.Length + 1);
-            var filePathLength = relativePath.Length;
-            var bar = new string('-', filePathLength + 6);
-            return $@"
-// {bar}
-// File: {relativePath}
-// {bar}{Environment.NewLine}";
-        }
-
         private string GetHeader(ScriptInfo info)
         {
             var sb = new StringBuilder();
@@ -188,8 +172,6 @@ namespace ScriptLinker.DataLogic
                 .Where(b => b.File == filePath)
                 .ToDictionary(b => b.LineNumber, b => b);
 
-            sourceCode.AppendLine(GetFileHeader(filePath, projectInfo.ProjectDir));
-
             using (var file = File.OpenText(filePath))
             {
                 var line = "";
@@ -243,8 +225,6 @@ namespace ScriptLinker.DataLogic
             var breakpoints = projectInfo.Breakpoints
                 .Where(b => b.File == filePath)
                 .ToDictionary(b => b.LineNumber, b => b);
-
-            sourceCode.AppendLine(GetFileHeader(filePath, projectInfo.ProjectDir));
 
             using (var file = File.OpenText(filePath))
             {
