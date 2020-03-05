@@ -31,38 +31,9 @@ namespace ScriptLinker.Access
             return names;
         }
 
-        public ScriptInfo LoadScriptInfo(string projectDir, string entryPoint)
+        private DateTime ParseDate(string date)
         {
-            try
-            {
-                if (!File.Exists(ConfigPath))
-                    return new ScriptInfo();
-
-                var scriptDoc = XDocument.Load(ConfigPath);
-                var scriptInfos = scriptDoc.Element("Script").Elements("ScriptInfo");
-                var scriptInfo = new ScriptInfo();
-
-                foreach (var scriptInfoElement in scriptInfos)
-                {
-                    if (scriptInfoElement.Element("EntryPoint").Value == entryPoint
-                       && scriptInfoElement.Element("ProjectDirectory").Value == projectDir)
-                    {
-                        scriptInfo.Name = scriptInfoElement.Element("Name").Value;
-                        scriptInfo.EntryPoint = scriptInfoElement.Element("EntryPoint").Value;
-                        scriptInfo.ProjectDirectory = scriptInfoElement.Element("ProjectDirectory").Value;
-                        scriptInfo.Author = scriptInfoElement.Element("Author").Value;
-                        scriptInfo.Description = scriptInfoElement.Element("Description").Value;
-                        scriptInfo.MapModes = scriptInfoElement.Element("MapModes").Value;
-                        break;
-                    }
-                }
-
-                return scriptInfo;
-            }
-            catch (Exception)
-            {
-                return new ScriptInfo();
-            }
+            return DateTime.TryParse(date ?? "", out DateTime dateTime) ? dateTime : DateTime.MinValue;
         }
 
         public ScriptInfo LoadScriptInfo(string scriptName)
@@ -86,13 +57,14 @@ namespace ScriptLinker.Access
                         scriptInfo.Author = scriptInfoElement.Element("Author").Value;
                         scriptInfo.Description = scriptInfoElement.Element("Description").Value;
                         scriptInfo.MapModes = scriptInfoElement.Element("MapModes").Value;
+                        scriptInfo.LastAccess = ParseDate(scriptInfoElement.Element("LastAccess")?.Value);
                         break;
                     }
                 }
 
                 return scriptInfo;
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 return new ScriptInfo();
             }
@@ -112,12 +84,15 @@ namespace ScriptLinker.Access
                     || scriptInfo.Element("EntryPoint").Value == updatedScriptInfo.EntryPoint
                     && scriptInfo.Element("ProjectDirectory").Value == updatedScriptInfo.ProjectDirectory)
                 {
-                    scriptInfo.Element("Name").Value = updatedScriptInfo.Name;
-                    scriptInfo.Element("EntryPoint").Value = updatedScriptInfo.EntryPoint;
-                    scriptInfo.Element("ProjectDirectory").Value = updatedScriptInfo.ProjectDirectory;
-                    scriptInfo.Element("Author").Value = updatedScriptInfo.Author;
-                    scriptInfo.Element("Description").Value = updatedScriptInfo.Description;
-                    scriptInfo.Element("MapModes").Value = updatedScriptInfo.MapModes;
+                    scriptInfo.ReplaceWith(new XElement("ScriptInfo",
+                        new XElement("Name", updatedScriptInfo.Name),
+                        new XElement("EntryPoint", updatedScriptInfo.EntryPoint),
+                        new XElement("ProjectDirectory", updatedScriptInfo.ProjectDirectory),
+                        new XElement("Author", updatedScriptInfo.Author),
+                        new XElement("Description", updatedScriptInfo.Description),
+                        new XElement("MapModes", updatedScriptInfo.MapModes),
+                        new XElement("LastAccess", updatedScriptInfo.LastAccess)
+                        ));
                     isUpdated = true;
                     break;
                 }
@@ -132,11 +107,22 @@ namespace ScriptLinker.Access
                         new XElement("ProjectDirectory", updatedScriptInfo.ProjectDirectory),
                         new XElement("Author", updatedScriptInfo.Author),
                         new XElement("Description", updatedScriptInfo.Description),
-                        new XElement("MapModes", updatedScriptInfo.MapModes)
+                        new XElement("MapModes", updatedScriptInfo.MapModes),
+                        new XElement("LastAccess", updatedScriptInfo.LastAccess)
                     )
                 );
             }
 
+            var sortedScriptInfo = scriptDoc.Element("Script")
+                .Elements("ScriptInfo")
+                .OrderByDescending((s) => s.Element("LastAccess")?.Value ?? DateTime.MinValue.ToString())
+                .ToList();
+
+            scriptDoc.Element("Script").RemoveNodes();
+            foreach (var s in sortedScriptInfo)
+            {
+                scriptDoc.Element("Script").Add(s);
+            }
             scriptDoc.Save(ConfigPath);
         }
 

@@ -10,6 +10,7 @@ namespace ScriptLinker.Models
         public string Author { get; set; } = "";
         public string Description { get; set; } = "";
         public string MapModes { get; set; } = "";
+        public DateTime LastAccess { get; set; } = DateTime.Now;
 
         public bool IsEmpty()
         {
