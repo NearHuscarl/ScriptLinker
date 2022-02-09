@@ -10,7 +10,7 @@ namespace ScriptLinker.Access
 {
     public class ScriptAccess
     {
-        public string ConfigPath { get; set; } = Path.Combine(Constant.DataDirectory, "script.xml");
+        public string ConfigPath { get; set; } = Path.Combine(Constant.DataDirectory, "scripts.xml");
 
         public List<string> GetScriptNames()
         {
@@ -20,7 +20,7 @@ namespace ScriptLinker.Access
                 return names;
 
             var scriptDoc = XDocument.Load(ConfigPath);
-            var scriptInfos = scriptDoc.Element("Script").Elements("ScriptInfo");
+            var scriptInfos = scriptDoc.Element("Scripts").Elements("ScriptInfo");
             var scriptInfo = new ScriptInfo();
 
             foreach (var scriptInfoElement in scriptInfos)
@@ -44,7 +44,7 @@ namespace ScriptLinker.Access
                     return new ScriptInfo();
 
                 var scriptDoc = XDocument.Load(ConfigPath);
-                var scriptInfos = scriptDoc.Element("Script").Elements("ScriptInfo");
+                var scriptInfos = scriptDoc.Element("Scripts").Elements("ScriptInfo");
                 var scriptInfo = new ScriptInfo();
 
                 foreach (var scriptInfoElement in scriptInfos)
@@ -74,8 +74,8 @@ namespace ScriptLinker.Access
         {
             if (updatedScriptInfo.IsEmpty()) return;
 
-            var scriptDoc = File.Exists(ConfigPath) ? XDocument.Load(ConfigPath) : new XDocument();
-            var query = from c in scriptDoc.Elements("Script").Elements("ScriptInfo") select c;
+            var scriptDoc = File.Exists(ConfigPath) ? XDocument.Load(ConfigPath) : new XDocument(new XElement("Scripts"));
+            var query = from c in scriptDoc.Elements("Scripts").Elements("ScriptInfo") select c;
             var isUpdated = false;
 
             foreach (var scriptInfo in query)
@@ -100,7 +100,7 @@ namespace ScriptLinker.Access
 
             if (!isUpdated)
             {
-                scriptDoc.Element("Script").Add(
+                scriptDoc.Element("Scripts").Add(
                     new XElement("ScriptInfo",
                         new XElement("Name", updatedScriptInfo.Name),
                         new XElement("EntryPoint", updatedScriptInfo.EntryPoint),
@@ -113,15 +113,15 @@ namespace ScriptLinker.Access
                 );
             }
 
-            var sortedScriptInfo = scriptDoc.Element("Script")
+            var sortedScriptInfo = scriptDoc.Element("Scripts")
                 .Elements("ScriptInfo")
                 .OrderByDescending((s) => s.Element("LastAccess")?.Value ?? DateTime.MinValue.ToString())
                 .ToList();
 
-            scriptDoc.Element("Script").RemoveNodes();
+            scriptDoc.Element("Scripts").RemoveNodes();
             foreach (var s in sortedScriptInfo)
             {
-                scriptDoc.Element("Script").Add(s);
+                scriptDoc.Element("Scripts").Add(s);
             }
             scriptDoc.Save(ConfigPath);
         }
@@ -131,7 +131,7 @@ namespace ScriptLinker.Access
             if (!File.Exists(ConfigPath)) return;
 
             var scriptDoc = XDocument.Load(ConfigPath);
-            var query = from c in scriptDoc.Elements("Script").Elements("ScriptInfo") select c;
+            var query = from c in scriptDoc.Elements("Scripts").Elements("ScriptInfo") select c;
 
             foreach (var scriptInfo in query.ToList())
             {
@@ -150,7 +150,7 @@ namespace ScriptLinker.Access
             if (!File.Exists(ConfigPath)) return;
 
             var scriptDoc = XDocument.Load(ConfigPath);
-            var query = from c in scriptDoc.Elements("Script").Elements("ScriptInfo") select c;
+            var query = from c in scriptDoc.Elements("Scripts").Elements("ScriptInfo") select c;
 
             foreach (var scriptInfo in query.ToList())
             {
