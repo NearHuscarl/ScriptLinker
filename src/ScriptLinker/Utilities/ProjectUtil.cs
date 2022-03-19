@@ -27,9 +27,9 @@ namespace ScriptLinker.Utilities
             }
 
             return csProjDoc
-                .Element(Msbuild + "Project")
-                .Elements(Msbuild + "PropertyGroup").First()
-                .Element(Msbuild + "RootNamespace").Value.ToString();
+                .Element("Project")
+                ?.Elements("PropertyGroup").FirstOrDefault()
+                ?.Element("RootNamespace")?.Value.ToString() ?? projectName;
         }
 
         public static bool IsProjectDirectory(string path)
