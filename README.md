@@ -55,7 +55,7 @@ That's because I'm using this awesome Fody plugin [PropertyChanged] which help y
 * [Set up Visual Studio]
 
 
-[Superfighters Deluxe]: http://mythologicinteractive.com/SuperfightersDeluxe
-[BotExtended]: https://github.com/NearHuscarl/SFDScript/tree/master/SFDScript/BotExtended
+[Superfighters Deluxe]: https://mythologicinteractive.com/SuperfightersDeluxe
+[BotExtended]: https://github.com/NearHuscarl/BotExtended
 [PropertyChanged]: https://github.com/Fody/PropertyChanged
 [Set up Visual Studio]: https://www.mythologicinteractiveforums.com/viewtopic.php?f=15&t=1588
