@@ -15,5 +15,8 @@ namespace ScriptLinker.Utilities
         // public ClassName()
         public static Regex Constructor = new Regex($@"^\s*{AccessModifier}\s+{Identifier}\(\)(?!.*?;).*$");
         public static Regex UsingStatement = new Regex(@"^\s*using\s+(.*);");
+
+        public static Regex Comment = new Regex(@"^\s*\/\/");
+        public static Regex Directive = new Regex(@"^\s*#");
     }
 }

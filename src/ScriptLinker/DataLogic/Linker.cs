@@ -14,6 +14,10 @@ namespace ScriptLinker.DataLogic
     {
         public bool StartBlock = false;
         public bool EndBlock = false;
+        /// <summary>
+        /// Is comment or directive or empty line
+        /// </summary>
+        public bool IsJunk = false;
     }
 
     public class Linker
@@ -136,6 +140,9 @@ namespace ScriptLinker.DataLogic
             var lineInfo = new LineInfo();
             var commentIndex = line.IndexOf("//"); // -1 if not found
 
+            lineInfo.IsJunk = string.IsNullOrWhiteSpace(line)
+                || RegexPattern.Comment.Match(line).Success || RegexPattern.Directive.Match(line).Success;
+
             if (commentIndex == -1)
                 commentIndex = line.Length;
 
@@ -183,6 +190,7 @@ namespace ScriptLinker.DataLogic
                     ReadSharpLine(line, codeBlock, ref csFileInfo);
                     var lineInfo = GetLineInfo(line);
 
+                    if (lineInfo.IsJunk) continue;
                     if (lineInfo.StartBlock)
                         codeBlock++;
 
@@ -237,6 +245,7 @@ namespace ScriptLinker.DataLogic
                     ReadSharpLine(line, codeBlock, ref csFileInfo);
                     var lineInfo = GetLineInfo(line);
 
+                    if (lineInfo.IsJunk) continue;
                     if (lineInfo.StartBlock)
                         codeBlock++;
 
