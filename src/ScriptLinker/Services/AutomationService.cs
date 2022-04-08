@@ -35,23 +35,23 @@ namespace ScriptLinker.Services
             }
         };
 
-        public LinkResult CopyToClipboard(ProjectInfo projectInfo, ScriptInfo scriptInfo)
+        public LinkResult CopyToClipboard(ProjectInfo projectInfo, ScriptInfo scriptInfo, LinkOption option)
         {
-            var result = _linker.Link(projectInfo, scriptInfo);
+            var result = _linker.Link(projectInfo, scriptInfo, option);
 
             Clipboard.SetText(result.Content);
 
             return result;
         }
 
-        public LinkResult Compile(ProjectInfo projectInfo, ScriptInfo scriptInfo, bool runAfterCompiling)
+        public LinkResult Compile(ProjectInfo projectInfo, ScriptInfo scriptInfo, LinkOption option, Action onCompiled = null)
         {
             var sfdProcess = Process.GetProcessesByName("Superfighters Deluxe").FirstOrDefault();
 
             if (sfdProcess == null)
                 return new LinkResult(AutomationError.SfdNotOpen);
 
-            var result = CopyToClipboard(projectInfo, scriptInfo);
+            var result = CopyToClipboard(projectInfo, scriptInfo, option);
             var sourceCode = result.Content;
             //var sourceCode = await Task.Run(() => _linker.Link(ProjectInfo, ScriptInfo));
 
@@ -72,13 +72,17 @@ namespace ScriptLinker.Services
                 // Compile newly pasted code
                 WinUtil.SimulateKey("{F5}");
 
-                if (runAfterCompiling)
-                    RunMapEditorTestIfSuccess();
+                onCompiled?.Invoke();
 
                 return result;
             }
             else
                 return new LinkResult(AutomationError.ScriptEditorNotOpen);
+        }
+
+        public LinkResult CompileAndRun(ProjectInfo projectInfo, ScriptInfo scriptInfo, LinkOption option)
+        {
+            return Compile(projectInfo, scriptInfo, option, RunMapEditorTestIfSuccess);
         }
 
         private void RunMapEditorTestIfSuccess()

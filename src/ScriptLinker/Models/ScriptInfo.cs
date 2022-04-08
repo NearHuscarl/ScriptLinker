@@ -26,12 +26,12 @@ namespace ScriptLinker.Models
                 return false;
             }
 
-            return this.Name == other.Name
-                && this.EntryPoint == other.EntryPoint
-                && this.ProjectDirectory == other.ProjectDirectory
-                && this.Author == other.Author
-                && this.Description == other.Description
-                && this.MapModes == other.MapModes;
+            return Name == other.Name
+                && EntryPoint == other.EntryPoint
+                && ProjectDirectory == other.ProjectDirectory
+                && Author == other.Author
+                && Description == other.Description
+                && MapModes == other.MapModes;
         }
     }
 }

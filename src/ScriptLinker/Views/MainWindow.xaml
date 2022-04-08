@@ -116,6 +116,13 @@
                 DataContext="{Binding FormViewModel, Mode=OneTime}"
                 HotKey="S" HotKeyModifiers="Ctrl" />
 
+            <CheckBox
+                Content="Minify script"
+                IsChecked="{Binding MinifyScript}"
+                Command="{Binding UpdateMinifyScriptCommand}"
+                HorizontalAlignment="Left"
+                Margin="146,10,0,20" />
+
             <Label
                 FontWeight="DemiBold"
                 HorizontalAlignment="Center"

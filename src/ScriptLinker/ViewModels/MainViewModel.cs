@@ -42,6 +42,7 @@ namespace ScriptLinker.ViewModels
         public ICommand CopyToClipboardCommand { get; private set; }
         public ICommand CompileCommand { get; private set; }
         public ICommand CompileAndRunCommand { get; private set; }
+        public ICommand UpdateMinifyScriptCommand { get; private set; }
         public ICommand ViewReadMeCommand { get; private set; }
         public ICommand OpenAboutWindowCommand { get; private set; }
         public ICommand ExpandLinkedFilesWindowCommand { get; private set; }
@@ -68,6 +69,7 @@ namespace ScriptLinker.ViewModels
         }
 
         public bool GenerateExtensionScript { get; set; }
+        public bool MinifyScript { get; set; }
 
         public HotKey CopyToClipboardHotkey { get; set; }
         public string CopyToClipboardHotkeyName => $"{CopyToClipboardHotkey} (Global)";
@@ -83,6 +85,9 @@ namespace ScriptLinker.ViewModels
 
         public bool IsLinkedFileWindowExpanded { get; set; }
         public string ExpandIcon => IsLinkedFileWindowExpanded ? "▲" : "▼";
+
+        [DoNotNotify]
+        public LinkOption LinkOption => new LinkOption { Minified = MinifyScript, };
 
         public HashSet<string> LinkedFiles { get; set; }
 
@@ -173,6 +178,11 @@ namespace ScriptLinker.ViewModels
             CopyToClipboardCommand = new DelegateCommand(CopyToClipboard);
             CompileCommand = new DelegateCommand(() => Compile(false));
             CompileAndRunCommand = new DelegateCommand(() => Compile(true));
+            UpdateMinifyScriptCommand = new DelegateCommand(() =>
+            {
+                _settings.MinifyScript = MinifyScript;
+                _settingsAccess.SaveSettings(_settings);
+            });
             ViewReadMeCommand = new DelegateCommand(() => Process.Start(Constant.Readme));
             ExpandLinkedFilesWindowCommand = new DelegateCommand(ExpandLinkedFilesWindow);
             OpenFileCommand = new DelegateCommand<string>(FileUtil.OpenFile);
@@ -181,6 +191,7 @@ namespace ScriptLinker.ViewModels
         private void LoadSettings(Settings settings, bool firstTime = false)
         {
             GenerateExtensionScript = settings.GenerateExtensionScript;
+            MinifyScript = settings.MinifyScript;
             IsLinkedFileWindowExpanded = settings.IsLinkedFileWindowExpanded;
             if (firstTime) ScriptName = settings.LastOpenedScript;
 
@@ -299,7 +310,10 @@ namespace ScriptLinker.ViewModels
 
         private void Compile(bool runAfterCompiling)
         {
-            var result = _automationService.Compile(ProjectInfo, ScriptInfo, runAfterCompiling);
+            var result = runAfterCompiling ?
+                _automationService.CompileAndRun(ProjectInfo, ScriptInfo, LinkOption)
+                :
+                _automationService.Compile(ProjectInfo, ScriptInfo, LinkOption);
             var sourceCode = result.Content;
 
             if (result.Error == AutomationError.SfdNotOpen)
@@ -319,7 +333,7 @@ namespace ScriptLinker.ViewModels
 
         private void CopyToClipboard()
         {
-            var result = _automationService.CopyToClipboard(ProjectInfo, ScriptInfo);
+            var result = _automationService.CopyToClipboard(ProjectInfo, ScriptInfo, LinkOption);
             ReportResult(result);
         }
 

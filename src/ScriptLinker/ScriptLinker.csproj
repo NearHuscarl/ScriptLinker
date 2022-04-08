@@ -56,6 +56,9 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CSharpMinifier, Version=1.2.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CSharpMinifier.1.2.1\lib\netstandard2.0\CSharpMinifier.dll</HintPath>
+    </Reference>
     <Reference Include="FontAwesome.WPF, Version=4.7.0.37774, Culture=neutral, PublicKeyToken=0758b07a11a4f466, processorArchitecture=MSIL">
       <HintPath>..\packages\FontAwesome.WPF.4.7.0.9\lib\net40\FontAwesome.WPF.dll</HintPath>
     </Reference>
@@ -136,6 +139,7 @@
     <Compile Include="Events\SettingsChangedEvent.cs" />
     <Compile Include="Events\SettingsWindowClosedEvent.cs" />
     <Compile Include="Events\SettingsWindowOpenEvent.cs" />
+    <Compile Include="Models\LinkOption.cs" />
     <Compile Include="Services\ApplicationService.cs" />
     <Compile Include="Behaviors\Margin.cs" />
     <Compile Include="Behaviors\ScrollViewerBehavior.cs" />

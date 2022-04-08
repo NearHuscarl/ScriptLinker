@@ -1,4 +1,5 @@
-﻿using ScriptLinker.Models;
+﻿using CSharpMinifier;
+using ScriptLinker.Models;
 using ScriptLinker.Utilities;
 using System;
 using System.Collections.Generic;
@@ -42,7 +43,7 @@ namespace ScriptLinker.DataLogic
             return sb.ToString();
         }
 
-        public LinkResult Link(ProjectInfo projectInfo, ScriptInfo scriptInfo)
+        public LinkResult Link(ProjectInfo projectInfo, ScriptInfo scriptInfo, LinkOption option)
         {
             if (!File.Exists(projectInfo.EntryPoint)) return new LinkResult();
 
@@ -100,12 +101,19 @@ namespace ScriptLinker.DataLogic
             }
 
             sb.AppendLine();
+
+            var source = sb.ToString();
             return new LinkResult()
             {
-                Content = sb.ToString(),
+                Content = option.Minified ? Minify(source) : source,
                 LinkedFiles = linkedFiles,
                 Elapsed = stopwatch.ElapsedMilliseconds,
             };
+        }
+
+        private static string Minify(string source)
+        {
+            return string.Join(null, Minifier.Minify(source));
         }
 
         private void ReadSharpLine(string line, int codeBlock, ref CSharpFileInfo csFileInfo)
