@@ -51,11 +51,8 @@ namespace ScriptLinker.DataLogic
             var linkedFiles = new HashSet<string>();
             var usingNamespaces = new HashSet<string>();
             var newNamespaces = new List<string>();
-            var sb = new StringBuilder();
-
-            sb.Append(GetHeader(scriptInfo));
-
             var entryPointInfo = ReadEntryPointFile(projectInfo);
+            var sb = new StringBuilder();
 
             sb.AppendLine(entryPointInfo.Content);
             linkedFiles.Add(projectInfo.EntryPoint);
@@ -105,7 +102,7 @@ namespace ScriptLinker.DataLogic
             var source = sb.ToString();
             return new LinkResult()
             {
-                Content = option.Minified ? Minify(source) : source,
+                Content = GetHeader(scriptInfo) + (option.Minified ? Minify(source) : source),
                 LinkedFiles = linkedFiles,
                 Elapsed = stopwatch.ElapsedMilliseconds,
             };
