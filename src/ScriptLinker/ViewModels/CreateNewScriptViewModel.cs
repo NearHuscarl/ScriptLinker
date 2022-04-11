@@ -34,6 +34,7 @@ namespace ScriptLinker.ViewModels
 
             FormViewModel = new ScriptInfoViewModel(eventAggregator, AddScriptInfoAction);
             FormViewModel.Mode = ChangeMode.Add;
+            InitTemplate = _settings.InitTemplateOnCreated;
 
             Close = closeAction;
             CloseCommand = new DelegateCommand(() => Close());
