@@ -22,15 +22,15 @@ https://user-images.githubusercontent.com/23303775/162793252-f7ba9685-7830-4404-
 
 - Create a new project in Visual Studio.
 
-<img src='./images/NewProject.png' width=500>
+<img src='./images/NewProject.PNG' width=500>
 
 - Rename the default `Class1.cs` file to `Main.cs` (or something more meaningful).
 
-<img src='./images/Class1.png'>
+<img src='./images/Class1.PNG'>
 
 - Open ScriptLinker. Select `Script` > `New`.
 
-<img src='./images/ScriptNew.png' width=500>
+<img src='./images/ScriptNew.PNG' width=500>
 
 - Fill in the script detail:
     - **Name**: *(Required)* Your script name. This field must be unique between scripts.
@@ -41,16 +41,18 @@ https://user-images.githubusercontent.com/23303775/162793252-f7ba9685-7830-4404-
     - **Map Modes**: versus, custom, survival or campaign. This is my bad, I should have made a combobox.
     - **Init game script template**: Initialize the Entry Point file with a starting template. The template can be modified in `ScriptTemplate.txt` 
 
-<img src='./images/New.png' width=500>
+<img src='./images/New.PNG' width=500>
 
 - In your IDE, the `Main.cs` file now should look like this:
 
-<img src='./images/TemplateInit.png' width=700>
+<img src='./images/TemplateInit.PNG' width=700>
 
 - To fix the error, add the `SFD.GameScriptInterface` assembly. Right click `Dependencies` > `Add Project Preference...` > `Browse`
 
-<img src='./images/AddProjectPreference.png' width=300>
-<img src='./images/BrowseAssembly.png' width=300>
+<div>
+    <img src='./images/AddProjectPreference.PNG' width=300>
+    <img src='./images/BrowseAssembly.PNG' width=300>
+</div>
 
 - Find and select the `SFD.GameScriptInterface.dll` file. It's in where the game is installed > Click `OK` to confirm.
 
